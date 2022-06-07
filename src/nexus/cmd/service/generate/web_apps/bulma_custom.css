@@ -1,0 +1,78 @@
+.top_bar {
+    background-color: #000000;
+    color: #f0f0f0;
+    text-align: center
+}
+
+
+a.top_bar:link { color: #e0e0e0; }
+a.top_bar:visited { color: #e0e0e0; }
+a.top_bar:hover { color: #ffffff; }
+
+
+.title {
+    /* color: #ffffff; */
+}
+
+
+.title_div {
+    /* background-color: #404040;
+    ** box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.18); */
+    padding-left: 1em;
+}
+
+
+.form_div {
+    background-color: #ffffff;
+    /* box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.18); */
+    padding: 1em;
+}
+
+
+.whole_form {
+    border-left: 1px solid #aaaaaa;
+}
+
+
+a.calendar_day_block:link { color: #808080; }
+a.calendar_day_block:visited { color: #808080; }
+a.calendar_day_block:hover { color: #808080; }
+
+
+a.calendar_day_block_this_month:link { color: #000000; }
+a.calendar_day_block_this_month:visited { color: #000000; }
+a.calendar_day_block_this_month:hover { color: #000000; }
+
+
+a.calendar_day_block_today:link, a.calendar_day_block_today:visited, a.calendar_day_block_today:hover {
+    padding: 4px;
+    background-color: #000080;
+    color: #ffffff;
+    font-weight: bold;
+}
+
+
+a.calendar_day_block_selected:link, a.calendar_day_block_selected:visited, a.calendar_day_block_selected:hover {
+    padding: 4px;
+    border: 1px solid #000080;
+    font-weight: bold;
+}
+
+
+a.calendar_day_block {
+    display: block;
+    width: 100%;
+}
+
+
+a.calendar_day_block_this_month {
+    display: block;
+    width: 100%;
+}
+
+
+table.calendar_block {
+    margin-left: 1em;
+    /* margin: 0 auto; */
+}
+

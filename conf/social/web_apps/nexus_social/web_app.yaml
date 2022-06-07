@@ -1,0 +1,10 @@
+%YAML 1.2
+---
+
+shortName: Social
+package: nexus
+description: The social module of Nexus.
+basePath: $NEXUS_SOCIAL_BASE_PATH
+srcPath: $NEXUS_SOCIAL_SRC_PATH
+mediaList: []
+

@@ -1,0 +1,9 @@
+%YAML 1.2
+---
+
+shortName: CRM
+package: nexus
+description: The CRM module of Nexus.
+basePath: $NEXUS_BASE_PATH
+srcPath: $NEXUS_CRM_SRC_PATH
+

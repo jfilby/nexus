@@ -1,0 +1,156 @@
+%YAML 1.2
+---
+
+- name: List Item
+  description: Hierarchical lists.
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: List Item Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Parent List Item Id
+    type: int64
+    constraints: []
+  - name: Seq No
+    type: int
+    constraints: [ not null ]
+  - name: Name
+    type: string
+    constraints: [ not null ]
+  - name: Display Name
+    type: string
+    constraints: [ not null ]
+  - name: Description
+    type: string
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ List Item Id ]
+  uniqueFieldSets:
+  - fields: [ Name ]
+  relationships:
+  - type: many to 1
+    from: Parent List Item Id
+    to: List Item.List Item Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Menu Item
+  description: >
+    Hierarchical menus.
+    Role Ids are from List Item (Id).
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Menu Item Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Parent Menu Item Id
+    type: int64
+    constraints: []
+  - name: Name
+    type: string
+    constraints: [ not null ]
+  - name: URL
+    type: string
+    constraints: [ not null ]
+  - name: Screen
+    type: string
+    constraints: [ not null ]
+  - name: Level
+    type: int
+    constraints: [ not null ]
+  - name: Position
+    type: int
+    constraints: [ not null ]
+  - name: Role Ids
+    type: int64[]
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ Menu Item Id ]
+  uniqueFieldSets:
+  - fields: [ Name, URL, Screen ]
+  relationships:
+  - type: many to 1
+    from: Parent Menu Item Id
+    to: Menu Item.Menu Item Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Temp Form Data
+  description: >
+    Temporary form data.
+    Each form has a token to track its own data.
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate,
+                  temporary ]
+  fields:
+  - name: Token
+    type: string
+    constraints: [ not null ]
+  - name: Format
+    type: string
+    constraints: [ not null ]
+  - name: Data
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ Token ]
+  uniqueFieldSets: []
+  relationships: []
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Temp Queue Data
+  description: >
+    Temporary queue data.
+    When a record has been processed its fulfilled date/time is set.
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate,
+                  temporary ]
+  fields:
+  - name: Temp Queue Data Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Format
+    type: string
+    constraints: [ not null ]
+  - name: Data In
+    type: string
+    constraints: [ not null ]
+  - name: Data Out
+    type: string
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Fulfilled
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: []
+  uniqueFieldSets: []
+  relationships: []
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+

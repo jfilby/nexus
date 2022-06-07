@@ -1,0 +1,31 @@
+
+
+
+  # Invite send
+  get "/invite/send":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp inviteSendPage(request,
+                        web_context,
+                        db)
+
+
+  post "/invite/send":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp inviteSendPagePost(request,
+                            web_context,
+                            db)
+
+
+  get "/invite/send/success":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp inviteSuccessPage(request,
+                           web_context,
+                           to_name = @"to_name",
+                           to_email = @"to_email")
+

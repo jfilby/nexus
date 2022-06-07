@@ -1,0 +1,241 @@
+%YAML 1.2
+---
+
+- name: Account User
+  description: All user accounts.
+  module: Core
+  modelOptions: [ cacheable,
+                  include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Account User Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account Id
+    type: int64
+    constraints: []
+  - name: Name
+    type: string
+    constraints: [ not null ]
+  - name: Email
+    type: string
+    constraints: [ not null ]
+  - name: Password Hash
+    type: string
+    constraints: [ not null ]
+  - name: Password Salt
+    type: string
+    constraints: [ not null ]
+  - name: API Key
+    type: string
+    constraints: [ not null ]
+  - name: Last Token
+    type: string
+    constraints: []
+  - name: Sign up Code
+    type: string
+    constraints: [ not null ]
+  - name: Sign up Date
+    type: datetime
+    constraints: [ not null ]
+  - name: Password Reset Code
+    type: string
+    constraints: []
+  - name: Password Reset Date
+    type: datetime
+    constraints: []
+  - name: Is Active
+    type: bool
+    constraints: [ not null ]
+  - name: Is Admin
+    type: bool
+    constraints: [ not null ]
+  - name: Is Verified
+    type: bool
+    constraints: [ not null ]
+  - name: Subscription Status
+    type: char
+    constraints: []
+  - name: Last Login
+    type: datetime
+    constraints: []
+  - name: Last Update
+    type: datetime
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null, value = now() ]
+  defaults: []
+  pkFields: [ Account User Id ]
+  uniqueFieldSets:
+    - fields: [ Email ]
+    - fields: [ API Key ]
+    - fields: [ Last Token ]
+  relationships: []
+  indexes:
+  - unique: true
+    fields: [ Email ]
+  - unique: true
+    fields: [ API Key ]
+  - unique: true
+    fields: [ Last Token ]
+  getFunctions:
+    - name: by fields
+      selectFields: [ API Key ]
+      whereFields: [ primary key ]
+  updateFunctions:
+    - name: by fields
+      setFields: [ Last Login ]
+      whereFields: [ primary key ]
+
+
+- name: Account User Role
+  description: All user account roles.
+  module: Core
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Account User Role Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Role Id
+    type: int64
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null, value = now() ]
+  defaults: []
+  pkFields: [ Account User Role Id ]
+  uniqueFieldSets:
+  - fields: [ Account User Id, Role Id ]
+  relationships:
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Account User Token
+  description: >
+    All user account tokens that need to be tracked.
+    E.g. logins from website to be reused in a Flutter app, or for deleted
+    tokens.
+  module: Core
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Unique Hash
+    type: string
+    constraints: [ not null ]
+  - name: Token
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Deleted
+    type: datetime
+    constraints: []
+  defaults: []
+  pkFields: [ Account User Id ]
+  uniqueFieldSets:
+  - fields: [ Unique Hash ]
+  - fields: [ Token ]
+  relationships: []
+  indexes:
+  - unique: true
+    fields: [ Unique Hash ]
+  - unique: true
+    fields: [ Token ]
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Invite
+  description: Invites to the system.
+  module: Core
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Invite Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: From Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: From Email
+    type: string
+    constraints: [ not null ]
+  - name: From Name
+    type: string
+    constraints: [ not null ]
+  - name: To Email
+    type: string
+    constraints: [ not null ]
+  - name: To Name
+    type: string
+    constraints: [ not null ]
+  - name: Sent
+    type: datetime
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null, value = now() ]
+  defaults: []
+  pkFields: [ Invite Id ]
+  uniqueFieldSets:
+  - fields: [ To Email ]
+  relationships:
+  - type: many to 1
+    from: From Account User Id
+    to: Account User.Account User Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Nexus Setting
+  description: Settings for Nexus modules.
+  module: Core
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Nexus Setting Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Module
+    type: string
+    constraints: [ not null ]
+  - name: Key
+    type: string
+    constraints: [ not null ]
+  - name: Value
+    type: string
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null, value = now() ]
+  defaults: []
+  pkFields: [ Nexus Setting Id ]
+  uniqueFieldSets:
+  - fields: [ Module, Key ]
+  relationships: []
+  indexes:
+  - unique: false
+    fields: [ Key ]
+  getFunctions: []
+  updateFunctions: []
+

@@ -1,0 +1,139 @@
+%YAML 1.2
+---
+
+- name: SM Post
+  description: >
+    Social Media Post.
+    Tag Ids reference List Item Ids.
+    Post Types: (B)log N(ews)
+  module: Social
+  modelOptions: [ cacheable,
+                  include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: SM Post Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: SM Post Parent Id
+    type: int64
+    constraints: []
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Unique Hash
+    type: string
+    constraints: [ not null ]
+  - name: Post Type
+    type: char
+    constraints: [ not null ]
+  - name: Status
+    type: char
+    constraints: [ not null ]
+  - name: Title
+    type: string
+    constraints: []
+  - name: Body
+    type: string
+    constraints: [ not null ]
+  - name: Tag Ids
+    type: int64
+    constraints: []
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Published
+    type: datetime
+    constraints: []
+  - name: Update Count
+    type: int
+    constraints: [ not null ]
+  - name: Updated
+    type: datetime
+    constraints: []
+  - name: Deleted
+    type: datetime
+    constraints: []
+  defaults:
+  - field: Status
+    default: A
+  - field: Is Published
+    default: N
+  - field: Created
+    default: now
+  - field: Update Count
+    default: 0
+  pkFields: [ SM Post Id ]
+  uniqueFieldSets:
+  - fields: [ Unique Hash ]
+  relationships:
+  - type: Hierarchy
+    from: SM Post Id
+    to: SM Post.SM Post Parent Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: SM Post Vote
+  description: Social Media Post Votes
+  module: Social
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: SM Post Id
+    type: int64
+    constraints: [ not null ]
+  - name: Votes Up Count
+    type: int
+    constraints: [ not null ]
+  - name: Votes Down Count
+    type: int
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ SM Post Id ]
+  uniqueFieldSets: []
+  relationships:
+  - type: 1 to 1
+    from: SM Post Id
+    to: SM Post.SM Post Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: SM Post Vote User
+  description: Social Media Post Votes by User
+  module: Social
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: SM Post Id
+    type: int64
+    constraints: [ not null ]
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Vote Up
+    type: bool
+    constraints: [ not null ]
+  - name: Vote Down
+    type: bool
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ SM Post Id,
+              Account User Id ]
+  uniqueFieldSets: []
+  relationships:
+  - type: many to 1
+    from: SM Post Id
+    to: SM Post.SM Post Id
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+

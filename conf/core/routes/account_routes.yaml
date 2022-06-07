@@ -1,0 +1,200 @@
+
+
+
+  # Demo login
+  get "/demo/login":
+    let web_context = newWebContext(request,
+                                    db)
+
+    # Render page
+    resp demoLogin(web_context)
+
+
+  # Login
+  get "/account/login":
+    let web_context = newWebContext(request,
+                                    db)
+
+    # Set cookie (useful to store detected mobile setting)
+    if web_context.token != "":
+      setCookie("token",
+                web_context.token,
+                daysForward(5),
+                path = "/")
+
+    # Render page
+    resp loginPage(web_context)
+
+
+  post "/account/login":
+    let web_context = newWebContext(request,
+                                    db)
+
+    postLoginAction(request,
+                    web_context,
+                    db)
+
+
+  # Logout
+  get "/account/logout":
+    #let db = getDbConn()
+
+    getLogoutAction(request,
+                    db,
+                    redirect = @"redirect")
+
+
+  # Profile
+  get "/account/profile":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp profilePage(request,
+                     web_context,
+                     db,
+                     api_key = false)
+
+
+  post "/account/profile":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp profilePagePost(request,
+                         web_context,
+                         db)
+
+
+  get "/account/profile/success":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp profileSuccessPage(request,
+                            web_context,
+                            email_changed = @"email_changed",
+                            personal_details_changed = @"personal_details_changed",
+                            password_changed = @"password_changed")
+
+
+  # Reset password
+  get "/account/reset-password":
+    let web_context = newWebContext(request,
+                                    db)
+
+    # Set cookie (useful to store detected mobile setting)
+    if web_context.token != "":
+      setCookie("token",
+                web_context.token,
+                daysForward(5),
+                path = "/")
+
+    # Render page
+    resp resetPasswordPage(web_context)
+
+
+  post "/account/reset-password":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp resetPasswordPagePost(request,
+                               web_context,
+                               db)
+
+
+  get "/account/reset-password/verify":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp resetPasswordVerifyPage(request,
+                                 web_context,
+                                 db,
+                                 email = @"email",
+                                 password = @"password")
+
+
+  post "/account/reset-password/verify":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp resetPasswordVerifyPagePost(request,
+                                     web_context,
+                                     db)
+
+
+  get "/account/reset-password/success":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp resetPasswordSuccessPage(request,
+                                  web_context,
+                                  db,
+                                  email = @"email")
+
+
+  # Sign up
+  get "/account/sign-up":
+    let web_context = newWebContext(request,
+                                    db)
+
+    # Set cookie (useful to store detected mobile setting)
+    if web_context.token != "":
+      setCookie("token",
+                web_context.token,
+                daysForward(5),
+                path = "/")
+
+    # Render page
+    resp signUpPage(web_context)
+
+
+  post "/account/sign-up":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpPagePost(request,
+                        web_context,
+                        db)
+
+
+  get "/account/sign-up/resend_code":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpResendSignUpCodePage(web_context,
+                                    email = @"email")
+
+
+  post "/account/sign-up/resend_code":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpResendSignUpCodePagePost(request,
+                                        web_context,
+                                        db)
+
+
+  get "/account/sign-up/verify":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpVerifyPage(web_context,
+                          email = @"email")
+
+
+  post "/account/sign-up/verify":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpVerifyPagePost(request,
+                              web_context,
+                              db)
+
+
+  get "/account/sign-up/success":
+    let web_context = newWebContext(request,
+                                    db)
+
+    resp signUpSuccessPage(request,
+                           web_context,
+                           db,
+                           email = @"email")
+

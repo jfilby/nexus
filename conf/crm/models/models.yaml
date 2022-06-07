@@ -1,0 +1,198 @@
+%YAML 1.2
+---
+
+- name: Mailing List
+  description: A Mailing list.
+  module: CRM
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Mailing List Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Unique Hash
+    type: string
+    constraints: [ not null ]
+  - name: Name
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Deleted
+    type: datetime
+    constraints: []
+  defaults: []
+  pkFields: [ Mailing List Id ]
+  uniqueFieldSets:
+  - fields: [ Unique Hash ]
+  - fields: [ Account User Id,
+              Name ]
+  relationships:
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes:
+  - unique: true
+    fields: [ Unique Hash ]
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Mailing List Message
+  description: Message to be sent to a mailing list(s).
+  module: CRM
+  modelOptions: [ include strings only type,
+                  object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Mailing List Message Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account User Id
+    type: int64
+    constraints: [ not null ]
+  - name: Unique Hash
+    type: string
+    constraints: [ not null ]
+  - name: Subject
+    type: string
+    constraints: [ not null ]
+  - name: Message
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Updated
+    type: datetime
+    constraints: []
+  - name: Deleted
+    type: datetime
+    constraints: []
+  defaults: []
+  pkFields: [ Mailing List Message Id ]
+  uniqueFieldSets:
+  - fields: [ Unique Hash ]
+  relationships:
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes:
+  - unique: true
+    fields: [ Unique Hash ]
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Mailing List Subscriber
+  description: Mailing list subscriber.
+  module: CRM
+  modelOptions: [ include strings only type,
+                   object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Mailing List Subscriber Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account User Id
+    type: int64
+    constraints: []
+  - name: Mailing List Id
+    type: int64
+    constraints: [ not null ]
+  - name: Unique Hash
+    type: string
+    constraints: [ not null ]
+  - name: Is Active
+    type: bool
+    constraints: [ not null ]
+  - name: Email
+    type: string
+    constraints: [ not null ]
+  - name: Name
+    type: string
+    constraints: []
+  - name: Verification Code
+    type: string
+    constraints: []
+  - name: Is Verified
+    type: bool
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Deleted
+    type: datetime
+    constraints: []
+  defaults: []
+  pkFields: [ Mailing List Subscriber Id ]
+  uniqueFieldSets:
+  - fields: [ Unique Hash ]
+  - fields: [ Mailing List Id,
+              Account User Id ]
+  - fields: [ Mailing List Id,
+              Email ]
+  relationships:
+  - type: many to 1
+    from: Mailing List Id
+    to: Mailing List.Mailing List Id
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes:
+  - unique: true
+    fields: [ Account User Id ]
+  - unique: true
+    fields: [ Email ]
+  - unique: true
+    fields: [ Unique Hash ]
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Mailing List Subscriber Message
+  description: Messages sent to mailing list subscribers.
+  module: CRM
+  modelOptions: [ include strings only type,
+                   object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Mailing List Subscriber Message Id
+    type: int64
+    constraints: [ auto-value, not null ]
+  - name: Account User Id
+    type: int64
+    constraints: []
+  - name: Mailing List Id
+    type: int64
+    constraints: [ not null ]
+  - name: Mailing List Subscriber Id
+    type: int64
+    constraints: [ not null ]
+  - name: Mailing List Message Id
+    type: int64
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: [ Mailing List Subscriber Message Id ]
+  uniqueFieldSets:
+  - fields: [ Mailing List Subscriber Id,
+              Mailing List Message Id ]
+  relationships:
+  - type: many to 1
+    from: Mailing List Id
+    to: Mailing List.Mailing List Id
+  - type: many to 1
+    from: Account User Id
+    to: Account User.Account User Id
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+

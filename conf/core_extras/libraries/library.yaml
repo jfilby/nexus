@@ -1,0 +1,9 @@
+%YAML 1.2
+---
+
+shortName: Core Extras
+package: nexus
+description: The Core Extras web module of Nexus.
+basePath: $NEXUS_BASE_PATH
+srcPath: $NEXUS_CORE_EXTRAS_SRC_PATH
+
