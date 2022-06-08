@@ -47,8 +47,8 @@ proc runMain() =
     echo ""
     echo "Run: nexus gen <artifact>" # [base-path refresh]"
     echo ""
-    echo "The artifact to generate: web-app | console-app | library | " &
-         "models | web-routes"
+    echo "The artifact to generate: web-app | web-service | console-app | " &
+         "library | models | web-routes"
 
     quit(QuitFailure)
 

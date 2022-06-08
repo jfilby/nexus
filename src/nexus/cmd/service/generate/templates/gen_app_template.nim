@@ -2,16 +2,18 @@ import chronicles, os, strformat, strutils
 import nexus/core/service/format/filename_utils
 import nexus/core/service/format/name_utils
 import nexus/core/service/format/tokenize
-import nexus/cmd/service/generate/config_files/gen_nexus_conf
-import nexus/cmd/service/generate/config_files/write_file
+import nexus/cmd/service/generate/main_config/gen_nexus_conf
+import nexus/cmd/service/generate/main_config/write_file
 import nexus/cmd/types/types
+import console_app
 import gen_env_scripts
+import web_artifact
 
 
 # Forward declarations
-proc basicAppTemplate(appTemplate: AppTemplate)
-proc generateConsoleAppTemplate(appTemplate: AppTemplate)
-proc generateWebAppTemplate(appTemplate: var AppTemplate)
+proc basicAppTemplate(
+       appTemplate: AppTemplate,
+       generatorInfo: GeneratorInfo)
 proc notifyOfGenerateAppTemplate(appTemplate: AppTemplate)
 proc promptForInfo(appTemplate: var AppTemplate)
 proc validateAndTransformName*(name: var string): bool
@@ -21,13 +23,12 @@ proc verifyAppNamePathDoesntExist(appTemplate: AppTemplate)
 # Code
 proc generateAppTemplate*(
        artifact: string,
-       generatorInfo: GeneratorInfo) =
+       generatorInfo: var GeneratorInfo) =
 
   var appTemplate =
         AppTemplate(
+          artifact: artifact,
           docUi: false)
-
-  appTemplate.artifact = artifact
 
   if DirSep == '/':
     appTemplate.isUnix = true
@@ -45,8 +46,13 @@ proc generateAppTemplate*(
   # Prompt for app info
   promptForInfo(appTemplate)
 
+  # Populate some initial fields for GeneratorInfo
+  generatorInfo.package = appTemplate.appNameSnakeCase
+
   # Setup for all types of basic
-  basicAppTemplate(appTemplate)
+  basicAppTemplate(
+    appTemplate,
+    generatorInfo)
 
   # Generate env scripts
   genEnvScripts(appTemplate)
@@ -56,16 +62,24 @@ proc generateAppTemplate*(
     generateConsoleAppTemplate(appTemplate)
 
   # Web app specific
-  elif artifact == "web-app":
-    generateWebAppTemplate(appTemplate)
+  elif artifact == "web-app" or
+       artifact == "web-service":
+
+    generateWebArtifactTemplate(
+      appTemplate,
+      generatorInfo)
 
 
-proc basicAppTemplate(appTemplate: AppTemplate) =
+proc basicAppTemplate(
+       appTemplate: AppTemplate,
+       generatorInfo: GeneratorInfo) =
 
   debug "basicAppTemplate"
 
   # Write the conf/nexus.yaml file
-  generateMainConfigFile(appTemplate)
+  generateMainConfigFile(
+    appTemplate,
+    generatorInfo)
 
   # Create initial conf directories and files
   var
@@ -113,109 +127,6 @@ proc basicAppTemplate(appTemplate: AppTemplate) =
 
   echo ".. creating service path: " & servicePath
   createDir(servicePath)
-
-
-proc generateConsoleAppTemplate(appTemplate: AppTemplate) =
-
-  debug "generateConsoleAppTemplate"
-
-  var
-    programs = &"{appTemplate.modulePath}{DirSep}programs"
-    consoleNim = &"{programs}{DirSep}{appTemplate.moduleNameSnakeCase}.nim"
-
-  discard parseFilenameExpandEnvVars(programs)
-  discard parseFilenameExpandEnvVars(consoleNim)
-
-  echo ".. creating programs path: " & programs
-  createDir(programs)
-
-  # Check if consoleNim file already exists, prompt for overwrite
-  promptToOverwriteFile(
-     "A console program file already exists:\n" &
-    &"{consoleNim}\n" &
-     "Would you like to overwrite this file?",
-    consoleNim,
-     "# Write your console app here then:\n" &
-    &"# 1. Compile with:\n" &
-    &"#    {appTemplate.compileScript} {appTemplate.moduleNameSnakeCase}\n" &
-    &"# 2. Run with\n" &
-    &"#    bin{DirSep}{appTemplate.moduleNameSnakeCase}\n")
-
-  debug "generateConsoleAppTemplate: done"
-
-
-proc generateWebAppTemplate(appTemplate: var AppTemplate) =
-
-  debug "generateWebAppTemplate"
-
-  # Get paths
-  var
-    webApp = &"{appTemplate.modulePath}{DirSep}view{DirSep}web_app"
-    webAppNim = &"{webApp}{DirSep}{appTemplate.moduleNameSnakeCase}.nim"
-
-  discard parseFilenameExpandEnvVars(webApp)
-  discard parseFilenameExpandEnvVars(webAppNim)
-
-  appTemplate.confWebApp =
-    &"{appTemplate.moduleConfPath}{DirSep}web_apps{DirSep}" &
-    appTemplate.appNameSnakeCase
-
-  appTemplate.confWebAppYaml =
-    &"{appTemplate.confWebApp}{DirSep}web_app.yaml"
-
-  var
-    confWebApp = appTemplate.confWebApp
-    confWebAppYaml = appTemplate.confWebAppYaml
-
-  discard parseFilenameExpandEnvVars(confWebApp)
-  discard parseFilenameExpandEnvVars(confWebAppYaml)
-
-  # Web app conf YAML file
-  debug "generateWebAppTemplate: create web-app YAML file"
-
-  echo ".. creating conf path for web-app: " & confWebApp
-  createDir(confWebApp)
-
-  # Check if appTemplate.confWebAppYaml file already exists, prompt for
-  # overwrite
-  promptToOverwriteFile(
-     "A web_app.yaml file already exists:\n" &
-    &"{appTemplate.confWebAppYaml}\n" &
-     "Would you like to overwrite this file?",
-    confWebAppYaml,
-     "%YAML 1.2\n" &
-     "---\n" &
-     "\n" &
-    &"shortName: {appTemplate.appName} Web App\n" &
-     # &"package: {appTemplate.appNameLowerSnakeCase}\n" &
-    &"description: Web application.\n" &
-    &"basePath: ${appTemplate.basePathEnvVar}\n" &
-    &"srcPath: ${appTemplate.nimSrcPathEnvVar}/" &
-      &"{appTemplate.moduleNameSnakeCase}\n" &
-     "mediaList: []\n" &
-     "\n")
-
-  # Source directory and web app Nim source
-  debug "generateWebAppTemplate: create web-app Nim file"
-
-  echo ".. creating src path for web-app: " & webApp
-  createDir(webApp)
-
-  # Check if webAppNim file already exists, prompt for overwrite
-  promptToOverwriteFile(
-     "A routes source file already exists:\n" &
-    &"{webAppNim}\n" &
-     "Would you like to overwrite this file?",
-    webAppNim,
-     "# Generate this web routes file:\n" &
-    &"# 1. Define {appTemplate.confWebAppYaml}\n" &
-     "# 2. Generate web-routes with:\n" &
-    &"#    gen_nexus web-routes\n" &
-     "# \n" &
-     "# 3. Then run with:\n" &
-    &"#    bin{DirSep}{appTemplate.moduleNameSnakeCase}\n")
-
-  debug "generateWebAppTemplate: done"
 
 
 proc getDefaultModuleName(appTemplate: var AppTemplate) =
@@ -266,7 +177,7 @@ proc promptForInfo(appTemplate: var AppTemplate) =
   # Ensure appName-based path doesn't already exist
   verifyAppNamePathDoesntExist(appTemplate)
 
-  # Determine default module name
+  # Formulate default module name
   getDefaultModuleName(appTemplate)
 
   # Prompt for initial module name
@@ -307,7 +218,7 @@ proc promptForInfo(appTemplate: var AppTemplate) =
   appTemplate.appNameLowerSnakeCase =
     toLowerAscii(appTemplate.appnameSnakeCase)
 
-  # moduleName processing
+  # moduleName formulations
   appTemplate.moduleNameSnakeCase =
     getSnakeCaseName(appTemplate.moduleName)
 
@@ -317,7 +228,7 @@ proc promptForInfo(appTemplate: var AppTemplate) =
   appTemplate.moduleNameLowerSnakeCase =
     toLowerAscii(appTemplate.modulenameSnakeCase)
 
-  # Path processing
+  # Path formulations
   appTemplate.basePath =
     &"{appTemplate.cwd}{DirSep}{appTemplate.appNameSnakeCase}"
 
@@ -335,10 +246,11 @@ proc promptForInfo(appTemplate: var AppTemplate) =
 
   # The expanded path must be used right now because the environment var isn't
   # set yet (the env file itself must still be created)
-  let nimPathExpanded = &"{appTemplate.basePath}{DirSep}nim{DirSep}src"
+  appTemplate.nimPathExpanded = &"{appTemplate.basePath}{DirSep}nim{DirSep}src"
 
   appTemplate.modulePath =
-    &"{nimPathExpanded}{DirSep}{appTemplate.moduleNameLowerSnakeCase}"
+    &"{appTemplate.nimPathExpanded}{DirSep}" &
+    &"{appTemplate.moduleNameLowerSnakeCase}"
 
   # Initial DB settings template
   appTemplate.dbServer = "localhost"

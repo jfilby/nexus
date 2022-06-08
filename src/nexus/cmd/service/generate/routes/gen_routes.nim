@@ -1,5 +1,4 @@
 import chronicles, strformat, strutils
-import nexus/core/service/format/name_utils
 import nexus/core/service/format/type_utils
 import nexus/cmd/types/types
 
@@ -13,49 +12,49 @@ proc responseCall(
        `method`: string,
        procName: string,
        route: Route,
-       webApp: WebApp)
+       webArtifact: WebArtifact)
 
 
 # Code
 proc appendLoginPostPageRouteTemplate(str: var string) =
 
-  str &= &"  # Login\n" &
-         &"  get \"/account/login\":\n" &
-         &"    let webContext = newWebContext(request,\n" &
-         &"                                   nexusCoreModule)\n" &
+  str &= "  # Login\n" &
+         "  get \"/account/login\":\n" &
+         "    let webContext = newWebContext(request,\n" &
+         "                                   nexusCoreModule)\n" &
          "\n" &
-         &"    # Set cookie (useful to store detected mobile setting)\n" &
-         &"    if webContext.token != \"\":\n" &
-         &"      setCookie(\"token\",\n" &
-         &"                webContext.token,\n" &
-         &"                daysForward(5),\n" &
-         &"                path = \"/\")\n" &
+         "    # Set cookie (useful to store detected mobile setting)\n" &
+         "    if webContext.token != \"\":\n" &
+         "      setCookie(\"token\",\n" &
+         "                webContext.token,\n" &
+         "                daysForward(5),\n" &
+         "                path = \"/\")\n" &
          "\n" &
-         &"    # Render page\n" &
-         &"    resp loginPage(webContext)\n" &
+         "    # Render page\n" &
+         "    resp loginPage(webContext)\n" &
          "\n" &
          "\n" &
-         &"  post \"/account/login\":\n" &
-         &"    let webContext = newWebContext(request,\n" &
-         &"                                   nexusCoreModule)\n" &
+         "  post \"/account/login\":\n" &
+         "    let webContext = newWebContext(request,\n" &
+         "                                   nexusCoreModule)\n" &
          "\n" &
-         &"    postLoginAction(request,\n" &
-         &"                    webContext)\n" &
+         "    postLoginAction(request,\n" &
+         "                    webContext)\n" &
          "\n" &
-         &"\n"
+         "\n"
 
 
 proc generateRoute(
        str: var string,
        route: Route,
-       webApp: WebApp) =
+       webArtifact: WebArtifact) =
 
   debug "generateRoute(): route:",
     methods = route.methods,
     url = route.url
 
-  const optionRoutes = @[ "/account/login",
-                          "/account/sign-up" ]
+  # const optionRoutes = @[ "/account/login",
+  #                         "/account/sign-up" ]
 
   # Generate option methods
   if route.options != "":
@@ -72,27 +71,30 @@ proc generateRoute(
     if `method` == "post":
       procName &= "Post"
 
+    procName &= "View"
+
     # Form URL
     debug "generateRoute()",
       lenRouteParamInfos = len(route.paramInfos)
 
     # Start route string
-    var webContext_assign = "let"
+    var webContextAssign = "let"
 
     if `method` == "post":
-      webContext_assign = "var"
+      webContextAssign = "var"
 
     str &= &"  {`method`} \"{route.route}\":\n" &
             "\n" &
            &"    {webContextAssign} webContext = newWebContext(request,\n" &
-            "                                      nexusCoreModule)\n" &
+            "                                   nexusCoreModule)\n" &
             "\n"
 
-    responseCall(str,
-                 `method`,
-                 procName,
-                 route,
-                 webApp)
+    responseCall(
+      str,
+      `method`,
+      procName,
+      route,
+      webArtifact)
 
 
 proc optionsRoute(
@@ -102,10 +104,10 @@ proc optionsRoute(
   if route.options == "Allow All":
 
     str &= &"  options \"{route.name}\":\n" &
-            "    resp(Http200, {{\"Allow\": \"GET, OPTIONS, POST\",\n" &
-            "                    \"Access-Control-Allow-Origin\": \"*\",\n" &
-            "                    \"Access-Control-Allow-Methods\": \"GET,HEAD,OPTIONS,POST,PUT\",\n" &
-            "                    \"Access-Control-Allow-Headers\": \"Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale\"}},\n" &
+            "    resp(Http200, {\"Allow\": \"GET, OPTIONS, POST\",\n" &
+            "                   \"Access-Control-Allow-Origin\": \"*\",\n" &
+            "                   \"Access-Control-Allow-Methods\": \"GET,HEAD,OPTIONS,POST,PUT\",\n" &
+            "                   \"Access-Control-Allow-Headers\": \"Origin,Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,locale\"},\n" &
             "         \"success\")\n" &
             "\n" &
             "\n"
@@ -121,7 +123,7 @@ proc responseCall(
        `method`: string,
        procName: string,
        route: Route,
-       webApp: WebApp) =
+       webArtifact: WebArtifact) =
 
   var procCallLine: string
 
@@ -130,7 +132,7 @@ proc responseCall(
     procCallLine = &"    {procName}(request,\n"
 
   # Resp calls (the default)
-  elif webApp.appOrService == WebTypes.webService:
+  elif webArtifact.artifact == WebServiceArtifact:
 
     str &= &"    resp Http200,\n" &
            &"         {{\"Access-Control-Allow-Origin\": \"*\"}},\n"
@@ -138,7 +140,7 @@ proc responseCall(
     procCallLine = &"         {procName}(request,\n"
 
 
-  elif webApp.appOrService == WebTypes.webApp:
+  elif webArtifact.artifact == WebAppArtifact:
     procCallLine = &"    resp {procName}(request,\n"
 
   let
@@ -157,11 +159,11 @@ proc responseCall(
 proc generateRouteMethods*(
        str: var string,
        route: Route,
-       webApp: WebApp) =
+       webArtifact: WebArtifact) =
 
   # Handle login routes with the built-in template
   if route.route == "/account/login" and
-     webApp.appOrService == WebTypes.webApp:
+     webArtifact.artifact == WebAppArtifact:
 
     appendLoginPostPageRouteTemplate(str)
 
@@ -169,5 +171,5 @@ proc generateRouteMethods*(
     # Get route
     generateRoute(str,
                   route,
-                  webApp)
+                  webArtifact)
 

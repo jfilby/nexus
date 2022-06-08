@@ -1,44 +1,57 @@
-import chronicles, strformat
+import chronicles, os, strformat
 import nexus/cmd/types/types
 
 
-proc generateModuleGlobalVarsFile*(webApp: WebApp) =
+proc generateModuleGlobalVarsFile*(webArtifact: WebArtifact) =
 
   debug "generateModuleGlobalVarsFile()",
-    webAppName = webApp.name,
-    lenWebAppModules = len(webApp.modules)
+    webAppName = webArtifact.name,
+    lenWebAppModules = len(webArtifact.modules)
 
   var str =
         "import nexus/core/service/common/globals\n" &
         "import model_types\n"
 
-  for module in webApp.modules:
+  for module in webArtifact.modules:
 
-    if module.shortName == webApp.shortName and
-       module.package == webApp.package:
+    if module.shortName == webArtifact.shortName and
+       module.package == webArtifact.package:
       continue
 
-    str &= &"import {module.snakeCaseName}/types/model_types as {module.snakeCaseName}_model_types\n"
+    str &= &"import {module.snakeCaseName}/types/model_types as " &
+           &"{module.snakeCaseName}_model_types\n"
 
   str &= "\n" &
          "\n" &
          "var\n"
 
-  # The web app (as a module itself)
-  str &= &"  {webApp.camelCaseName}Module* = {webApp.pascalCaseName}Module(db: db)\n"
+  # The web-app (as a module itself)
+  str &= &"  {webArtifact.camelCaseName}Module* = " &
+         &"{webArtifact.pascalCaseName}Module(db: db)\n"
 
-  # Per webApp module
-  for module in webApp.modules:
+  # Per web-app module
+  for module in webArtifact.modules:
 
-    if module.shortName == webApp.shortName and
-       module.package == webApp.package:
+    if module.shortName == webArtifact.shortName and
+       module.package == webArtifact.package:
       continue
 
-    str &= &"  {module.camelCaseName}Module* = {module.pascalCaseName}Module(db: db)\n"
+    str &= &"  {module.camelCaseName}Module* = "&
+           &"{module.pascalCaseName}Module(db: db)\n"
 
   str &= "\n"
 
-  writeFile(filename = &"{webApp.srcPath}/types/module_globals.nim",
+  # Formulate path and filename
+  let
+    path = &"{webArtifact.srcPath}{DirSep}types"
+    filename = &"{path}{DirSep}module_globals.nim"
+
+  # Create directory
+  if not dirExists(path):
+    createDir(path)
+
+  # Write module_globals.nim source file
+  writeFile(filename,
             str)
 
 

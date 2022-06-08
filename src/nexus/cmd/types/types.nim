@@ -1,6 +1,14 @@
 import options, sets, tables
 
 
+const
+  # Artifacts
+  ModelsArtifact* = "models"
+  WebAppArtifact* = "web-app"
+  WebServiceArtifact* = "web-service"
+  WebRoutesArtifact* = "web-routes"
+
+
 type
   PlatformVars* = object
     scriptFileExtension*: string
@@ -38,6 +46,7 @@ type
     moduleConfPath*: string
     srcPath*: string
     nimPath*: string
+    nimPathExpanded*: string
     modulePath*: string
     confWebApp*: string
     confWebAppYaml*: string
@@ -393,13 +402,9 @@ type
   MediaList* = seq[Media]
 
 
-  WebTypes* = enum
-    webApp,
-    webService
-
-
-  WebApp* = ref object of RootObj
-    appOrService*: WebTypes
+  WebArtifact* = ref object of RootObj
+    artifact*: string
+    pathName*: string
 
     shortName*: string
     package*: string
@@ -420,7 +425,7 @@ type
     modules*: Modules
 
 
-  WebApps* = seq[WebApp]
+  WebArtifacts* = seq[WebArtifact]
 
 
   WebAppYAML* = object
@@ -433,6 +438,17 @@ type
 
 
   WebAppsYAML* = seq[WebAppYAML]
+
+
+  WebServiceYAML* = object
+    shortName*: string
+    # package*: string
+    description*: string
+    basePath*: string
+    srcPath*: string
+
+
+  WebServicesYAML* = seq[WebServiceYAML]
 
 
   WorkflowYAML* = object
@@ -465,7 +481,7 @@ type
     package*: string
 
     libraries*: LibrariesYAML
-    webApps*: WebApps
+    webArtifacts*: WebArtifacts
     modules*: Modules
 
     packages*: Packages

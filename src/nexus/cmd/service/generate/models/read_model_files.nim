@@ -70,11 +70,11 @@ proc createBasicModuleFiles(
        modelFiles: seq[string],
        generatorInfo: GeneratorInfo) =
 
-  for webApp in generatorInfo.webApps:
+  for webArtifact in generatorInfo.webArtifacts:
 
     let module =
-          getModuleByWebApp(
-            webApp,
+          getModuleByWebArtifact(
+            webArtifact,
             generatorInfo)
 
     createBasicModuleFile(
@@ -126,10 +126,10 @@ proc processModel(
   # Add/append to modelTypesStr
   var
     modelTypesStr = ""
-    key_exists = false
+    keyExists = false
 
   if modelTypesTable.hasKey(model.module.name):
-    key_exists = true
+    keyExists = true
     modelTypesStr = modelTypesTable[model.module.name].str
 
   # Append model type definition to model types file
@@ -137,7 +137,7 @@ proc processModel(
                      model)
 
   # Set modelTypesStr in modelTypesTable
-  if key_exists == false:
+  if keyExists == false:
 
     modelTypesTable[model.module.name] = TypeInfo()
     modelTypesTable[model.module.name].path = &"{srcPath}{DirSep}types"

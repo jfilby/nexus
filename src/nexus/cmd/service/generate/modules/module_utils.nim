@@ -8,7 +8,7 @@ import nexus/cmd/types/types
 proc addModule(module: Module,
                generatorInfo: var GeneratorInfo,
                ignoreDuplicate: bool = false)
-proc enrichModuleNaming(module: var Module)
+proc enrichModuleNaming*(module: var Module)
 
 
 # Code
@@ -75,6 +75,8 @@ proc addModule(module: Module,
                          &"Module: {module.name} already exists")
 
   # Add module
+  debug "addModule(): adding module"
+
   generatorInfo.modules.add(module)
 
 
@@ -124,7 +126,7 @@ proc getPackageModules*(
     packageName = packageYaml.package
     packageConfPath = packageYaml.confPath
 
-  debug "getPackageAsModule()",
+  debug "getPackageModules()",
     packageName = packageName,
     packageConfPath = packageConfPath
 
@@ -193,15 +195,17 @@ proc getPackageModules*(
     generatorInfo.libraries.add(library)
 
     # Add to modules
+    debug "getPackageModules(): adding module"
+
     modules.add(module)
 
   return modules
 
 
 proc addModules*(modules: var Modules,
-                 modules_to_add: Modules) =
+                 modulesToAdd: Modules) =
 
-  for moduleToAdd in modules_to_add:
+  for moduleToAdd in modulesToAdd:
 
     var module_exists = false
 
@@ -211,11 +215,13 @@ proc addModules*(modules: var Modules,
         module_exists = true
 
     if module_exists == false:
+      debug "addModules(): adding module"
+
       modules.add(moduleToAdd)
 
 
-proc addWebAppAsModule*(
-       webApp: WebApp,
+proc addWebArtifactAsModule*(
+       webArtifact: WebArtifact,
        generatorInfo: var GeneratorInfo) =
 
   # Module
@@ -223,22 +229,22 @@ proc addWebAppAsModule*(
 
   # Naming
   module.package = generatorInfo.package
-  module.shortName = webApp.shortName
+  module.shortName = webArtifact.shortName
 
-  debug "addWebAppAsModule",
+  debug "addWebArtifactAsModule",
     modulePackage = module.package,
     moduleShortName = module.shortName
 
   enrichModuleNaming(module)
 
   # Additional paths
-  module.basePath = resolveCrossPlatformPath(webApp.basePath)
+  module.basePath = resolveCrossPlatformPath(webArtifact.basePath)
   module.confPath =
     resolveCrossPlatformPath(
-      &"{webApp.basePath}{DirSep}conf{DirSep}web_apps{DirSep}" &
-      &"{webApp.snakeCaseName}")
+      &"{webArtifact.basePath}{DirSep}conf{DirSep}web_apps{DirSep}" &
+      &"{webArtifact.snakeCaseName}")
 
-  module.srcPath = resolveCrossPlatformPath(webApp.srcPath)
+  module.srcPath = resolveCrossPlatformPath(webArtifact.srcPath)
   module.srcRelativePath = getRelativePath(module.srcPath)
 
   module.imported = false
@@ -296,42 +302,45 @@ proc getModulesByModels*(
        generatorInfo: GeneratorInfo): Modules =
 
   var
-    has_module = false
+    hasModule = false
     modules: Modules
 
   for model in models:
 
-    has_module = false
+    hasModule = false
 
     for module in modules:
       if module.name == model.module.name:
-        has_module = true
+        hasModule = true
         break
 
-    if has_module == false:
+    if hasModule == false:
+      debug "getModulesByModels(): adding module"
+
       modules.add(model.module)
 
   return modules
 
 
-proc getModuleByWebApp*(webApp: WebApp,
-                        generatorInfo: GeneratorInfo): Module =
+proc getModuleByWebArtifact*(
+       webArtifact: WebArtifact,
+       generatorInfo: GeneratorInfo): Module =
 
   for module in generatorInfo.modules:
 
-    if module.shortName == webApp.shortName and
-       module.package == webApp.package:
+    if module.shortName == webArtifact.shortName and
+       module.package == webArtifact.package:
       return module
 
   raise newException(
           ValueError,
           &"Module not found by " &
-          &"webApp.shortName: {webApp.shortName} and " &
-          &"webApp.package: {webApp.package}")
+          &"webArtifact.shortName: {webArtifact.shortName} and " &
+          &"webArtifact.package: {webArtifact.package}")
 
 
 proc getModules*(models: Models,
-                 webApp: WebApp,
+                 webArtifact: WebArtifact,
                  generatorInfo: GeneratorInfo): Modules =
 
   var modules =
@@ -340,20 +349,22 @@ proc getModules*(models: Models,
           generatorInfo)
 
   let webAppModule =
-        getModuleByWebApp(
-          webApp,
+        getModuleByWebArtifact(
+          webArtifact,
           generatorInfo)
 
-  var webAppModuleFound = false
+  var webArtifactModuleFound = false
 
   for module in modules:
 
-    if module.shortName == webApp.shortName and
-       module.package == webApp.package:
+    if module.shortName == webArtifact.shortName and
+       module.package == webArtifact.package:
 
-      webAppModuleFound = true
+      webArtifactModuleFound = true
 
-  if webAppModuleFound == false:
+  if webArtifactModuleFound == false:
+    debug "getModules(): adding module"
+
     modules.add(webAppModule)
 
   # Verify
@@ -371,7 +382,7 @@ proc getModelTypesImportByModule*(module: Module): string =
   return module.snakeCaseName & &"{DirSep}types{DirSep}model_types"
 
 
-proc enrichModuleNaming(module: var Module) =
+proc enrichModuleNaming*(module: var Module) =
 
   # Validation
   if module.shortName == "":
@@ -387,9 +398,7 @@ proc enrichModuleNaming(module: var Module) =
             "module.package is a blank string")
 
   # Name conversions and assignments
-  let
-    packagePascalCase = getPascalCaseName(module.package)
-    packageSnakeCase = getSnakeCaseName(module.package)
+  let packageSnakeCase = getSnakeCaseName(module.package)
 
   if module.package != packageSnakeCase:
     raise newException(

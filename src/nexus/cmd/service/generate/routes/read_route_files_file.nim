@@ -7,21 +7,21 @@ import route_utils
 proc readRoutesFile(
        routeName: string,
        inRoutesFilename: string,
-       webApp: var WebApp,
+       webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo)
 proc readRoutesFilesFile*(
        basePath: string,
        routesPath: string,
        srcPath: string,
        filename: string,
-       webApp: var WebApp,
+       webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo)
 
 
 # Code
 proc readExternalRoutes*(
        externalRoute: ExternalRouteYAML,
-       webApp: var WebApp,
+       webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo) =
 
   debug "readExternalRoutes()",
@@ -66,23 +66,23 @@ proc readExternalRoutes*(
 
       raise newException(
               ValueError,
-              &"Route's path for {webApp.shortName} doesn't exist: " &
+              &"Route's path for {webArtifact.shortName} doesn't exist: " &
               &"{routesPath}")
 
     # Read routes file
     readRoutesFilesFile(
-      webApp.basePath,
+      webArtifact.basePath,
       routesPath,
-      webApp.srcPath,
-      &"{routesPath}{DirSep}all_routes.yaml",
-      webApp,
+      webArtifact.srcPath,
+      &"{routesPath}{DirSep}routes.yaml",
+      webArtifact,
       generatorInfo)
 
 
 proc readRoutesFile(
        routeName: string,
        inRoutesFilename: string,
-       webApp: var WebApp,
+       webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo) =
 
   # Parse env vars
@@ -107,7 +107,7 @@ proc readRoutesFile(
   s.close()
 
   # Comment
-  webApp.routes.name = routeName
+  webArtifact.routes.name = routeName
 
   # Read in the routes
   for routeYaml in routeFilesCollection:
@@ -115,9 +115,9 @@ proc readRoutesFile(
     debug "readRoutesFile(): url line"
 
     # Convert RouteYAML to Route
-    webApp.routes.routes.add(
+    webArtifact.routes.routes.add(
       routeYAMLtoRoute(
-        webApp,
+        webArtifact,
         routeYaml))
 
 
@@ -126,7 +126,7 @@ proc readRoutesFilesFile*(
        routesPath: string,
        srcPath: string,
        filename: string,
-       webApp: var WebApp,
+       webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo) =
 
   debug "readRoutesFilesFile()",
@@ -166,7 +166,7 @@ proc readRoutesFilesFile*(
     readRoutesFile(
       localRoute,
       inRoutesFilename = &"{routesPath}{DirSep}{localRoute}.yaml",
-      webApp,
+      webArtifact,
       generatorInfo)
 
   # Process external routes
@@ -175,6 +175,6 @@ proc readRoutesFilesFile*(
     # Read external routes file
     readExternalRoutes(
       externalRoute,
-      webApp,
+      webArtifact,
       generatorInfo)
 

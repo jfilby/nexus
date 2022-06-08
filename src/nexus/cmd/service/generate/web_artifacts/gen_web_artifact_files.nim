@@ -3,7 +3,7 @@ import nexus/cmd/service/generate/routes/gen_routes
 import nexus/cmd/types/types
 
 
-proc generateNewWebContext(webApp: WebApp) =
+proc generateNewWebContext(webArtifact: WebArtifact) =
 
   var str = ""
 
@@ -36,7 +36,7 @@ proc generateNewWebContext(webApp: WebApp) =
 
   # Write app.nim routes file
   let
-    path = &"{webApp.srcPath}{DirSep}view{DirSep}web_app"
+    path = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app"
     filename = &"{path}{DirSep}new_web_context.nim"
 
   if not dirExists(path):
@@ -50,19 +50,25 @@ proc generateNewWebContext(webApp: WebApp) =
             str)
 
 
-proc generateWebAppFile(webApp: WebApp) =
+proc generateWebArtifactFile(webArtifact: WebArtifact) =
 
   # Imports
   var imports: OrderedSet[string]
 
   # Routes comment
-  var str = &"  # Routes for: {webApp.routes.name}"
+  var str = &"  # Routes for: {webArtifact.routes.name}\n"
+
+  # Initial imports
+  imports.incl("chronicles, jester, os, strutils, uri")
+  imports.incl("nexus_core/service/common/globals")
+  imports.incl("nexus_core/types/module_globals as nexus_core_module_globals")
 
   # Process routes generated for the web app
-  for route in webApp.routes.routes:
+  for route in webArtifact.routes.routes:
 
-    debug "generateWebAppFile()",
-      name = model.name
+    debug "generateWebArtifactFile()",
+      name = model.name,
+      pagesImport = route.pagesImport
 
     # Add import
     imports.incl(route.pagesImport)
@@ -71,14 +77,11 @@ proc generateWebAppFile(webApp: WebApp) =
     generateRouteMethods(
       str,
       route,
-      webApp)
+      webArtifact)
 
-  # Add additional imports
-  imports.incl("chronicles, jester, os, strutils, uri")
-  imports.incl("nexus_core/service/common/globals")
-  imports.incl("nexus_core/types/module_globals as nexusCoreModule_globals")
-  imports.incl(&"{webApp.srcRelativePath}/types/module_globals as " &
-               &"{webApp.snakeCaseName}_module_globals")
+  # Final imports
+  # imports.incl(&"{webArtifact.srcRelativePath}/types/module_globals as " &
+  #              &"{webArtifact.snakeCaseName}_module_globals")
   imports.incl("new_web_context")
 
   # Prepend imports and routes block start
@@ -99,12 +102,12 @@ proc generateWebAppFile(webApp: WebApp) =
   str = startStr & str
 
   # Create view dir
-  if not dirExists(&"{webApp.srcPath}{DirSep}view{DirSep}web_app"):
-    createDir(&"{webApp.srcPath}{DirSep}view{DirSep}web_app")
+  if not dirExists(&"{webArtifact.srcPath}{DirSep}view{DirSep}web_app"):
+    createDir(&"{webArtifact.srcPath}{DirSep}view{DirSep}web_app")
 
   # Write app.nim routes file
-  let filename = &"{webApp.srcPath}{DirSep}view{DirSep}web_app{DirSep}" &
-                 "web_app.nim"
+  let filename = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app{DirSep}" &
+                 &"{webArtifact.pathName}.nim"
 
   if not fileExists(filename):
 
@@ -114,12 +117,21 @@ proc generateWebAppFile(webApp: WebApp) =
               str)
 
 
-proc generateWebAppFiles*(webApp: WebApp) =
+proc generateWebArtifactFiles*(webArtifact: WebArtifact) =
 
   debug "generateWebAppFiles()"
 
-  if len(webApp.routes.routes) > 0:
-    generateWebAppFile(webApp)
+  # Validate webArtifact
+  if webArtifact.srcPath == "":
 
-  generateNewWebContext(webApp)
+    raise newException(
+            ValueError,
+            "webArtifact.srcPath is blank")
+
+  # Generate WebArtifact
+  if len(webArtifact.routes.routes) > 0:
+    generateWebArtifactFile(webArtifact)
+
+  # Generate newWebContext.nim
+  generateNewWebContext(webArtifact)
 

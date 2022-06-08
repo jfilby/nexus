@@ -8,7 +8,9 @@ type
     package*: string
 
 
-proc generateMainConfigFile*(appTemplate: AppTemplate) =
+proc generateMainConfigFile*(
+       appTemplate: AppTemplate,
+       generatorInfo: GeneratorInfo) =
 
   let
     nexusYamlFilename = &"{appTemplate.confPath}{DirSep}nexus.yaml"
@@ -17,7 +19,7 @@ proc generateMainConfigFile*(appTemplate: AppTemplate) =
        "---\n" &
        "\n" &
       &"app_name: {appTemplate.appName}\n" &
-      &"package: {appTemplate.appNameSnakeCase}\n" &
+      &"package: {generatorInfo.package}\n" &
        "\n"
 
   # Create conf directory if it doesn't exist

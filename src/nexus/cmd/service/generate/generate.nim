@@ -1,14 +1,13 @@
 import os, strformat
 import nexus/cmd/service/generate/libraries/read_libraries
-import nexus/cmd/service/generate/config_files/gen_nexus_conf
+import nexus/cmd/service/generate/main_config/gen_nexus_conf
 import nexus/cmd/service/generate/models/process_all_models
 import nexus/cmd/service/generate/modules/gen_module_procs
 import nexus/cmd/service/generate/packages/import_packages
 import nexus/cmd/service/generate/templates/gen_app_template
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
-import nexus/cmd/service/generate/web_apps/gen_web_apps
-import nexus/cmd/service/generate/web_apps/read_web_apps
-import nexus/cmd/service/generate/web_apps/read_web_services
+import nexus/cmd/service/generate/web_artifacts/gen_web_artifact
+import nexus/cmd/service/generate/web_artifacts/read_web_artifacts
 import nexus/cmd/service/results/results_utils
 import nexus/cmd/types/types
 
@@ -34,6 +33,7 @@ proc generate*(artifact: string,
   # Generate an app (only)
   if @[ "console-app",
         "web-app",
+        "web-service",
         "library" ].contains(artifact):
 
     # If nexus.conf already exists
@@ -89,14 +89,10 @@ proc generateModuleConfig(
     confPath,
     generatorInfo)
 
-  # Read web app definitions
+  # Read web artifact definitions
   # Read these even if not generating web-apps/services as they could be
   # referenced elsewhere (they are registered as modules)
-  readWebAppDefinitionsPass1(
-    confPath,
-    generatorInfo)
-
-  readWebServiceDefinitionsPass1(
+  readWebArtifactDefinitionsPass1(
     confPath,
     generatorInfo)
 
@@ -104,7 +100,8 @@ proc generateModuleConfig(
   if @[ "console-app",
         "models",
         "library",
-        "web-app" ].contains(artifact):
+        "web-app",
+        "web-service" ].contains(artifact):
 
     processAllModels(
       confPath,
@@ -120,9 +117,10 @@ proc generateModuleConfig(
 
   # Process web apps
   if @[ "web-app",
+        "web-service",
         "web-routes" ].contains(artifact):
 
-    generateWebApps(
+    generateWebArtifacts(
       confPath,
       generatorInfo)
 

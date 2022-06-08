@@ -4,26 +4,28 @@ import nexus/cmd/types/types
 
 
 # Forward declarations
-proc sourceBulma(media: Media,
-                 publicPath: string,
-                 webApp: WebApp)
-proc sourceCustomBulmaCSS(media: Media,
-                          publicPath: string,
-                          webApp: WebApp)
+proc sourceBulma(
+       media: Media,
+       publicPath: string,
+       webArtifact: WebArtifact)
+proc sourceCustomBulmaCSS(
+       media: Media,
+       publicPath: string,
+       webArtifact: WebArtifact)
 
 
 # Code
-proc deployMediaList*(webApp: WebApp) =
+proc deployMediaList*(webArtifact: WebArtifact) =
 
   debug "deployMediaList()",
-    lenMediaList = $len(webApp.mediaList)
+    lenMediaList = $len(webArtifact.mediaList)
 
-  let publicPath = &"{webApp.srcPath}{DirSep}public"
+  let publicPath = &"{webArtifact.srcPath}{DirSep}public"
 
   if not dirExists(publicPath):
     createDir(publicPath)
 
-  for media in webApp.mediaList:
+  for media in webArtifact.mediaList:
 
     debug "deployMediaList(): media",
       `type` = media.type,
@@ -33,22 +35,27 @@ proc deployMediaList*(webApp: WebApp) =
 
       if media.name == "Bulma":
 
-        sourceBulma(media,
-                    publicPath,
-                    webApp)
+        sourceBulma(
+          media,
+          publicPath,
+          webArtifact)
 
-        sourceCustomBulmaCSS(media,
-                             publicPath,
-                             webApp)
+        sourceCustomBulmaCSS(
+          media,
+          publicPath,
+          webArtifact)
 
 
-proc sourceBulma(media: Media,
-                 publicPath: string,
-                 webApp: WebApp) =
+proc sourceBulma(
+       media: Media,
+       publicPath: string,
+       webArtifact: WebArtifact) =
 
   let
-    mediaName = getSnakeCaseName(&"{media.name}_{media.version}",
-                                 replacePunctuation = false)
+    mediaName =
+      getSnakeCaseName(
+        &"{media.name}_{media.version}",
+        replacePunctuation = false)
 
     mediaPath = &"{publicPath}{DirSep}{mediaName}"
 
@@ -77,12 +84,14 @@ proc sourceBulma(media: Media,
     let ret = execCmd(&"unzip {filename} -d {mediaPath} > /dev/null")
 
     if ret != 0:
-      warn "sourceBulma(): failed to unzip downloaded file"
+      echo "Failed to unzip downloaded file"
+      quit(1)
 
 
-proc sourceCustomBulmaCSS(media: Media,
-                          publicPath: string,
-                          webApp: WebApp) =
+proc sourceCustomBulmaCSS(
+       media: Media,
+       publicPath: string,
+       webArtifact: WebArtifact) =
 
   let
     inFilename =

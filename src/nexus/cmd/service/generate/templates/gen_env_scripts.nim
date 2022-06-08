@@ -1,5 +1,5 @@
 import os, strformat
-import nexus/cmd/service/generate/config_files/write_file
+import nexus/cmd/service/generate/main_config/write_file
 import nexus/cmd/types/types
 
 

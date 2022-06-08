@@ -52,8 +52,9 @@ proc tmpDictChecks*() =
                      "relative path ./tmp must exist")
 
 
-proc updateTmpDictFileWritten*(filename: string,
-                               tmpDict: var Table[string, string]) =
+proc updateTmpDictFileWritten*(
+       filename: string,
+       tmpDict: var Table[string, string]) =
 
   let file_info = getFileInfo(filename)
 
@@ -63,10 +64,20 @@ proc updateTmpDictFileWritten*(filename: string,
 proc writeTmpDict*(tmpDict: Table[string, string],
                    filename: string) =
 
-  let output = dump(tmpDict,
-                    tsRootOnly,
-                    asTidy,
-                    defineOptions(style = psMinimal))
+  var output = ""
+
+  try:
+    output =
+      dump(tmpDict,
+           tsRootOnly,
+           asTidy,
+           defineOptions(style = psMinimal))
+
+  except YamlSerializationError:
+    echo "A YAML serialization error occurred for the tmp file contents"
+
+  finally:
+    quit(1)
 
   writeFile(filename,
             output)

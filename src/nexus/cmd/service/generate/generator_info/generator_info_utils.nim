@@ -36,28 +36,28 @@ proc getModuleAndBasePathAndSrcPathByProgram*(
               library.srcPath)
 
   # Search web apps
-  for webApp in generatorInfo.webApps:
+  for webArtifact in generatorInfo.webArtifacts:
 
-    if webApp.package == package and
-       webApp.shortName == shortName:
+    if webArtifact.package == package and
+       webArtifact.shortName == shortName:
 
-      if not dirExists(webApp.basePath):
+      if not dirExists(webArtifact.basePath):
         raise newException(
                 ValueError,
-                &"webApp.basePath not found: {webApp.basePath} " &
-                &"for package: {webApp.package} and " &
-                &"for shortName: {webApp.shortName}")
+                &"webArtifact.basePath not found: {webArtifact.basePath} " &
+                &"for package: {webArtifact.package} and " &
+                &"for shortName: {webArtifact.shortName}")
 
-      if not dirExists(webApp.srcPath):
+      if not dirExists(webArtifact.srcPath):
         raise newException(
                 ValueError,
-                &"webApp.srcPath not found: {webApp.srcPath} " &
-                &"for package: {webApp.package} and " &
-                &"shortName: {webApp.shortName}")
+                &"webArtifact.srcPath not found: {webArtifact.srcPath} " &
+                &"for package: {webArtifact.package} and " &
+                &"shortName: {webArtifact.shortName}")
 
-      return (getSnakeCaseName(webApp.shortName),
-              webApp.basePath,
-              webApp.srcPath)
+      return (getSnakeCaseName(webArtifact.shortName),
+              webArtifact.basePath,
+              webArtifact.srcPath)
 
   raise newException(
           ValueError,
