@@ -314,25 +314,25 @@ Here's an example of a routes.yaml file:
 %YAML 1.2
 ---
 
-- name: Orders
-  description: Orders home
-  group: Orders
+- name: Users
+  description: Users home
+  group: Users
   methods: [ get, post ]
   options: 
-  route: /orders
+  route: /users
   parameters: []
   defaults: []
   modelFields: []
 
 
-- name: Order
-  description: View an order
-  group: Orders
+- name: User
+  description: View a user
+  group: Users
   methods: [ get, post ]
   options: 
-  route: /order/{Order Id}
+  route: /user/{User Id}
   parameters:
-  - name: Order Id
+  - name: User Id
     type: int64
     constraints: [ not null ]
     description:
@@ -341,7 +341,7 @@ Here's an example of a routes.yaml file:
 ```
 
 Route parameters are defined in detail. Any named parameter in the route (e.g.
-Order Id) must be listed in the parameters spec.
+User Id) must be listed in the parameters spec.
 
 
 Logging
