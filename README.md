@@ -1,7 +1,7 @@
 Nexus Web Framework
 ===
 
-Nexus provides a high-level [Nim](https://nim-lang.org) development framework,
+Nexus provides a high-level web framework for [Nim](https://nim-lang.org),
 with batteries included. The goal is to create a similar framework for Nim as
 Django is for Python or Rails is for Ruby. You can create web apps,
 web-services and console applications. The framework includes a web server, an
