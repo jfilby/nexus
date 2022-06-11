@@ -85,7 +85,6 @@ proc generateRoute(
 
     # Route and proc call
     str &= &"  {`method`} \"{route.jesterRoute}\":\n" &
-            "\n" &
            &"    {webContextAssign} webContext = newWebContext(request,\n" &
             "                                   nexusCoreModule)\n" &
             "\n"

@@ -148,7 +148,7 @@ proc readRoutesFile(
   webArtifact.routes.name =
     getNaturalCaseName(filename[0 .. dotPos])
 
-  echo "Routes: " & webArtifact.routes.name
+  echo &"Routes: {webArtifact.routes.name} ({len(routeFilesCollection)})"
 
   # Read in the routes
   for routeYaml in routeFilesCollection:

@@ -113,12 +113,10 @@ proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
   let filename = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app{DirSep}" &
                  &"{webArtifact.nameInSnakeCase}.nim"
 
-  if not fileExists(filename):
+  echo ".. writing: " & filename
 
-    echo ".. writing: " & filename
-
-    writeFile(filename,
-              str)
+  writeFile(filename,
+            str)
 
 
 proc generateWebArtifactFiles*(webArtifact: WebArtifact) =
