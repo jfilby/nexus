@@ -343,6 +343,15 @@ Here's an example of a routes.yaml file:
 Route parameters are defined in detail. Any named parameter in the route (e.g.
 User Id) must be listed in the parameters spec.
 
+To generate the web route and page source run:
+
+```
+nexus gen web-routes
+```
+
+This command must be run from your base directory (where the conf directory is
+located).
+
 
 Logging
 ====
