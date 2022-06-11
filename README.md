@@ -9,13 +9,18 @@ web-services and console applications.
 The framework includes:
 - A web view generator that provides the routing and source structure.
 - An ORM (which currently supports PostgreSQL only).
+- User login and maintenance functionality.
 - Additional modules which aim to provide some basic CRM and blogging
   functionality (these are still in early development).
 
 Nexus utilizes [Jester](https://github.com/dom96/jester) for serving web pages
-and web-services. Much of the built-in web content is created using
-[Karax](https://github.com/karaxnim/karax) which defines HTML at compile-time
-using Nim macros. Your own content can be generated using any available method,
+and web-services. The built-in web content is mostly created with:
+- [Karax](https://github.com/karaxnim/karax) which defines HTML at compile-time
+using Nim macros.
+- [Bulma CSS framework](https://bulma.io).
+- Standard Javascript.
+
+Your own content can be generated using any available method,
 including the use of Karax or
 [Nimja](https://github.com/enthus1ast/nimja) to render HTML.
 
