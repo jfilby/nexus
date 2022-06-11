@@ -4,10 +4,13 @@ Nexus Web Framework
 Nexus provides a high-level web framework for [Nim](https://nim-lang.org),
 with batteries included. The goal is to create a similar framework for Nim as
 Django is for Python or Rails is for Ruby. You can create web apps,
-web-services and console applications. The framework includes a web server, an
-ORM (which currently supports PostgreSQL only) and additional modules which aim
-to provide some basic CRM and Blogging functionality (these are still in early
-development).
+web-services and console applications.
+
+The framework includes:
+- A web view generator that provides the routing and source structure.
+- An ORM (which currently supports PostgreSQL only).
+- Additional modules which aim to provide some basic CRM and blogging
+  functionality (these are still in early development).
 
 Nexus utilizes [Jester](https://github.com/dom96/jester) for serving web pages
 and web-services. Much of the built-in web content is created using
@@ -21,9 +24,9 @@ is a Flutter front-end which render UIs that can be defined at the back-end.
 This works by defining UIs using the DocUI SDK in a web-service which
 communicates with your Flutter app using JSON-encoded information.
 
-Nexus has an ORM that generates data object SQL and data access Nim source
-files. There's an option to generate cached data access files in addition to
-the regular data access files.
+Nexus has an ORM that generates SQL DDL (data definitions) and data access Nim
+source files. There's an option to generate cached data access files in
+addition to the regular data access files.
 
 
 Example Application
