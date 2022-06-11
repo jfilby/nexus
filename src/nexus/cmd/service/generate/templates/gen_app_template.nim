@@ -107,7 +107,7 @@ proc basicAppTemplate(
   # Create additional directories
   var
     tmpPath = &"{appTemplate.basePath}{DirSep}tmp"
-    envScriptsPath = &"{appTemplate.basePath}{DirSep}env_scripts"
+    envScriptsPath = &"{appTemplate.basePath}{DirSep}env"
     binPath = &"{appTemplate.modulePath}{DirSep}bin"
     servicePath = &"{appTemplate.modulePath}{DirSep}service"
 
@@ -119,7 +119,7 @@ proc basicAppTemplate(
   echo ".. creating tmp path: " & tmpPath
   createDir(tmpPath)
 
-  echo ".. creating env_scripts path: " & envScriptsPath
+  echo ".. creating env path: " & envScriptsPath
   createDir(envScriptsPath)
 
   echo ".. creating bin path: " & binPath

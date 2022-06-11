@@ -15,7 +15,7 @@ proc genAppNexusScript(appTemplate: AppTemplate) =
 
   # OS-specific vars
   var
-    scriptFilename = &"{appTemplate.basePath}{DirSep}env_scripts{DirSep}" &
+    scriptFilename = &"{appTemplate.basePath}{DirSep}env{DirSep}" &
       "nexus_app."
 
   let p = getPlatformVars(appTemplate)
