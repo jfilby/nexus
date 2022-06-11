@@ -1,11 +1,13 @@
-Nexus: Nim Development Framework
+Nexus Web Framework
 ===
 
-Nexus provides a high-level [Nim](https://nim-lang.org) development framework.
-You can create web apps, web-services and console applications. The framework
-includes a web server, an ORM (which currently supports PostgreSQL only) and
-additional modules which aim to provide some basic CRM and Blogging
-functionality (these are still in early development).
+Nexus provides a high-level [Nim](https://nim-lang.org) development framework,
+with batteries included. The goal is to create a similar framework for Nim as
+Django is for Python or Rails is for Ruby. You can create web apps,
+web-services and console applications. The framework includes a web server, an
+ORM (which currently supports PostgreSQL only) and additional modules which aim
+to provide some basic CRM and Blogging functionality (these are still in early
+development).
 
 Nexus utilizes [Jester](https://github.com/dom96/jester) for serving web pages
 and web-services. Much of the built-in web content is created using
@@ -14,13 +16,12 @@ using Nim macros. Your own content can be generated using any available method,
 including the use of Karax or
 [Nimja](https://github.com/enthus1ast/nimja) to render HTML.
 
-The framework can integrate
-with [DocUI](https://github.com/jfilby/DocUI) which is a Flutter front-end
-which render UIs that can be defined at the back-end. This works by defining
-UIs using the DocUI SDK in a web-service which communicates with your Flutter
-app using JSON-encoded information.
+The framework can integrate with [DocUI](https://github.com/jfilby/DocUI) which
+is a Flutter front-end which render UIs that can be defined at the back-end.
+This works by defining UIs using the DocUI SDK in a web-service which
+communicates with your Flutter app using JSON-encoded information.
 
-Nexus Gen is an ORM that generates data object SQL and data access Nim source
+Nexus has an ORM that generates data object SQL and data access Nim source
 files. There's an option to generate cached data access files in addition to
 the regular data access files.
 
@@ -37,8 +38,8 @@ https://github.com/jfilby/online_store_example
 Modules
 ====
 
+- Nexus CMD creates Nim source and SQL DDL files.
 - Nexus Core provides the core web application framework.
-- Nexus Gen creates web app and ORM source files.
 - Nexus Core Extras provides additional utility functionality.
 - Nexus CRM provides mailing list functionality.
 - Nexus Social provides social media functionality.
