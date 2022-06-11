@@ -32,10 +32,8 @@ addition to the regular data access files.
 Example Application
 ====
 
-An example application with documented steps to create it is available, but is
-still a work-in-progress:
-
-https://github.com/jfilby/online_store_example
+An [example application](https://github.com/jfilby/online_store_example) with
+documented steps to create it is available, but is still a work-in-progress.
 
 
 Modules
