@@ -13,8 +13,12 @@ The framework includes:
 - Additional modules which aim to provide some basic CRM and blogging
   functionality (these are still in early development).
 
-Nexus utilizes [Jester](https://github.com/dom96/jester) for serving web pages
-and web-services. The built-in web content is mostly created with:
+Nexus utilizes [Jester](https://github.com/dom96/jester) as the lower-level web
+framework for serving web pages and web-services. There are plans to make this
+choice pluggable, so that other web frameworks such as
+[Prologue](https://github.com/planety/prologue) can be used instead.
+
+The built-in web content is mostly created with:
 - [Karax](https://github.com/karaxnim/karax) which defines HTML at compile-time
 using Nim macros.
 - [Bulma CSS framework](https://bulma.io).
