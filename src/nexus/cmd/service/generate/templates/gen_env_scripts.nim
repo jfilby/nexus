@@ -11,7 +11,7 @@ proc getPlatformVars*(appTemplate: AppTemplate): PlatformVars
 proc genAppNexusScript(appTemplate: AppTemplate) =
 
   # Vars
-  let dbPrefix = appTemplate.appNameUpperSnakeCase
+  let dbPrefix = appTemplate.appNameInUpperSnakeCase
 
   # OS-specific vars
   var
@@ -39,7 +39,7 @@ proc genAppNexusScript(appTemplate: AppTemplate) =
     &"{p.set} {dbPrefix}_PASSWORD={appTemplate.dbPassword}\n" &
      "\n" &
      "\n" &
-    &"{p.set} {appTemplate.appNameUpperSnakeCase}_BASE_PATH=" &
+    &"{p.set} {appTemplate.appNameInUpperSnakeCase}_BASE_PATH=" &
       &"{appTemplate.basePath}\n" &
     &"{p.set} {appTemplate.nimSrcPathEnvVar}=" &
       &"{appTemplate.nimPath}\n" &

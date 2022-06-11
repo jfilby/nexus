@@ -56,7 +56,7 @@ proc createBasicModuleFile(
     &"import db_postgres\n" &
     "\n" &
     &"type\n" &
-    &"  {module.pascalCaseName}Module* = object\n" &
+    &"  {module.nameInPascalCase}Module* = object\n" &
     &"    db*: DbConn\n" &
     &"\n"
 
@@ -109,7 +109,7 @@ proc processModel(
     model,
     dataAccessFilename =
       &"{srcPath}{DirSep}data_access{DirSep}" &
-      &"{model.snakeCaseName}_data.nim")
+      &"{model.nameInSnakeCase}_data.nim")
 
   # Create cached data access file
   if model.modelOptions.contains("cacheable"):
@@ -118,7 +118,7 @@ proc processModel(
       model,
       cached_dataAccessFilename =
         &"{srcPath}{DirSep}cached_data_access{DirSep}" &
-        &"{model.snakeCaseName}_cached_data.nim")
+        &"{model.nameInSnakeCase}_cached_data.nim")
 
   # Add to generatorInfo
   generatorInfo.models.add(model)
@@ -405,7 +405,7 @@ proc writeModelTypes(
     var importedName = ""
 
     if module.imported == true:
-      importedName = &"_{module.snakeCaseName}"
+      importedName = &"_{module.nameInSnakeCase}"
 
     let
       typesPath = &"{module.srcPath}{DirSep}types"

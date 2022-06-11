@@ -15,14 +15,14 @@ proc createPgTablePartitioning(model: Model): string =
         toUpperAscii(model.partitioning.get.partitioningType)
 
   return &"PARTITION BY {partitioningType} " &
-         &"({model.partitioning.get.keyField.snakeCaseName})"
+         &"({model.partitioning.get.keyField.nameInSnakeCase})"
 
 
 proc createPgTable*(
        model: Model,
        dmlStr: var string) =
 
-  let tableName = model.baseSnakeCaseName
+  let tableName = model.baseNameInSnakeCase
 
   # Start create table statement
   var
@@ -54,7 +54,7 @@ proc createPgTable*(
             field.`type`,
             dmlInfo = true)
 
-    dmlStr &= &"  {field.snakeCaseName} {pgFieldType}"
+    dmlStr &= &"  {field.nameInSnakeCase} {pgFieldType}"
 
     if field.constraints.contains("not null"):
       dmlStr &= " NOT NULL"
@@ -64,11 +64,11 @@ proc createPgTable*(
 
   # PK
   debug "createPgTable()",
-    modelPkSnakeCaseName = model.pkSnakeCaseName
+    modelpkNameInSnakeCase = model.pkNameInSnakeCase
 
-  if model.pkSnakeCaseName != "":
+  if model.pkNameInSnakeCase != "":
 
-    var pkStr = model.pkSnakeCaseName
+    var pkStr = model.pkNameInSnakeCase
 
     if pkStr[0] != '(':
       pkStr = &"({pkStr})"
@@ -103,7 +103,7 @@ proc createPgForeignKeys*(
 
     let
       # FK table
-      tableName = model.baseSnakeCaseName
+      tableName = model.baseNameInSnakeCase
       fkColumns = relationship.from
 
     var fkColumnFields = splitModelFields(fkColumns)
@@ -111,7 +111,7 @@ proc createPgForeignKeys*(
 
     let
       fkColumns_delimited = fkColumnFields.join(", ")
-      fk_name = model.baseSnakeCaseName & "_fk" & "_" & $id
+      fk_name = model.baseNameInSnakeCase & "_fk" & "_" & $id
 
       # Parent table
       to_dot = find(relationship.to, '.')
@@ -154,7 +154,7 @@ proc createPgBTreeIndex(
   if index.unique == true:
     unique = "UNIQUE "
 
-  let tableName = model.baseSnakeCaseName
+  let tableName = model.baseNameInSnakeCase
   
   var
     first = true
@@ -168,7 +168,7 @@ proc createPgBTreeIndex(
     else:
       first = false
 
-    indexColumns &= field.snakeCaseName
+    indexColumns &= field.nameInSnakeCase
 
   let indexName = &"{tableName}_ix_{id}"
 

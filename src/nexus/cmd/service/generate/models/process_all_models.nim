@@ -25,7 +25,7 @@ proc processAllModels*(
   # Get imported conf paths
   for module in generatorInfo.modules:
 
-    path = &"{module.confPath}{DirSep}models{DirSep}{module.snakeCaseName}"
+    path = &"{module.confPath}{DirSep}models{DirSep}{module.nameInSnakeCase}"
 
     echo "processAllModels(): possible import path: " & path
 

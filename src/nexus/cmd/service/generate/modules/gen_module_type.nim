@@ -18,16 +18,16 @@ proc generateModuleGlobalVarsFile*(webArtifact: WebArtifact) =
        module.package == webArtifact.package:
       continue
 
-    str &= &"import {module.snakeCaseName}/types/model_types as " &
-           &"{module.snakeCaseName}_model_types\n"
+    str &= &"import {module.nameInSnakeCase}/types/model_types as " &
+           &"{module.nameInSnakeCase}_model_types\n"
 
   str &= "\n" &
          "\n" &
          "var\n"
 
   # The web-app (as a module itself)
-  str &= &"  {webArtifact.camelCaseName}Module* = " &
-         &"{webArtifact.pascalCaseName}Module(db: db)\n"
+  str &= &"  {webArtifact.nameInCamelCase}Module* = " &
+         &"{webArtifact.nameInPascalCase}Module(db: db)\n"
 
   # Per web-app module
   for module in webArtifact.modules:
@@ -36,8 +36,8 @@ proc generateModuleGlobalVarsFile*(webArtifact: WebArtifact) =
        module.package == webArtifact.package:
       continue
 
-    str &= &"  {module.camelCaseName}Module* = "&
-           &"{module.pascalCaseName}Module(db: db)\n"
+    str &= &"  {module.nameInCamelCase}Module* = "&
+           &"{module.nameInPascalCase}Module(db: db)\n"
 
   str &= "\n"
 
@@ -59,7 +59,7 @@ proc generateModuleTypeHeader*(module: Module): string =
 
   debug "generateModuleTypeHeader()", moduleName = module.name
 
-  var str = &"  {module.pascalCaseName}Module* = object\n" &
+  var str = &"  {module.nameInPascalCase}Module* = object\n" &
              "    db*: DbConn\n" &
              "    modelToIntSeqTable*: Table[string, int]\n" &
              "    intSeqToModelTable*: Table[int, string]\n" &
@@ -77,10 +77,10 @@ proc generateModuleTypeModel*(
   if model.modelOptions.contains("cacheable"):
 
     let
-      cachedFilter = "cachedFilter" & model.pascalCaseName
-      cachedRows = "cached" & model.pascalCaseNamePlural
+      cachedFilter = "cachedFilter" & model.nameInPascalCase
+      cachedRows = "cached" & model.namePluralInPascalCase
 
-    str &= &"    {cachedRows}*: Table[{model.pkNimType}, {model.pascalCaseName}]\n" &
+    str &= &"    {cachedRows}*: Table[{model.pkNimType}, {model.nameInPascalCase}]\n" &
            &"    {cachedFilter}*: Table[string, seq[{model.pkNimType}]]\n" &
             "\n"
 

@@ -66,7 +66,7 @@ proc generateRoute(
   # Generate given methods
   for `method` in route.methods:
 
-    var procName = route.nameCamelCaseName
+    var procName = route.nameInCamelCase
 
     if `method` == "post":
       procName &= "Post"
@@ -83,7 +83,8 @@ proc generateRoute(
     if `method` == "post":
       webContextAssign = "var"
 
-    str &= &"  {`method`} \"{route.route}\":\n" &
+    # Route and proc call
+    str &= &"  {`method`} \"{route.jesterRoute}\":\n" &
             "\n" &
            &"    {webContextAssign} webContext = newWebContext(request,\n" &
             "                                   nexusCoreModule)\n" &

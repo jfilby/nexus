@@ -112,9 +112,9 @@ proc getFieldBySnakeCaseName*(fieldSnakeCaseName: string,
   for field in model.fields:
 
     debug "getFieldBySnakeCaseName()",
-      fieldDSnakeCaseName = field.snakeCaseName
+      fieldDSnakeCaseName = field.nameInSnakeCase
 
-    if field.snakeCaseName == fieldSnakeCaseName:
+    if field.nameInSnakeCase == fieldSnakeCaseName:
       return field
 
   raise newException(
@@ -134,7 +134,7 @@ proc getFieldsAsSnakeCaseName*(
     let field = getFieldByName(fieldName,
                                model)
 
-    fieldSnakeCaseNames.add(field.snakeCaseName)
+    fieldSnakeCaseNames.add(field.nameInSnakeCase)
 
   return fieldSnakeCaseNames
 
@@ -185,22 +185,22 @@ proc getModelByName*(
 
 
 # Returns: Model, isPlural
-proc getModelByPascalCaseName*(
-       modelPascalCaseName: string,
+proc getModelBynameInPascalCase*(
+       modelnameInPascalCase: string,
        generatorInfo: GeneratorInfo):
          (Model, bool) =
 
   for model in generatorInfo.models:
 
-    if model.pascalCaseName == modelPascalCaseName:
+    if model.nameInPascalCase == modelnameInPascalCase:
       return (model, false)
 
-    elif model.pascalCaseNamePlural == modelPascalCaseName:
+    elif model.namePluralInPascalCase == modelnameInPascalCase:
       return (model, true)
 
   raise newException(
           ValueError,
-          &"Model not found by modelPascalCaseName: \"{modelPascalCaseName}\"")
+          &"Model not found by modelnameInPascalCase: \"{modelnameInPascalCase}\"")
 
 
 proc resolveDataString*(str: var string,
@@ -250,7 +250,7 @@ proc resolveDataValue(str: string,
 
           if field.name == fieldName:
 
-            return model.snakeCaseName & "." & field.snakeCaseName
+            return model.nameInSnakeCase & "." & field.nameInSnakeCase
 
     raise newException(
             ValueError,

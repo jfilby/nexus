@@ -1,8 +1,6 @@
-import chronicles, os, strformat
-import nexus/cmd/service/generate/modules/module_utils
+import os, strformat
 import nexus/cmd/service/generate/web_artifacts/utils
 import nexus/cmd/types/types
-import nexus/core/service/format/filename_utils
 
 
 proc getWebArtifactFromAppTemplate*(
@@ -26,7 +24,7 @@ proc getWebArtifactFromAppTemplate*(
           shortName: appTemplate.moduleName,
           confPath: &"{appTemplate.confPath}{DirSep}{pathName}",
           srcPath: &"{appTemplate.nimPathExpanded}{DirSep}" &
-                   appTemplate.moduleNameLowerSnakeCase,
+                   appTemplate.moduleNameLowerInSnakeCase,
           routes: routes)
 
   enrichWebArtifaceNamesAndPaths(webArtifact)

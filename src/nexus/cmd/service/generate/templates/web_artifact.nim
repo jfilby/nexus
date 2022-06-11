@@ -1,6 +1,5 @@
 import chronicles, os, strformat, strutils
 import nexus/core/service/format/filename_utils
-import nexus/core/service/format/name_utils
 import nexus/cmd/service/generate/main_config/write_file
 import nexus/cmd/service/generate/routes/route_utils
 import nexus/cmd/service/generate/web_artifacts/gen_web_artifact
@@ -85,7 +84,7 @@ proc generateWebArtifactTemplate*(
 
   appTemplate.confWebApp =
     &"{appTemplate.moduleConfPath}{DirSep}{pathName}s{DirSep}" &
-    appTemplate.appNameSnakeCase
+    appTemplate.appNameInSnakeCase
 
   appTemplate.confWebAppYaml =
     &"{appTemplate.confWebApp}{DirSep}{pathName}.yaml"
@@ -114,11 +113,13 @@ proc generateWebArtifactTemplate*(
   # An initial routes.yaml file
   debug "generateWebArtifactTemplate(): create initial routes.yaml file"
 
-  let routesYamlFilename = &"{appTemplate.confWebApp}{DirSep}routes.yaml"
+  let
+    routesPath = &"{appTemplate.confWebApp}{DirSep}routes"
+    routesYamlFilename = &"{routesPath}{DirSep}routes.yaml"
 
   echo ".. creating initial routes.yaml file: " & routesYamlFilename
 
-  createDir(srcPath)
+  createDir(routesPath)
 
   writeRoutesYamlFile(
     routesYamlFilename,
@@ -131,6 +132,8 @@ proc generateWebArtifactTemplate*(
   echo &".. generating initial web artifact.."
 
   # Generate the initial WebArtifact
+  createDir(srcPath)
+
   generateInitialWebArtifact(
     pathName,
     routes,
@@ -155,11 +158,11 @@ proc writeConfWebAppYaml(
      "%YAML 1.2\n" &
      "---\n" &
      "\n" &
-    &"shortName: {appTemplate.appName} Web App\n" &
+    &"shortName: {appTemplate.moduleName}\n" &
     &"description: Web application.\n" &
     &"basePath: ${appTemplate.basePathEnvVar}\n" &
     &"srcPath: ${appTemplate.nimSrcPathEnvVar}/" &
-      &"{appTemplate.moduleNameSnakeCase}\n" &
+      &"{appTemplate.moduleNameInSnakeCase}\n" &
      "mediaList: []\n" &
      "\n")
 

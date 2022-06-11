@@ -73,7 +73,7 @@ proc getCamelCaseName*(
   return camelCaseName
 
 
-proc getPascalCaseName*(name: string): string =
+proc getNaturalCaseName*(name: string): string =
 
   # Return immediately if the string is blank
   if name == "":
@@ -93,7 +93,51 @@ proc getPascalCaseName*(name: string): string =
   let subNames = nameModified.split(' ')
 
   # Pascal-case subNames
-  var pascalCaseName = ""
+  var
+    first = true
+    naturalCaseName = ""
+
+  for subName in subNames:
+
+    if len(subName) == 0:
+      continue
+
+    if first == false:
+      naturalCaseName &= " "
+    else:
+      first = false
+
+    if isUpperAscii(subname[0]):
+      naturalCaseName &= subname
+
+    else:
+      naturalCaseName &= capitalizeAscii(subName)
+
+  # Return
+  return naturalCaseName
+
+
+proc getnameInPascalCase*(name: string): string =
+
+  # Return immediately if the string is blank
+  if name == "":
+    return ""
+
+  # Split by space
+  var nameModified =
+        replace(name,
+                '-',
+                ' ')
+
+  nameModified =
+    replace(nameModified,
+            '_',
+            ' ')
+
+  let subNames = nameModified.split(' ')
+
+  # Pascal-case subNames
+  var nameInPascalCase = ""
 
   for subName in subNames:
 
@@ -101,13 +145,13 @@ proc getPascalCaseName*(name: string): string =
       continue
 
     if isUpperAscii(subname[0]):
-      pascalCaseName &= subname
+      nameInPascalCase &= subname
 
     else:
-      pascalCaseName &= capitalizeAscii(subName)
+      nameInPascalCase &= capitalizeAscii(subName)
 
   # Return
-  return pascalCaseName
+  return nameInPascalCase
 
 
 proc getSnakeCaseName*(

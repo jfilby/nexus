@@ -47,7 +47,7 @@ proc generateAppTemplate*(
   promptForInfo(appTemplate)
 
   # Populate some initial fields for GeneratorInfo
-  generatorInfo.package = appTemplate.appNameSnakeCase
+  generatorInfo.package = appTemplate.appNameInSnakeCase
 
   # Setup for all types of basic
   basicAppTemplate(
@@ -209,37 +209,37 @@ proc promptForInfo(appTemplate: var AppTemplate) =
   let p = getPlatformVars(appTemplate)
 
   # appName processing
-  appTemplate.appNameSnakeCase =
+  appTemplate.appNameInSnakeCase =
     getSnakeCaseName(appTemplate.appName)
 
-  appTemplate.appNameUpperSnakeCase =
-    toUpperAscii(appTemplate.appnameSnakeCase)
+  appTemplate.appNameInUpperSnakeCase =
+    toUpperAscii(appTemplate.appNameInSnakeCase)
 
-  appTemplate.appNameLowerSnakeCase =
-    toLowerAscii(appTemplate.appnameSnakeCase)
+  appTemplate.appNameInLowerSnakeCase =
+    toLowerAscii(appTemplate.appNameInSnakeCase)
 
   # moduleName formulations
-  appTemplate.moduleNameSnakeCase =
+  appTemplate.moduleNameInSnakeCase =
     getSnakeCaseName(appTemplate.moduleName)
 
-  appTemplate.moduleNameUpperSnakeCase =
-    toUpperAscii(appTemplate.modulenameSnakeCase)
+  appTemplate.moduleNameUpperInSnakeCase =
+    toUpperAscii(appTemplate.moduleNameInSnakeCase)
 
-  appTemplate.moduleNameLowerSnakeCase =
-    toLowerAscii(appTemplate.modulenameSnakeCase)
+  appTemplate.moduleNameLowerInSnakeCase =
+    toLowerAscii(appTemplate.moduleNameInSnakeCase)
 
   # Path formulations
   appTemplate.basePath =
-    &"{appTemplate.cwd}{DirSep}{appTemplate.appNameSnakeCase}"
+    &"{appTemplate.cwd}{DirSep}{appTemplate.appNameInSnakeCase}"
 
-  appTemplate.basePathEnvVar = &"{appTemplate.appNameUpperSnakeCase}_BASE_PATH"
+  appTemplate.basePathEnvVar = &"{appTemplate.appNameInUpperSnakeCase}_BASE_PATH"
   appTemplate.nimSrcPathEnvVar =
-    &"{appTemplate.appNameUpperSnakeCase}_BASE_SRC_PATH"
+    &"{appTemplate.appNameInUpperSnakeCase}_BASE_SRC_PATH"
 
   appTemplate.confPath = &"{appTemplate.basePath}{DirSep}conf"
 
   appTemplate.moduleConfPath = &"{appTemplate.confPath}{DirSep}" &
-    appTemplate.moduleNameLowerSnakeCase
+    appTemplate.moduleNameLowerInSnakeCase
 
   appTemplate.nimPath =
     &"{p.envStart}{appTemplate.basePathEnvVar}{p.envEnd}{DirSep}nim{DirSep}src"
@@ -250,12 +250,12 @@ proc promptForInfo(appTemplate: var AppTemplate) =
 
   appTemplate.modulePath =
     &"{appTemplate.nimPathExpanded}{DirSep}" &
-    &"{appTemplate.moduleNameLowerSnakeCase}"
+    &"{appTemplate.moduleNameLowerInSnakeCase}"
 
   # Initial DB settings template
   appTemplate.dbServer = "localhost"
   appTemplate.dbPort = "5432"
-  appTemplate.dbName = appTemplate.appNameLowerSnakeCase
+  appTemplate.dbName = appTemplate.appNameInLowerSnakeCase
   appTemplate.dbUsername = ""
   appTemplate.dbPassword = ""
 
@@ -289,12 +289,12 @@ proc validateAndTransformName*(name: var string): bool =
 proc verifyAppNamePathDoesntExist(appTemplate: AppTemplate) =
 
   # Ensure appName-based path doesn't already exist
-  let appNameLowerSnakeCase = getSnakeCaseName(appTemplate.appName)
+  let appNameInLowerSnakeCase = getSnakeCaseName(appTemplate.appName)
 
-  if dirExists(appNameLowerSnakeCase) == true:
+  if dirExists(appNameInLowerSnakeCase) == true:
 
     if promptForOverwrite(
-         &"A directory called {appNameLowerSnakeCase} already exists.\n" &
+         &"A directory called {appNameInLowerSnakeCase} already exists.\n" &
           "Would you like to proceed and overwrite existing config files?") == false:
 
       quit(1)

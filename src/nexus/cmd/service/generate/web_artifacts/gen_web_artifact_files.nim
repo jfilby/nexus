@@ -1,5 +1,6 @@
 import chronicles, os, sets, strformat
 import nexus/cmd/service/generate/routes/gen_routes
+import nexus/cmd/service/generate/routes/route_utils
 import nexus/cmd/types/types
 
 
@@ -34,7 +35,7 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
          "  return webContext\n" &
          "\n"
 
-  # Write app.nim routes file
+  # Write new_web_context.nim routes file
   let
     path = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app"
     filename = &"{path}{DirSep}new_web_context.nim"
@@ -50,7 +51,7 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
             str)
 
 
-proc generateWebArtifactFile(webArtifact: WebArtifact) =
+proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
 
   # Imports
   var imports: OrderedSet[string]
@@ -64,7 +65,7 @@ proc generateWebArtifactFile(webArtifact: WebArtifact) =
   imports.incl("nexus_core/types/module_globals as nexus_core_module_globals")
 
   # Process routes generated for the web app
-  for route in webArtifact.routes.routes:
+  for route in webArtifact.routes.routes.mitems:
 
     debug "generateWebArtifactFile()",
       name = model.name,
@@ -72,6 +73,9 @@ proc generateWebArtifactFile(webArtifact: WebArtifact) =
 
     # Add import
     imports.incl(route.pagesImport)
+
+    # Parse the route
+    parseRoute(route)
 
     # Generate routes
     generateRouteMethods(
@@ -81,7 +85,7 @@ proc generateWebArtifactFile(webArtifact: WebArtifact) =
 
   # Final imports
   # imports.incl(&"{webArtifact.srcRelativePath}/types/module_globals as " &
-  #              &"{webArtifact.snakeCaseName}_module_globals")
+  #              &"{webArtifact.nameInSnakeCase}_module_globals")
   imports.incl("new_web_context")
 
   # Prepend imports and routes block start
@@ -107,7 +111,7 @@ proc generateWebArtifactFile(webArtifact: WebArtifact) =
 
   # Write app.nim routes file
   let filename = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app{DirSep}" &
-                 &"{webArtifact.pathName}.nim"
+                 &"{webArtifact.nameInSnakeCase}.nim"
 
   if not fileExists(filename):
 
@@ -130,7 +134,7 @@ proc generateWebArtifactFiles*(webArtifact: WebArtifact) =
 
   # Generate WebArtifact
   if len(webArtifact.routes.routes) > 0:
-    generateWebArtifactFile(webArtifact)
+    generateWebArtifactRoutesFile(webArtifact)
 
   # Generate newWebContext.nim
   generateNewWebContext(webArtifact)

@@ -16,7 +16,7 @@ proc createGetViewProc(
        str: var string,
        route: Route) =
 
-  str &= &"proc {route.nameCamelCaseName}View*(\n" &
+  str &= &"proc {route.nameInCamelCase}View*(\n" &
           "       request: Request,\n" &
           "       webContext: WebContext): string =\n" &
           "\n" &
@@ -36,7 +36,7 @@ proc createInitialViewSourceFile(
 
   # Imports
   str =  "import jester\n" &
-        &"import {webArtifact.snakeCaseName}/view/new_web_context\n" &
+        &"import {webArtifact.nameInSnakeCase}/view/new_web_context\n" &
          "\n" &
          "\n"
 
@@ -68,7 +68,7 @@ proc createPostViewProc(
        str: var string,
        route: Route) =
 
-  str &= &"proc {route.nameCamelCaseName}PostView*(\n" &
+  str &= &"proc {route.nameInCamelCase}PostView*(\n" &
           "       request: Request,\n" &
           "       webContext: WebContext): string =\n" &
           "\n" &
@@ -87,9 +87,9 @@ proc generateInitialViews*(webArtifact: WebArtifact) =
     # Formulate path and filename
     let
       viewPath =
-        &"{webArtifact.srcPath}{DirSep}view{DirSep}{route.groupSnakeCaseName}"
+        &"{webArtifact.srcPath}{DirSep}view{DirSep}{route.groupInSnakeCase}"
 
-      viewFilename = &"{viewPath}{DirSep}{route.nameSnakeCaseName}.nim"
+      viewFilename = &"{viewPath}{DirSep}{route.nameInSnakeCase}.nim"
 
     # Create viewPath if it doesn't exist
     if not dirExists(viewPath):

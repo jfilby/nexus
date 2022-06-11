@@ -1,6 +1,5 @@
 import chronicles, os, streams, strformat, strutils, tables, yaml
 import nexus/core/service/format/filename_utils
-import nexus/core/service/format/name_utils
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/types/types
 import utils

@@ -3,3 +3,4 @@ nimblecache/
 htmldocs/
 bin/
 docs/
+tmp/tmp_dict.yaml

@@ -13,7 +13,7 @@ proc countProc*(str: var string,
   var procName = "count"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -22,7 +22,7 @@ proc countProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
          &"       whereFields: seq[string] = @[],\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -43,7 +43,7 @@ proc countProc*(str: var string,
     "selectStatement")
 
   # Get the records
-  str &= &"  let row = getRow({model.module.camelCaseName}Module.db,\n" &
+  str &= &"  let row = getRow({model.module.nameInCamelCase}Module.db,\n" &
          &"                   sql(selectStatement),\n" &
          &"                   whereValues)\n" &
           "\n"
@@ -62,7 +62,7 @@ proc countWhereClauseProc*(
   var procName = "count"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -71,7 +71,7 @@ proc countWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
          &"       whereClause: string,\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -89,7 +89,7 @@ proc countWhereClauseProc*(
               "selectStatement")
 
   # Get the records
-  str &= &"  let row = getRow({model.module.camelCaseName}Module.db,\n" &
+  str &= &"  let row = getRow({model.module.nameInCamelCase}Module.db,\n" &
           "                   sql(selectStatement),\n" &
           "                   whereValues)\n" &
           "\n"
@@ -108,13 +108,13 @@ proc createProc*(str: var string,
   var procName = "create"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   procName &= "ReturnsPK"
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -144,19 +144,19 @@ proc createProc*(str: var string,
 
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  return tryInsertNamedID(\n" &
-           &"    {model.module.camelCaseName}Module.db,\n" &
+           &"    {model.module.nameInCamelCase}Module.db,\n" &
             "    sql(insertStatement),\n" &
-           &"    \"{model.pkSnakeCaseName}\",\n" &
+           &"    \"{model.pkNameInSnakeCase}\",\n" &
             "    insertValues)\n"
 
   else:
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  exec(\n" &
-           &"    {model.module.camelCaseName}Module.db,\n" &
+           &"    {model.module.nameInCamelCase}Module.db,\n" &
             "    sql(insertStatement),\n" &
             "    insertValues)\n" &
             "\n" &
-           &"  return {model.pkCamelCaseName}\n"
+           &"  return {model.pkNameInCamelCase}\n"
 
   str &= "\n"
 
@@ -170,11 +170,11 @@ proc createWithTypeProc*(
   var procName = "create"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -190,7 +190,7 @@ proc createWithTypeProc*(
 
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -208,18 +208,18 @@ proc createWithTypeProc*(
   # Create insert SQL and insert_values seq
   var indent = "  "
 
-  if model.pkModelDCamelCaseNames != "":
+  if model.pkModelDNamesInCamelCase != "":
 
-    if model.pkModelDCamelCaseNames[0] == '(':
-      str &= &"{indent}{model.pkModelDCamelCaseNames} =\n"
+    if model.pkModelDNamesInCamelCase[0] == '(':
+      str &= &"{indent}{model.pkModelDNamesInCamelCase} =\n"
 
     else:
-      str &= &"{indent}{model.camelCaseName}.{model.pkCamelCaseName} =\n"
+      str &= &"{indent}{model.nameInCamelCase}.{model.pkNameInCamelCase} =\n"
 
     indent &= "  "
 
-  str &= &"{indent}create{model.pascalCaseName}ReturnsPK(\n" &
-         &"{indent}  {model.module.camelCaseName}Module,\n"
+  str &= &"{indent}create{model.nameInPascalCase}ReturnsPK(\n" &
+         &"{indent}  {model.module.nameInCamelCase}Module,\n"
 
   indent &= "  "
 
@@ -236,7 +236,7 @@ proc createWithTypeProc*(
                     model,
                     indent = "  ")
 
-  str &= &"  return {model.camelCaseName}\n" &
+  str &= &"  return {model.nameInCamelCase}\n" &
           "\n"
 
 
@@ -265,7 +265,7 @@ proc deleteProcByPk*(
   var procName = "delete"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -278,7 +278,7 @@ proc deleteProcByPk*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -308,7 +308,7 @@ proc deleteProcByPk*(
 
   # Delete the record
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(deleteStatement),\n"
 
   listFieldNames(str,
@@ -331,14 +331,14 @@ proc deleteWhereClauseProc*(
   var procName = "delete"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails = getProcPostDetails("int64",
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string,\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -350,7 +350,7 @@ proc deleteWhereClauseProc*(
 
   # Exec the delete and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(deleteStatement),\n" &
           "           whereValues)\n" &
           "\n"
@@ -365,14 +365,14 @@ proc deleteWhereEqOnlyProc*(
   var procName = "delete"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails = getProcPostDetails("int64",
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -392,7 +392,7 @@ proc deleteWhereEqOnlyProc*(
 
   # Exec the delete and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(deleteStatement),\n" &
           "           whereValues)\n" &
           "\n"
@@ -422,7 +422,7 @@ proc existsProc*(str: var string,
   var procName = "exists"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -435,7 +435,7 @@ proc existsProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -468,7 +468,7 @@ proc existsProc*(str: var string,
 
   # Get the record
   str &=  "  let row = getRow(\n" &
-         &"              {model.module.camelCaseName}Module.db,\n" &
+         &"              {model.module.nameInCamelCase}Module.db,\n" &
           "              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -494,12 +494,12 @@ proc rowToModelTypeDecl*(str: var string,
                          pragmas: string) =
 
   # Proc name
-  var procName = &"rowTo{model.pascalCaseName}"
+  var procName = &"rowTo{model.nameInPascalCase}"
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas,
           withColon = false)
 
@@ -512,19 +512,19 @@ proc rowToModelType*(str: var string,
                      pragmas: string) =
 
   # Proc name
-  var procName = &"rowTo{model.pascalCaseName}"
+  var procName = &"rowTo{model.nameInPascalCase}"
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas,
           withColon = false)
 
   str &= &"proc {procName}*(row: seq[string]):\n" &
          &"       {returnDetails} =\n" &
           "\n" &
-         &"  var {model.camelCaseName} = {model.pascalCaseName}()\n" &
+         &"  var {model.nameInCamelCase} = {model.nameInPascalCase}()\n" &
           "\n"
 
   # Create insert SQL statement
@@ -533,7 +533,7 @@ proc rowToModelType*(str: var string,
     model,
     indent = "  ")
 
-  str &= &"  return {model.camelCaseName}\n" &
+  str &= &"  return {model.nameInCamelCase}\n" &
           "\n"
 
 
@@ -544,16 +544,16 @@ proc filterProc*(str: var string,
   var procName = "filter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseNamePlural,
+          model.namePluralInPascalCase,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -577,17 +577,17 @@ proc filterProc*(str: var string,
   str &= "\n"
 
   # Get the records
-  str &= &"  var {model.camelCaseNamePlural}: {model.pascalCaseNamePlural}\n" &
+  str &= &"  var {model.namePluralInCamelCase}: {model.namePluralInPascalCase}\n" &
          "\n" &
-         &"  for row in fastRows({model.module.camelCaseName}Module.db,\n" &
+         &"  for row in fastRows({model.module.nameInCamelCase}Module.db,\n" &
           "                      sql(selectStatement),\n" &
           "                      whereValues):\n" &
          "\n" &
-         &"    {model.camelCaseNamePlural}.add(rowTo{model.pascalCaseName}(row))\n" &
+         &"    {model.namePluralInCamelCase}.add(rowTo{model.nameInPascalCase}(row))\n" &
          &"\n"
 
   # Return the record
-  str &= &"  return {model.camelCaseNamePlural}\n" &
+  str &= &"  return {model.namePluralInCamelCase}\n" &
           "\n"
 
 
@@ -600,16 +600,16 @@ proc filterWhereEqOnlyProc*(
   var procName = "filter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseNamePlural,
+          model.namePluralInPascalCase,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -638,17 +638,17 @@ proc filterWhereEqOnlyProc*(
   str &= "\n"
 
   # Get the records
-  str &= &"  var {model.camelCaseNamePlural}: {model.pascalCaseNamePlural}\n" &
+  str &= &"  var {model.namePluralInCamelCase}: {model.namePluralInPascalCase}\n" &
           "\n" &
-         &"  for row in fastRows({model.module.camelCaseName}Module.db,\n" &
+         &"  for row in fastRows({model.module.nameInCamelCase}Module.db,\n" &
           "                      sql(selectStatement),\n" &
           "                      whereValues):\n" &
           "\n" &
-         &"    {model.camelCaseNamePlural}.add(rowTo{model.pascalCaseName}(row))\n" &
+         &"    {model.namePluralInCamelCase}.add(rowTo{model.nameInPascalCase}(row))\n" &
           "\n"
 
   # Return the record
-  str &= &"  return {model.camelCaseNamePlural}\n" &
+  str &= &"  return {model.namePluralInCamelCase}\n" &
           "\n"
 
 
@@ -676,7 +676,7 @@ proc getProc*(str: var string,
   var procName = "get"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -689,8 +689,8 @@ proc getProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: " &
-         &"{model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+         &"{model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(
@@ -710,7 +710,7 @@ proc getProc*(str: var string,
       listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(&"Option[{model.pascalCaseName}]",
+        getProcPostDetails(&"Option[{model.nameInPascalCase}]",
                            pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -725,7 +725,7 @@ proc getProc*(str: var string,
 
   # Get the record
   str &=  "  let row = getRow(\n" &
-         &"              {model.module.camelCaseName}Module.db,\n" &
+         &"              {model.module.nameInCamelCase}Module.db,\n" &
           "              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -738,9 +738,9 @@ proc getProc*(str: var string,
 
   # Return the record
   str &=  "  if row[0] == \"\":\n" &
-         &"    return none({model.pascalCaseName})\n" &
+         &"    return none({model.nameInPascalCase})\n" &
           "\n" &
-         &"  return some(rowTo{model.pascalCaseName}(row))\n" &
+         &"  return some(rowTo{model.nameInPascalCase}(row))\n" &
           "\n"
 
   return true
@@ -758,7 +758,7 @@ proc getOrCreateProc*(str: var string,
   var procName = "getOrCreate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   if uniqueFields == model.pkFields:
@@ -776,7 +776,7 @@ proc getOrCreateProc*(str: var string,
     procName &= "By" & uniqueFieldsPascalCaseCase
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -788,7 +788,7 @@ proc getOrCreateProc*(str: var string,
 
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -806,9 +806,9 @@ proc getOrCreateProc*(str: var string,
         model)
 
   # Select one
-  str &= &"  let {model.camelCaseName} =\n" &
-         &"        get{model.pascalCaseName}By{getByFields}(\n" &
-         &"          {model.module.camelCaseName}Module,\n"
+  str &= &"  let {model.nameInCamelCase} =\n" &
+         &"        get{model.nameInPascalCase}By{getByFields}(\n" &
+         &"          {model.module.nameInCamelCase}Module,\n"
 
   listFieldNames(str,
                  model,
@@ -819,8 +819,8 @@ proc getOrCreateProc*(str: var string,
          "\n"
 
   # Return if a record was found
-  str &= &"  if {model.camelCaseName} != none({model.pascalCaseName}):\n" &
-         &"    return {model.camelCaseName}.get\n" &
+  str &= &"  if {model.nameInCamelCase} != none({model.nameInPascalCase}):\n" &
+         &"    return {model.nameInCamelCase}.get\n" &
           "\n"
 
   # Create uniqueFieldsExcludingOptionTypes
@@ -830,8 +830,8 @@ proc getOrCreateProc*(str: var string,
           uniqueFields)
 
   # Call create (no record found) and return the type
-  str &= &"  return create{model.pascalCaseName}(\n" &
-         &"           {model.module.camelCaseName}Module,\n"
+  str &= &"  return create{model.nameInPascalCase}(\n" &
+         &"           {model.module.nameInCamelCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -853,20 +853,20 @@ proc truncate*(str: var string,
   var procName = "truncate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
-  let sql = &"truncate table {model.base_snake_case_name} restart identity"
+  let sql = &"truncate table {model.base_nameInSnakeCase} restart identity"
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
           "       cascade: bool = false) =\n" &
           "\n" &
           "  if cascade == false:\n" &
-         &"    exec({model.module.camelCaseName}Module.db,\n" &
+         &"    exec({model.module.nameInCamelCase}Module.db,\n" &
          &"         sql(\"{sql};\"))\n" &
           "\n" &
           "  else:\n" &
-         &"    exec({model.module.camelCaseName}Module.db,\n" &
+         &"    exec({model.module.nameInCamelCase}Module.db,\n" &
          &"         sql(\"{sql} cascade;\"))\n" &
           "\n"
 
@@ -879,7 +879,7 @@ proc updateByPKProc*(str: var string,
   var procName = "update"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if len(model.pkFields) == 0:
     return false
@@ -891,8 +891,8 @@ proc updateByPKProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}ByPK*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
-         &"       {model.camelCaseName}: {model.pascalCaseName},\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
          &"       exceptionOnNRowsUpdated: bool = true){returnDetails} =\n" &
           "\n"
@@ -912,7 +912,7 @@ proc updateByPKProc*(str: var string,
   # Exec the update and return rows affected
   str &=  "  let rowsUpdated = \n" &
           "        execAffectedRows(\n" &
-         &"          {model.module.camelCaseName}Module.db,\n" &
+         &"          {model.module.nameInCamelCase}Module.db,\n" &
           "          sql(updateStatement),\n" &
           "          updateValues)\n" &
           "\n" &
@@ -938,7 +938,7 @@ proc updateSetClause*(str: var string,
   var procName = "update"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -947,13 +947,13 @@ proc updateSetClause*(str: var string,
           pragmas)
 
   str &= &"proc {procName}SetClause*(\n" &
-         &"       {model.camelCaseName}: {model.pascalCaseName},\n" &
+         &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
           "       updateStatement: var string,\n" &
          &"       updateValues: var seq[string]){returnDetails} =\n" &
           "\n" &
           "  updateStatement =\n" &
-         &"    \"update {model.baseSnakeCaseName}\" &\n"
+         &"    \"update {model.baseNameInSnakeCase}\" &\n"
 
   setClause(str,
             "update",
@@ -971,7 +971,7 @@ proc updateWhereClauseProc*(
   var procName = "update"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -980,8 +980,8 @@ proc updateWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereClause*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
-         &"       {model.camelCaseName}: {model.pascalCaseName},\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
           "       whereClause: string,\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
@@ -998,7 +998,7 @@ proc updateWhereClauseProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(updateStatement),\n" &
           "           concat(updateValues,\n" &
           "                  whereValues))\n" &
@@ -1014,7 +1014,7 @@ proc updateWhereEqOnlyProc*(
   var procName = "update"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -1023,8 +1023,8 @@ proc updateWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereEqOnly*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n" &
-         &"       {model.camelCaseName}: {model.pascalCaseName},\n" &
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
           "       whereFields: seq[string],\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
@@ -1044,7 +1044,7 @@ proc updateWhereEqOnlyProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(updateStatement),\n" &
           "           concat(updateValues,\n" &
           "                  whereValues))\n" &

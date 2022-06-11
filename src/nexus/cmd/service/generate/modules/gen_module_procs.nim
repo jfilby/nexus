@@ -13,11 +13,11 @@ proc generateBeginTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"{module.camelCaseName}Module: {module.pascalCaseName}Module"
+  let param = &"{module.nameInCamelCase}Module: {module.nameInPascalCase}Module"
 
   str &= &"proc beginTransaction*({param}) =\n" &
          "\n" &
-         &"  {module.camelCaseName}Module.db.exec(sql\"begin\")\n" &
+         &"  {module.nameInCamelCase}Module.db.exec(sql\"begin\")\n" &
          "\n\n"
 
 
@@ -25,11 +25,11 @@ proc generateCommitTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"{module.camelCaseName}Module: {module.pascalCaseName}Module"
+  let param = &"{module.nameInCamelCase}Module: {module.nameInPascalCase}Module"
 
   str &= &"proc commitTransaction*({param}) =\n" &
          "\n" &
-         &"  {module.camelCaseName}Module.db.exec(sql\"commit\")\n" &
+         &"  {module.nameInCamelCase}Module.db.exec(sql\"commit\")\n" &
          "\n\n"
 
 
@@ -37,12 +37,12 @@ proc generateIsInATransaction(
        str: var string,
        module: Module) =
 
-  let param = &"{module.camelCaseName}Module: {module.pascalCaseName}Module"
+  let param = &"{module.nameInCamelCase}Module: {module.nameInPascalCase}Module"
 
   str &= &"proc isInATransaction*({param}): bool =\n" &
          "\n" &
          "  let row = getRow(\n" &
-        &"              {module.camelCaseName}Module.db,\n" &
+        &"              {module.nameInCamelCase}Module.db,\n" &
          "              sql\"select pg_current_xact_id_if_assigned()\")\n" &
          "\n" &
          "  if row[0] == \"\":\n" &
@@ -58,11 +58,11 @@ proc generateNewModule*(
        module: Module,
        generatorInfo: var GeneratorInfo) =
 
-  str &= &"proc new{module.pascalCaseName}Module*(): " &
-         &"{module.pascalCaseName}Module =\n" &
+  str &= &"proc new{module.nameInPascalCase}Module*(): " &
+         &"{module.nameInPascalCase}Module =\n" &
          "\n" &
-         &"  var {module.camelCaseName}Module = " &
-         &"{module.pascalCaseName}Module()\n" &
+         &"  var {module.nameInCamelCase}Module = " &
+         &"{module.nameInPascalCase}Module()\n" &
          &"\n"
 
   randomize()
@@ -83,10 +83,10 @@ proc generateNewModule*(
 
     # Generating table set strings
     let
-      mth = &"  {module.camelCaseName}Module.modelToIntSeqTable" &
+      mth = &"  {module.nameInCamelCase}Module.modelToIntSeqTable" &
             &"[\"{model.name}\"] = {modelSeq}\n"
 
-      htm = &"  {module.camelCaseName}Module.intSeqToModelTable" &
+      htm = &"  {module.nameInCamelCase}Module.intSeqToModelTable" &
             &"[{modelSeq}] = \"{model.name}\"\n"
 
     str &= mth &
@@ -107,10 +107,10 @@ proc generateNewModule*(
       let tableField = model.name & "." & field.name
 
       # Generating table set strings
-      ftis &= &"  {module.camelCaseName}Module.fieldToIntSeqTable" &
+      ftis &= &"  {module.nameInCamelCase}Module.fieldToIntSeqTable" &
               &"[\"{tableField}\"] = {modelFieldSeq}\n"
 
-      istf &= &"  {module.camelCaseName}Module.intSeqToFieldTable" &
+      istf &= &"  {module.nameInCamelCase}Module.intSeqToFieldTable" &
               &"[{modelFieldSeq}] = \"{tableField}\"\n"
 
       modelFieldSeq += 1
@@ -120,7 +120,7 @@ proc generateNewModule*(
            istf &
            &"\n"
 
-  str &= &"  return {module.camelCaseName}Module\n" &
+  str &= &"  return {module.nameInCamelCase}Module\n" &
          &"\n"
 
 
@@ -171,7 +171,7 @@ proc generateModuleProcs*(
   createDir(modulesPath)
 
   # Write module file
-  let moduleFilename = &"{modulesPath}/{module.snakeCaseName}.nim"
+  let moduleFilename = &"{modulesPath}/{module.nameInSnakeCase}.nim"
 
   writeFile(moduleFilename,
             str)
@@ -191,10 +191,10 @@ proc generateRollbackTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"{module.camelCaseName}Module: {module.pascalCaseName}Module"
+  let param = &"{module.nameInCamelCase}Module: {module.nameInPascalCase}Module"
 
   str &= &"proc rollbackTransaction*({param}) =\n" &
          "\n" &
-         &"  {module.camelCaseName}Module.db.exec(sql\"rollback\")\n" &
+         &"  {module.nameInCamelCase}Module.db.exec(sql\"rollback\")\n" &
          "\n\n"
 

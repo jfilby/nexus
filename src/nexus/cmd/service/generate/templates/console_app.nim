@@ -10,7 +10,7 @@ proc generateConsoleAppTemplate*(appTemplate: AppTemplate) =
 
   var
     programs = &"{appTemplate.modulePath}{DirSep}programs"
-    consoleNim = &"{programs}{DirSep}{appTemplate.moduleNameSnakeCase}.nim"
+    consoleNim = &"{programs}{DirSep}{appTemplate.moduleNameInSnakeCase}.nim"
 
   discard parseFilenameExpandEnvVars(programs)
   discard parseFilenameExpandEnvVars(consoleNim)
@@ -26,9 +26,9 @@ proc generateConsoleAppTemplate*(appTemplate: AppTemplate) =
     consoleNim,
      "# Write your console app here then:\n" &
      "# 1. Compile with:\n" &
-    &"#    {appTemplate.compileScript} {appTemplate.moduleNameSnakeCase}\n" &
+    &"#    {appTemplate.compileScript} {appTemplate.moduleNameInSnakeCase}\n" &
      "# 2. Run with\n" &
-    &"#    bin{DirSep}{appTemplate.moduleNameSnakeCase}\n")
+    &"#    bin{DirSep}{appTemplate.moduleNameInSnakeCase}\n")
 
   debug "generateConsoleAppTemplate: done"
 

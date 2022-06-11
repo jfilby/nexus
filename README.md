@@ -292,6 +292,57 @@ unique.
 YAML fields getFunctions, updateFunctions are not currently usable.
 
 
+Defining Web Routes
+====
+
+Web routes are defined by YAML and generate:
+- The web-app or web-service routing source file
+- Starter page files
+
+It's important to generate starter page files because the directories,
+filenames and procedures all have generated names that can't be altered.
+
+Routes can be placed in the same file, see the generated routes.yaml file, or
+be placed in multiple files by group name. Naming for routes is:
+conf/*module*/web-apps/routes/*route-group*.yaml. The web-apps directory can
+be named web-services depending on the type of module.
+
+Here's an example of a routes.yaml file:
+
+```
+%YAML 1.2
+---
+
+- name: Orders
+  description: Orders home
+  group: Orders
+  methods: [ get, post ]
+  options: 
+  route: /orders
+  parameters: []
+  defaults: []
+  modelFields: []
+
+
+- name: Order
+  description: View an order
+  group: Orders
+  methods: [ get, post ]
+  options: 
+  route: /order/{Order Id}
+  parameters:
+  - name: Order Id
+    type: int64
+    constraints: [ not null ]
+    description:
+  defaults: []
+  modelFields: []
+```
+
+Route parameters are defined in detail. Any named parameter in the route (e.g.
+Order Id) must be listed in the parameters spec.
+
+
 Logging
 ====
 

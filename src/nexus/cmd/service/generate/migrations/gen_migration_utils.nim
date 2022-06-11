@@ -14,10 +14,10 @@ proc createMigrationsFile*(
     raise newException(ValueError,
                        "migrationsPath is blank")
 
-  if model.baseSnakeCaseName == "":
+  if model.baseNameInSnakeCase == "":
 
     raise newException(ValueError,
-                       "model.baseSnakeCaseName is blank")
+                       "model.baseNameInSnakeCase is blank")
 
   # Start creating DML string
   var dmlStr =
@@ -30,7 +30,7 @@ proc createMigrationsFile*(
 
   # Write create table file
   var dmlFilename =
-        &"{migrationsPath}{DirSep}{model.baseSnakeCaseName}_create_table_dml.sql"
+        &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_create_table_dml.sql"
 
   echo ".. writing: " & dmlFilename
 
@@ -49,7 +49,7 @@ proc createMigrationsFile*(
       dmlStr)
 
     # Write migration file
-    dmlFilename = &"{migrationsPath}{DirSep}{model.baseSnakeCaseName}_fk_dml.sql"
+    dmlFilename = &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_fk_dml.sql"
 
     echo ".. writing: " & dmlFilename
 
@@ -68,7 +68,7 @@ proc createMigrationsFile*(
       dmlStr)
 
     # Write migration file
-    dmlFilename = &"{migrationsPath}{DirSep}{model.baseSnakeCaseName}_ix_dml.sql"
+    dmlFilename = &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_ix_dml.sql"
 
     echo ".. writing: " & dmlFilename
 

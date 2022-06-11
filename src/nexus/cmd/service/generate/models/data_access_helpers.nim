@@ -50,11 +50,11 @@ proc buildAssignModelTypeFieldsFromRow*(
     if field.constraints.contains("not null"):
 
       if field.`type` == "char":
-        str &= &"{indent}{model.camelCaseName}.{field.camelCaseName} = row[{i}][0]\n"
+        str &= &"{indent}{model.nameInCamelCase}.{field.nameInCamelCase} = row[{i}][0]\n"
       elif field.`type` == "string":
-        str &= &"{indent}{model.camelCaseName}.{field.camelCaseName} = row[{i}]\n"
+        str &= &"{indent}{model.nameInCamelCase}.{field.nameInCamelCase} = row[{i}]\n"
       else:
-        str &= &"{indent}{model.camelCaseName}.{field.camelCaseName} = {convertFunction}(row[{i}])\n"
+        str &= &"{indent}{model.nameInCamelCase}.{field.nameInCamelCase} = {convertFunction}(row[{i}])\n"
 
       prevBreak = false
 
@@ -66,14 +66,14 @@ proc buildAssignModelTypeFieldsFromRow*(
       str &= &"{indent}if row[{i}] != \"\":\n"
 
       if field.`type` == "char":
-        str &= &"{indent}  {model.camelCaseName}.{field.camelCaseName} = some(row[{i}][0])\n"
+        str &= &"{indent}  {model.nameInCamelCase}.{field.nameInCamelCase} = some(row[{i}][0])\n"
       elif field.`type` == "string":
-        str &= &"{indent}  {model.camelCaseName}.{field.camelCaseName} = some(row[{i}])\n"
+        str &= &"{indent}  {model.nameInCamelCase}.{field.nameInCamelCase} = some(row[{i}])\n"
       else:
-        str &= &"{indent}  {model.camelCaseName}.{field.camelCaseName} = some({convertFunction}(row[{i}]))\n"
+        str &= &"{indent}  {model.nameInCamelCase}.{field.nameInCamelCase} = some({convertFunction}(row[{i}]))\n"
 
       str &= &"{indent}else:\n" &
-             &"{indent}  {model.camelCaseName}.{field.camelCaseName} = none({fieldNimType})\n"
+             &"{indent}  {model.nameInCamelCase}.{field.nameInCamelCase} = none({fieldNimType})\n"
 
       prevBreak = true
       str &= "\n"
@@ -92,7 +92,7 @@ proc buildInsertSQLFromModelFieldNames*(
   str &= &"{indent}# Formulate insertStatement and insertValues\n" &
          &"{indent}var\n" &
          &"{indent}  insertValues: seq[string]\n" &
-         &"{indent}  insertStatement = \"insert into {model.baseSnakeCaseName} (\"\n" &
+         &"{indent}  insertStatement = \"insert into {model.baseNameInSnakeCase} (\"\n" &
          &"{indent}  valuesClause = \"\"\n"
 
   var
@@ -125,7 +125,7 @@ proc buildInsertSQLFromModelFieldNames*(
       aIndent &= "  "
       getOption = ".get"
 
-      str &= &"{indent}if {field.snakeCaseName} != none({fieldNimType}):\n"
+      str &= &"{indent}if {field.nameInSnakeCase} != none({fieldNimType}):\n"
 
     skipFieldsComma = false
     skipValuesComma = false
@@ -139,39 +139,39 @@ proc buildInsertSQLFromModelFieldNames*(
       str &= &"{aIndent}insertStatement &= \"uuid_generate_v1(), \"\n"
 
     else:
-      str &= &"{aIndent}insertStatement &= \"{field.snakeCaseName}, \"\n"
+      str &= &"{aIndent}insertStatement &= \"{field.nameInSnakeCase}, \"\n"
 
     # Add field value to the values clause
     let andComma = &"& \", \""
 
     if field.`type` == "bool":
-      str &= &"{aIndent}valuesClause &= pgToBool({field.snakeCaseName}{getOption}) {andComma}\n"
+      str &= &"{aIndent}valuesClause &= pgToBool({field.nameInSnakeCase}{getOption}) {andComma}\n"
 
     elif field.`type` == "char[]":
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.snakeCaseName}{getOption}))\n"
+      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
 
     elif field.`type` == "date":
-      str &= &"{aIndent}valuesClause &= pgToDateString({field.snakeCaseName}{getOption}) {andComma}\n"
+      str &= &"{aIndent}valuesClause &= pgToDateString({field.nameInSnakeCase}{getOption}) {andComma}\n"
 
     elif field.`type` == "datetime":
-      str &= &"{aIndent}valuesClause &= pgToDateTimeString({field.snakeCaseName}{getOption}) {andComma}\n"
+      str &= &"{aIndent}valuesClause &= pgToDateTimeString({field.nameInSnakeCase}{getOption}) {andComma}\n"
 
     elif field.`type` == "float[]":
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.snakeCaseName}{getOption}))\n"
+      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
 
     elif field.`type` == "int64[]":
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.snakeCaseName}{getOption}))\n"
+      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
 
     elif field.`type` == "string":
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add({field.snakeCaseName}{getOption})\n"
+      str &= &"{aIndent}insertValues.add({field.nameInSnakeCase}{getOption})\n"
 
     elif field.`type` == "string[]":
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqStringAsPgArrayString({field.snakeCaseName}{getOption}))\n"
+      str &= &"{aIndent}insertValues.add(getSeqStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
 
     elif field.`type` == "uuid":
       debug "buildInsertSQLFromModelFieldNames(): uuid has no field value"
@@ -179,7 +179,7 @@ proc buildInsertSQLFromModelFieldNames*(
 
     else:
       str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(${field.snakeCaseName}{getOption})\n"
+      str &= &"{aIndent}insertValues.add(${field.nameInSnakeCase}{getOption})\n"
 
   # Remove trailing commas and finalize insertStatement
   str &= "\n" &
@@ -204,7 +204,7 @@ proc deleteFromOnly*(
   # Create select SQL statement
   str &=  "  var deleteStatement =\n" &
           "    \"delete\" & \n" &
-         &"    \"  from {model.baseSnakeCaseName}\"\n" &
+         &"    \"  from {model.baseNameInSnakeCase}\"\n" &
           "\n"
 
 
@@ -223,7 +223,7 @@ proc deleteQuery*(
   # Create select SQL statement
   str &= &"  var deleteStatement =\n" &
          &"    \"delete\" & \n" &
-         &"    \"  from {model.baseSnakeCaseName}\""
+         &"    \"  from {model.baseNameInSnakeCase}\""
 
   if len(whereFields) == 0:
     str &= "\n"
@@ -246,7 +246,7 @@ proc deleteQueryWhereClause*(
   # Create select SQL statement
   str &= &"  var deleteStatement =\n" &
          &"    \"delete\" & \n" &
-         &"    \"  from {model.baseSnakeCaseName}\" &\n" &
+         &"    \"  from {model.baseNameInSnakeCase}\" &\n" &
          &"    \" where \" & whereClause\n"
 
   str &= "\n"
@@ -436,7 +436,7 @@ proc listFieldNames*(
       first = false
 
     # Add field variable name
-    var varName = field.camelCaseName
+    var varName = field.nameInCamelCase
 
     if addNimTypeOptionsForFields.contains(listField):
       varName = &"some({varName})"
@@ -554,7 +554,7 @@ proc getAllSelectFields*(model: Model): seq[string] =
     else:
       firstSelectField = false
 
-    curSelectFields &= field.snakeCaseName
+    curSelectFields &= field.nameInSnakeCase
 
     if len(curSelectFields) > 80:
 
@@ -587,7 +587,7 @@ proc getWherePredicates*(
     let field = getFieldByName(whereField,
                                model)
 
-    wherePredicates.add(&"{field.snakeCaseName} = ?")
+    wherePredicates.add(&"{field.nameInSnakeCase} = ?")
 
   return wherePredicates
 
@@ -596,7 +596,7 @@ proc initType*(str: var string,
                indent: string,
                model: Model) =
 
-  str &= &"{indent}var {model.camelCaseName} = {model.pascalCaseName}()\n" &
+  str &= &"{indent}var {model.nameInCamelCase} = {model.nameInPascalCase}()\n" &
          &"\n"
 
 
@@ -613,7 +613,7 @@ proc selectCountQuery*(str: var string,
   # Create select SQL statement
   str &= &"  var selectStatement =\n" &
          &"    \"select count(1)\" & \n" &
-         &"    \"  from {model.baseSnakeCaseName}\""
+         &"    \"  from {model.baseNameInSnakeCase}\""
 
 
 proc selectQuery*(str: var string,
@@ -653,7 +653,7 @@ proc selectQuery*(str: var string,
   for i in 1 .. len(selectFinalFields) - 1:
     str &= &"    \"       {selectFinalFields[i]}\" &\n"
 
-  str &= &"    \"  from {model.baseSnakeCaseName}\""
+  str &= &"    \"  from {model.baseNameInSnakeCase}\""
 
   if len(whereFields) == 0:
     str &= "\n"
@@ -721,7 +721,7 @@ proc setClause*(str: var string,
       getOption = ".get"
       option = true
 
-    str &= &"    {el}if field == \"{field.snake_case_name}\":\n"
+    str &= &"    {el}if field == \"{field.nameInSnakeCase}\":\n"
 
     var valueToAdd = ""
 
@@ -731,24 +731,24 @@ proc setClause*(str: var string,
           "float64[]",
           "int[]",
           "int64[]" ].contains(field.`type`):
-      valueToAdd = &"getSeqNonStringAsPgArrayString({model.snake_case_name}.{field.snake_case_name}{getOption})"
+      valueToAdd = &"getSeqNonStringAsPgArrayString({model.nameInSnakeCase}.{field.nameInSnakeCase}{getOption})"
 
     elif field.`type` == "string[]":
-      valueToAdd = &"getSeqStringAsPgArrayString({model.snake_case_name}.{field.snake_case_name}{getOption})"
+      valueToAdd = &"getSeqStringAsPgArrayString({model.nameInSnakeCase}.{field.nameInSnakeCase}{getOption})"
 
     else:
-      valueToAdd = &"${model.camelCaseName}.{field.camelCaseName}{getOption}"
+      valueToAdd = &"${model.nameInCamelCase}.{field.nameInCamelCase}{getOption}"
 
     if option == false:
-      str &= &"      {queryType}Statement &= \"       {field.snake_case_name} = ?,\"\n" &
+      str &= &"      {queryType}Statement &= \"       {field.nameInSnakeCase} = ?,\"\n" &
              &"      {queryType}Values.add({valueToAdd})\n" &
              &"\n"
     else:
-      str &= &"      if {model.camelCaseName}.{field.camelCaseName} != none({fieldNimType}):\n" &
-             &"        {queryType}Statement &= \"       {field.snake_case_name} = ?,\"\n" &
+      str &= &"      if {model.nameInCamelCase}.{field.nameInCamelCase} != none({fieldNimType}):\n" &
+             &"        {queryType}Statement &= \"       {field.nameInSnakeCase} = ?,\"\n" &
              &"        {queryType}Values.add({valueToAdd})\n" &
              &"      else:\n" &
-             &"        {queryType}Statement &= \"       {field.snake_case_name} = null,\"\n" &
+             &"        {queryType}Statement &= \"       {field.nameInSnakeCase} = null,\"\n" &
              &"\n"
 
   # Remove last ,
@@ -772,8 +772,8 @@ proc setTypeFromFields*(
     if model.pkFields.contains(field.name):
       continue
 
-    str &= &"{indent}{model.camelCaseName}.{field.camelCaseName} = " &
-           &"{field.camelCaseName}\n"
+    str &= &"{indent}{model.nameInCamelCase}.{field.nameInCamelCase} = " &
+           &"{field.nameInCamelCase}\n"
 
   str &= "\n"
 
@@ -789,7 +789,7 @@ proc updateCallClause*(
          &"    {queryType}Values: seq[string]\n" &
          "\n" &
          &"  {procName}SetClause(\n" &
-         &"    {model.snakeCaseName},\n" &
+         &"    {model.nameInSnakeCase},\n" &
          &"    setFields,\n" &
          &"    {queryType}Statement,\n" &
          &"    {queryType}Values)\n" &
@@ -857,10 +857,10 @@ proc wherePKClause*(str: var string,
                                model)
 
     if first == false:
-      str &= &"  {whereStr} &= \"   and {field.snakeCaseName} = ?\"\n"
+      str &= &"  {whereStr} &= \"   and {field.nameInSnakeCase} = ?\"\n"
     else:
       first = false
-      str &= &"  {whereStr} &= \" where {field.snakeCaseName} = ?\"\n"
+      str &= &"  {whereStr} &= \" where {field.nameInSnakeCase} = ?\"\n"
 
   str &= "\n"
 
@@ -870,7 +870,7 @@ proc wherePKClause*(str: var string,
     let field = getFieldByName(pkFieldName,
                                model)
 
-    str &= &"  {queryType}Values.add(${model.camelCaseName}.{field.camelCaseName})\n"
+    str &= &"  {queryType}Values.add(${model.nameInCamelCase}.{field.nameInCamelCase})\n"
 
   str &= "\n"
 

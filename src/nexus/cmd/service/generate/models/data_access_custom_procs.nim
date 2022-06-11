@@ -52,7 +52,7 @@ proc getCustomProc*(
   if getFunction.name == "by fields":
     procName &= stripAllStrings(selectFieldsWithPkName.join())
 
-    procName &= "From" & model.pascalCaseName
+    procName &= "From" & model.nameInPascalCase
 
     if len(getFunction.whereFields) > 0:
       procName &= "By" & stripAllStrings(whereFieldsWithPkName.join())
@@ -76,7 +76,7 @@ proc getCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   let withStringTypes = false
 
@@ -106,7 +106,7 @@ proc getCustomProc*(
 
   # Get the record
   str &= &"  let row = getRow(\n" &
-         &"              {model.module.camelCaseName}Module.db,\n" &
+         &"              {model.module.nameInCamelCase}Module.db,\n" &
          &"              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -175,7 +175,7 @@ proc updateCustomProc*(
   var procName = "update"
 
   if updateFunction.name == "by fields":
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
     procName &= "Set" & stripAllStrings(setFieldsWithPkName.join())
 
@@ -187,7 +187,7 @@ proc updateCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
 
   let withStringTypes = false
 
@@ -230,7 +230,7 @@ proc updateCustomProc*(
 
   # Update statement
   str &=  "  var updateStatement =\n" &
-         &"    \"update {model.baseSnakeCaseName}\" &\n"
+         &"    \"update {model.baseNameInSnakeCase}\" &\n"
 
   # Set and where clauses
   setClauseByCustomFields(
@@ -243,7 +243,7 @@ proc updateCustomProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(updateStatement),\n"
 
   # List set fields
@@ -266,7 +266,7 @@ proc updateCustomProc*(
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &"           {field.snakeCaseName}{getOption}"
+    str &= &"           {field.nameInSnakeCase}{getOption}"
 
   # List where fields
   for whereField in whereFieldsWithActualPkName:
@@ -279,7 +279,7 @@ proc updateCustomProc*(
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &",\n           {field.snakeCaseName}{getOption}"
+    str &= &",\n           {field.nameInSnakeCase}{getOption}"
 
   str &= &")\n"
 

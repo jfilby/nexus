@@ -70,25 +70,25 @@ proc getModel*(modelYaml: ModelYAML,
     refPascalCaseSuffix = "Ref"
     refSnakeCaseSuffix = "_ref"
 
-  model.snakeCaseRefSuffix = refSnakeCaseSuffix
+  model.refSuffixInSnakeCase = refSnakeCaseSuffix
 
-  model.baseCamelcaseName = getCamelCaseName(model.name)
-  model.basePascalCaseName = getPascalCaseName(model.name)
-  model.baseSnakeCaseName = getSnakeCaseName(model.name)
+  model.baseNameInCamelCase = getCamelCaseName(model.name)
+  model.baseNameInPascalCase = getnameInPascalCase(model.name)
+  model.baseNameInSnakeCase = getSnakeCaseName(model.name)
 
-  model.camelcaseName =
-    &"{model.baseCamelcaseName}{refPascalCaseSuffix}"
+  model.nameInCamelCase =
+    &"{model.baseNameInCamelCase}{refPascalCaseSuffix}"
 
-  model.pascalCaseName =
-    &"{model.basePascalCaseName}{refPascalCaseSuffix}"
+  model.nameInPascalCase =
+    &"{model.baseNameInPascalCase}{refPascalCaseSuffix}"
 
-  model.snakeCaseName =
-    &"{model.baseSnakeCaseName}{refSnakeCaseSuffix}"
+  model.nameInSnakeCase =
+    &"{model.baseNameInSnakeCase}{refSnakeCaseSuffix}"
 
   model.namePlural = &"{model.name}s"
-  model.camelcaseNamePlural = &"{model.camelcaseName}s"
-  model.pascalCaseNamePlural = &"{model.pascalCaseName}s"
-  model.snakeCaseNamePlural = &"{model.snakeCaseName}s"
+  model.namePluralInCamelCase = &"{model.nameInCamelCase}s"
+  model.namePluralInPascalCase = &"{model.nameInPascalCase}s"
+  model.namePluralInSnakeCase = &"{model.nameInSnakeCase}s"
 
   # PK
   var pkIsSet = false
@@ -136,13 +136,13 @@ proc getModel*(modelYaml: ModelYAML,
                          &"type is \"{field.`type`}\" (type must be lowercase)")
 
     # Set additional fields
-    field.camelcaseName = getCamelCaseName(field.name)
-    field.pascalCaseName = getPascalCaseName(field.name)
-    field.snakeCaseName = getSnakeCaseName(field.name)
+    field.nameInCamelCase = getCamelCaseName(field.name)
+    field.nameInPascalCase = getnameInPascalCase(field.name)
+    field.nameInSnakeCase = getSnakeCaseName(field.name)
 
     debug "getModel()",
       fieldName = field.name,
-      fieldSnakeCaseName = field.snakeCaseName
+      fieldSnakeCaseName = field.nameInSnakeCase
 
     model.fields.add(field)
 
@@ -164,7 +164,7 @@ proc getModel*(modelYaml: ModelYAML,
 
   # Attempt to retrieve PK
   var first = true
-  model.pkModelDCamelCaseNames = ""
+  model.pkModelDNamesInCamelCase = ""
 
   for field in model.pkFields:
 
@@ -181,15 +181,15 @@ proc getModel*(modelYaml: ModelYAML,
       pkIsSet = true
 
       model.pkName = field
-      model.pkSnakeCaseName = fieldSnakeCaseName
-      model.pkCamelCaseName = fieldCamelCaseName
+      model.pkNameInSnakeCase = fieldSnakeCaseName
+      model.pkNameInCamelCase = fieldCamelCaseName
 
       model.pkNimType = getNimType(modelField,
                                     withOption = true)
 
       # PK: model.field
-      model.pkModelDCamelCaseNames =
-        &"{model.camelCaseName}.{fieldCamelCaseName}"
+      model.pkModelDNamesInCamelCase =
+        &"{model.nameInCamelCase}.{fieldCamelCaseName}"
 
     elif len(model.pkFields) > 1:
       pkIsSet = true
@@ -200,26 +200,26 @@ proc getModel*(modelYaml: ModelYAML,
       model.pkName = model.pkFields.join(", ")
 
       if first == false:
-        model.pkSnakeCaseName &= ", "
-        model.pkCamelCaseName &= ", "
-        model.pkModelDCamelCaseNames &= ", "
+        model.pkNameInSnakeCase &= ", "
+        model.pkNameInCamelCase &= ", "
+        model.pkModelDNamesInCamelCase &= ", "
 
       else:
         first = false
 
-      model.pkSnakeCaseName &= fieldSnakeCaseName
-      model.pkCamelCaseName &= fieldCamelCaseName
-      model.pkModelDCamelCaseNames &= &"{model.camelCaseName}.{fieldCamelCaseName}"
+      model.pkNameInSnakeCase &= fieldSnakeCaseName
+      model.pkNameInCamelCase &= fieldCamelCaseName
+      model.pkModelDNamesInCamelCase &= &"{model.nameInCamelCase}.{fieldCamelCaseName}"
 
       model.pkNimType = getNimType(pkFields,
                                      withOption = true)
 
-  # Brackets pkModelDCamelCaseNames for multi-PK fields
+  # Brackets pkModelDNamesInCamelCase for multi-PK fields
   if len(model.pkFields) > 1:
 
-    model.pkSnakeCaseName = &"({model.pkSnakeCaseName})"
-    model.pkCamelCaseName = &"({model.pkCamelCaseName})"
-    model.pkModelDCamelCaseNames = &"({model.pkModelDCamelCaseNames})"
+    model.pkNameInSnakeCase = &"({model.pkNameInSnakeCase})"
+    model.pkNameInCamelCase = &"({model.pkNameInCamelCase})"
+    model.pkModelDNamesInCamelCase = &"({model.pkModelDNamesInCamelCase})"
 
   # Stop if PK is not set
   let modelRequiresPk = false
@@ -251,10 +251,10 @@ proc getModel*(modelYaml: ModelYAML,
     lenModel_indexes = len(model.indexes)
 
   # Verification
-  if model.baseSnakeCaseName == "":
+  if model.baseNameInSnakeCase == "":
 
     raise newException(ValueError,
-                       "model.baseSnakeCaseName is blank")
+                       "model.baseNameInSnakeCase is blank")
 
   # Return model
   return model
@@ -461,7 +461,7 @@ proc getFieldNamesInSnakeCase*(
 
       if field.name == modelFieldName:
 
-        fieldNames.add(field.snakeCaseName)
+        fieldNames.add(field.nameInSnakeCase)
 
   return fieldNames
 
@@ -559,7 +559,7 @@ proc getModelImport*(model: Model,
   let module = getModuleByName(model.moduleImport,
                                generatorInfo)
 
-  return module.snakeCaseName & "/data_access/" & model.snakeCaseName & "_data"
+  return module.nameInSnakeCase & "/data_access/" & model.nameInSnakeCase & "_data"
 
 
 proc getModelTypesImport*(
@@ -576,7 +576,7 @@ proc getModelTypesImport*(
   # Types import must be disambiguated using an alias.
   # Nim doesn't allow importing the same filename twice, even if they have
   # different import paths.
-  return &"{module.snakeCaseName}/types/model_types as {model.snakeCaseName}" &
+  return &"{module.nameInSnakeCase}/types/model_types as {model.nameInSnakeCase}" &
           "_types"
 
 

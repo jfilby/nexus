@@ -13,11 +13,11 @@ proc callCreateProc*(
   var procName = "create"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let
-    proc_line = &"  let {model.camelCaseName} = {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  let {model.nameInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -47,7 +47,7 @@ proc callDeleteProc*(
   var procName = "delete"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -57,7 +57,7 @@ proc callDeleteProc*(
 
   # Proc definition
   let
-    proc_line = &"  let rows_deleted = {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  let rows_deleted = {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -94,7 +94,7 @@ proc callExistsProc*(
   var procName = "exists"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -104,7 +104,7 @@ proc callExistsProc*(
 
   # Proc definition
   let
-    proc_line = &"  return {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  return {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -137,11 +137,11 @@ proc callFilterWithWhereClauseProc*(
   var procName = "filter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let
-    proc_line = &"  let {model.camelCaseNamePlural} = {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  let {model.namePluralInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -161,11 +161,11 @@ proc callFilterWithWhereFieldsProc*(
   var procName = "filter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let
-    proc_line = &"  let {model.snakeCaseNamePlural} = {procName}({model.module.snakeCaseName}Module,\n"
+    proc_line = &"  let {model.namePluralInSnakeCase} = {procName}({model.module.nameInSnakeCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -189,7 +189,7 @@ proc callGetProc*(
   var procName = "get"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -199,7 +199,7 @@ proc callGetProc*(
 
   # Proc definition
   let
-    proc_line = &"  let {model.camelCaseName} = {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  let {model.nameInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -231,10 +231,10 @@ proc callGetOrCreateProcByPK*(
   var procName = "getOrCreate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
-  str &= &"  let {model.camelCaseName} = {procName}ByPK(\n"
+  str &= &"  let {model.nameInCamelCase} = {procName}ByPK(\n"
 
   listModelFieldNames(str,
                       model,
@@ -255,7 +255,7 @@ proc callGetOrCreateProcByUniqueFields*(
   var procName = "getOrCreate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let
@@ -264,8 +264,8 @@ proc callGetOrCreateProcByUniqueFields*(
         uniqueFields,
         model)
 
-    proc_line = &"  let {model.camelCaseName} = {procName}By{uniqueFieldsPascalCaseCase}(" &
-                &"{model.module.camelCaseName}Module,\n"
+    proc_line = &"  let {model.nameInCamelCase} = {procName}By{uniqueFieldsPascalCaseCase}(" &
+                &"{model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
@@ -290,18 +290,18 @@ proc callUpdateProc*(
   var procName = "update"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   procName &= "ByPK"
 
   # Proc definition
   let
-    proc_line = &"  let rowsUpdated = {procName}({model.module.camelCaseName}Module,\n"
+    proc_line = &"  let rowsUpdated = {procName}({model.module.nameInCamelCase}Module,\n"
     indentLen = find(proc_line, '(') + 1
     indent = getIndentByLen(indentLen)
 
   str &= proc_line &
-         &"{indent}{model.camelCaseName},\n" &
+         &"{indent}{model.nameInCamelCase},\n" &
          &"{indent}setFields)\n" &
          &"\n"
 

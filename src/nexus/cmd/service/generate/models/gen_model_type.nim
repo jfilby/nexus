@@ -14,11 +14,11 @@ proc generateModelFields(
                              withOption = true)
 
     # Raw type
-    str &= &"    {field.camelCaseName}*: {nimType}\n"
+    str &= &"    {field.nameInCamelCase}*: {nimType}\n"
 
     # Add a string type if the field type isn't string (option or not)
     if field.`type` != "string":
-      str &= &"    {field.camelCaseName}Str*: string\n"
+      str &= &"    {field.nameInCamelCase}Str*: string\n"
 
   str &= "\n"
 
@@ -28,14 +28,14 @@ proc generateModelTypes*(
        model: var Model) =
 
   # Gen type for model (object)
-  str &= &"  {model.pascalCaseName}* = object\n"
+  str &= &"  {model.nameInPascalCase}* = object\n"
 
   generateModelFields(
     str,
     model)
 
   # Gen seq type for model (object)
-  str &= &"  {model.pascalCaseNamePlural}* = seq[{model.pascalCaseName}]\n" &
+  str &= &"  {model.namePluralInPascalCase}* = seq[{model.nameInPascalCase}]\n" &
           "\n" &
           "\n"
 

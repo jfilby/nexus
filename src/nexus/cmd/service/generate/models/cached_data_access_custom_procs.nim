@@ -52,7 +52,7 @@ proc cachedGetCustomProc*(
   if getFunction.name == "by fields":
     procName &= stripAllStrings(selectFieldsWithPkName.join())
 
-    procName &= "From" & model.pascalCaseName
+    procName &= "From" & model.nameInPascalCase
 
     if len(getFunction.whereFields) > 0:
       procName &= "By" & stripAllStrings(whereFieldsWithPkName.join())
@@ -106,7 +106,7 @@ proc cachedGetCustomProc*(
 
   # Get the record
   str &= &"  let row = getRow(\n" &
-         &"              {model.module.camelCaseName}Module.db,\n" &
+         &"              {model.module.nameInCamelCase}Module.db,\n" &
          &"              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -174,7 +174,7 @@ proc cachedUpdateCustomProc*(
   var procName = "cachedUpdate"
 
   if updateFunction.name == "by fields":
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
     procName &= "Set" & stripAllStrings(setFieldsWithPkName.join())
 
@@ -229,7 +229,7 @@ proc cachedUpdateCustomProc*(
 
   # Update statement
   str &= "  var updateStatement =\n" &
-         &"    \"update {model.baseSnakeCaseName}\" &\n"
+         &"    \"update {model.baseNameInSnakeCase}\" &\n"
 
   # Set and where clauses
   setClauseByCustomFields(
@@ -242,7 +242,7 @@ proc cachedUpdateCustomProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.camelCaseName}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}Module.db,\n" &
           "           sql(updateStatement),\n"
 
   # List set fields
@@ -263,7 +263,7 @@ proc cachedUpdateCustomProc*(
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &"           {field.camelCaseName}{getOption}"
+    str &= &"           {field.nameInCamelCase}{getOption}"
 
   # List where fields
   for whereField in whereFieldsWithActualPkName:
@@ -276,7 +276,7 @@ proc cachedUpdateCustomProc*(
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &",\n           {field.camelCaseName}{getOption}"
+    str &= &",\n           {field.nameInCamelCase}{getOption}"
 
   str &= ")\n"
 

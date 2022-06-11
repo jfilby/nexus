@@ -21,14 +21,14 @@ type
 
   AppTemplate* = object
     appName*: string
-    appNameSnakeCase*: string
-    appNameUpperSnakeCase*: string
-    appNameLowerSnakeCase*: string
+    appNameInSnakeCase*: string
+    appNameInUpperSnakeCase*: string
+    appNameInLowerSnakeCase*: string
 
     moduleName*: string
-    moduleNameSnakeCase*: string
-    moduleNameUpperSnakeCase*: string
-    moduleNameLowerSnakeCase*: string
+    moduleNameInSnakeCase*: string
+    moduleNameUpperInSnakeCase*: string
+    moduleNameLowerInSnakeCase*: string
 
     artifact*: string
     docUi*: bool
@@ -74,9 +74,9 @@ type
   Field* = ref object of RootObj
     name*: string
 
-    camelcaseName*: string
-    pascalCaseName*: string
-    snakeCaseName*: string
+    nameInCamelCase*: string
+    nameInPascalCase*: string
+    nameInSnakeCase*: string
 
     `type`*: string
     constraints*: seq[string]
@@ -160,10 +160,10 @@ type
     shortName*: string
     shortNameLower*: string
 
-    camelcaseName*: string
-    pascalCaseName*: string
-    snakeCaseName*: string
-    snakeCaseShortName*: string
+    nameInCamelCase*: string
+    nameInPascalCase*: string
+    nameInSnakeCase*: string
+    shortNameInSnakeCase*: string
 
     package*: string
     importPath*: string
@@ -246,6 +246,18 @@ type
   RouteParametersYAML* = seq[RouteParameterYAML]
 
 
+  RouteParameter* = object
+    name*: string
+    `type`*: string
+    constraints*: seq[string]
+    description*: string
+
+    nameInCamelCase*: string
+
+
+  RouteParameters* = seq[RouteParameter]
+
+
   RouteYAML* = object
     name*: string
     description*: string
@@ -268,15 +280,17 @@ type
     methods*: seq[string]
     options*: string
     route*: string
-    parameters*: RouteParametersYAML
+    parameters*: RouteParameters
     defaults*: seq[DefaultsField]
     modelFields*: ModelFieldsForRouteYAML
 
-    groupSnakeCaseName*: string
-    nameCamelCaseName*: string
-    nameSnakeCaseName*: string
+    nameInCamelCase*: string
+    nameInSnakeCase*: string
+    groupInSnakeCase*: string
 
     pagesImport*: string
+    jesterRoute*: string
+    jesterRouteParameters*: seq[string]
 
 
   Routes* = object
@@ -309,18 +323,18 @@ type
     name*: string
     namePlural*: string
 
-    baseCamelcaseName*: string
-    camelcaseName*: string
-    camelcaseNamePlural*: string
+    baseNameInCamelCase*: string
+    nameInCamelCase*: string
+    namePluralInCamelCase*: string
 
-    basePascalCaseName*: string
-    pascalCaseName*: string
-    pascalCaseNamePlural*: string
+    baseNameInPascalCase*: string
+    nameInPascalCase*: string
+    namePluralInPascalCase*: string
 
-    baseSnakeCaseName*: string
-    snakeCaseName*: string
-    snakeCaseNamePlural*: string
-    snakeCaseRefSuffix*: string
+    baseNameInSnakeCase*: string
+    nameInSnakeCase*: string
+    namePluralInSnakeCase*: string
+    refSuffixInSnakeCase*: string
 
     # Short hash for forms
     shortHash*: string
@@ -328,21 +342,21 @@ type
     # Named names are different when an alias is used
     namedName*: string
     namedNamePlural*: string
-    namedCamelcaseName*: string
-    namedCamelcaseNamePlural*: string
-    namedPascalCaseName*: string
-    namedPascalCaseNamePlural*: string
-    namedSnakeCaseName*: string
-    namedSnakeCaseNamePlural*: string
+    namedNameInCamelCase*: string
+    namedNamePluralInCamelCase*: string
+    namedNameInPascalCase*: string
+    namednamePluralInPascalCase*: string
+    namedNameInSnakeCase*: string
+    namedNamePluralInSnakeCase*: string
 
     packageImport*: string
     moduleImport*: string
 
-    # Fields pkName and pkSnakeCaseName are only used for single-field PKs
+    # Fields pkName and pkNameInSnakeCase are only used for single-field PKs
     pkName*: string
-    pkCamelCaseName*: string
-    pkSnakeCaseName*: string
-    pkModelDCamelCaseNames*: string
+    pkNameInCamelCase*: string
+    pkNameInSnakeCase*: string
+    pkModelDNamesInCamelCase*: string
     pkNimType*: string
 
     # The Nim types used by the model type
@@ -408,9 +422,9 @@ type
 
     shortName*: string
     package*: string
-    camelCaseName*: string
-    pascalCaseName*: string
-    snakeCaseName*: string
+    nameInCamelCase*: string
+    nameInPascalCase*: string
+    nameInSnakeCase*: string
 
     description*: string
     confPath*: string
@@ -475,9 +489,9 @@ type
     envTable*: Table[string, string]
 
     appName*: string
-    appNameSnakeCase*: string
-    appNameUpperSnakeCase*: string
-    appNameLowerSnakeCase*: string
+    appNameInSnakeCase*: string
+    appNameInUpperSnakeCase*: string
+    appNameInLowerSnakeCase*: string
     package*: string
 
     libraries*: LibrariesYAML

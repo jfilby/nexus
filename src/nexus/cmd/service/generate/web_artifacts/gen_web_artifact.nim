@@ -1,7 +1,7 @@
 import os, strformat, strutils
 import nexus/cmd/service/generate/modules/gen_module_type
 import nexus/cmd/service/generate/modules/module_utils
-import nexus/cmd/service/generate/routes/read_route_files_file
+import nexus/cmd/service/generate/routes/read_route_files
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
 import nexus/cmd/types/types
 import deploy_media_list
@@ -42,11 +42,10 @@ proc generateWebArtifact*(
        generatorInfo.tmpDict) == true or
      generatorInfo.refresh == true:
 
-    readRoutesFilesFile(
+    readRoutesFiles(
       basePath,
       routesPath = &"{webArtifact.confPath}{DirSep}routes",
       srcPath = webArtifact.srcPath,
-      filename = &"{webArtifact.confPath}{DirSep}routes{DirSep}all_routes.yaml",
       webArtifact = webArtifact,
       generatorInfo = generatorInfo)
 

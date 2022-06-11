@@ -41,8 +41,8 @@ proc generateCachedDataAccessFile*(
             &"import " & join(stdlib_seq, ", ") & "\n" &
             &"import nexus/core/data_access/data_utils\n" &
             &"import nexus/core/data_access/pg_try_insert_id\n" &
-            &"import {model.module.snakeCaseName}/data_access/{model.snakeCaseName}_data\n" &
-            &"import {model.module.snakeCaseName}/types/model_types\n" &
+            &"import {model.module.nameInSnakeCase}/data_access/{model.nameInSnakeCase}_data\n" &
+            &"import {model.module.nameInSnakeCase}/types/model_types\n" &
             &"\n" &
             &"\n" &
             &"# Code\n"
@@ -144,7 +144,7 @@ proc generateCachedDataAccessFile*(
     str &= "\n"
 
   # Update
-  if model.pkSnakeCaseName != "":
+  if model.pkNameInSnakeCase != "":
     cachedUpdateByPKProc(str,
                          model,
                          pragmas)

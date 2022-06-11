@@ -16,11 +16,11 @@ proc cachedCreateWithTypeProc*(
   var procName = "cachedCreate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -36,7 +36,7 @@ proc cachedCreateWithTypeProc*(
 
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -54,7 +54,7 @@ proc cachedCreateWithTypeProc*(
   clearFilterCache(str,
                    model)
 
-  str &= &"  return {model.camelCaseName}\n" &
+  str &= &"  return {model.nameInCamelCase}\n" &
           "\n"
 
 
@@ -83,7 +83,7 @@ proc cachedDeleteProc*(
   var procName = "cachedDelete"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -93,7 +93,7 @@ proc cachedDeleteProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
   listFieldNames(str,
                  model,
@@ -153,7 +153,7 @@ proc cachedExistsProc*(
   var procName = "cachedExists"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -163,7 +163,7 @@ proc cachedExistsProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -216,16 +216,16 @@ proc cachedFilterProc*(
   var procName = "cachedFilter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseNamePlural,
+          model.namePluralInPascalCase,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -252,7 +252,7 @@ proc cachedFilterProc*(
     model)
 
   # Return results
-  str &= &"  return {model.camelCaseNamePlural}\n" &
+  str &= &"  return {model.namePluralInCamelCase}\n" &
           "\n"
 
 
@@ -265,16 +265,16 @@ proc cachedFilterWhereEqOnlyProc*(
   var procName = "cachedFilter"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseNamePlural,
+          model.namePluralInPascalCase,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -301,7 +301,7 @@ proc cachedFilterWhereEqOnlyProc*(
     model)
 
   # Return results
-  str &= &"  return {model.camelCaseNamePlural}\n" &
+  str &= &"  return {model.namePluralInCamelCase}\n" &
           "\n"
 
 
@@ -330,7 +330,7 @@ proc cachedGetProc*(
   var procName = "cachedGet"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -340,7 +340,7 @@ proc cachedGetProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -358,7 +358,7 @@ proc cachedGetProc*(
 
   let returnDetails =
         getProcPostDetails(
-          &"Option[{model.pascalCaseName}]",
+          &"Option[{model.nameInPascalCase}]",
           pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -392,7 +392,7 @@ proc cachedGetProc*(
     withOption = true)
 
   # Return
-  str &= &"  return {model.camelCaseName}\n" &
+  str &= &"  return {model.nameInCamelCase}\n" &
          &"\n"
 
 
@@ -420,7 +420,7 @@ proc cachedGetOrCreateProc*(
   var procName = "cachedGetOrCreate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
     procName &= "ByPK"
@@ -430,7 +430,7 @@ proc cachedGetOrCreateProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(str,
                       model,
@@ -440,7 +440,7 @@ proc cachedGetOrCreateProc*(
 
   let returnDetails =
         getProcPostDetails(
-          model.pascalCaseName,
+          model.nameInPascalCase,
           pragmas)
 
   str &= &"){returnDetails} =\n" &
@@ -480,7 +480,7 @@ proc cachedGetOrCreateProc*(
     str,
     model)
 
-  str &= &"  return {model.camelCaseName}\n" &
+  str &= &"  return {model.nameInCamelCase}\n" &
           "\n"
 
 
@@ -493,7 +493,7 @@ proc cachedUpdateByPKProc*(
   var procName = "cachedUpdate"
 
   if model.longNames == true:
-    procName &= model.pascalCaseName
+    procName &= model.nameInPascalCase
 
   # Proc definition
   let returnDetails =
@@ -502,8 +502,8 @@ proc cachedUpdateByPKProc*(
           pragmas)
 
   str &= &"proc {procName}ByPK*(\n" &
-         &"       {model.module.camelCaseName}Module: var {model.module.pascalCaseName}Module,\n" &
-         &"       {model.camelCaseName}: {model.pascalCaseName},\n" &
+         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
          &"       setFields: seq[string]){returnDetails} =\n" &
           "\n"
 

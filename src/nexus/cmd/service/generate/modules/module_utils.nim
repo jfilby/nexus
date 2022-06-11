@@ -31,7 +31,7 @@ proc addLibraryAsModule*(
   # Additional paths
   module.basePath = resolveCrossPlatformPath(libraryYaml.basePath)
   module.confPath =
-    &"{libraryYaml.basePath}{DirSep}conf{DirSep}{module.snakeCaseName}"
+    &"{libraryYaml.basePath}{DirSep}conf{DirSep}{module.nameInSnakeCase}"
   module.srcPath = resolveCrossPlatformPath(libraryYaml.srcPath)
   module.srcRelativePath = getRelativePath(module.srcPath)
 
@@ -86,7 +86,7 @@ proc findAndLoadLibraryYAMLFile(
 
   # Formulate and verify path
   let path = resolveCrossPlatformPath(
-               &"{confPath}{DirSep}{module.snakeCaseShortName}" &
+               &"{confPath}{DirSep}{module.shortNameInSnakeCase}" &
                &"{DirSep}libraries")
 
   if not dirExists(path):
@@ -242,7 +242,7 @@ proc addWebArtifactAsModule*(
   module.confPath =
     resolveCrossPlatformPath(
       &"{webArtifact.basePath}{DirSep}conf{DirSep}web_apps{DirSep}" &
-      &"{webArtifact.snakeCaseName}")
+      &"{webArtifact.nameInSnakeCase}")
 
   module.srcPath = resolveCrossPlatformPath(webArtifact.srcPath)
   module.srcRelativePath = getRelativePath(module.srcPath)
@@ -379,7 +379,7 @@ proc getModules*(models: Models,
 
 proc getModelTypesImportByModule*(module: Module): string =
 
-  return module.snakeCaseName & &"{DirSep}types{DirSep}model_types"
+  return module.nameInSnakeCase & &"{DirSep}types{DirSep}model_types"
 
 
 proc enrichModuleNaming*(module: var Module) =
@@ -407,11 +407,11 @@ proc enrichModuleNaming*(module: var Module) =
 
   module.name = &"{packageSnakeCase} {module.shortName}"
 
-  module.camelCaseName = getCamelCaseName(module.name)
-  module.pascalCaseName = getPascalCaseName(module.name)
-  module.snakeCaseName = getSnakeCaseName(module.name)
-  module.snakeCaseShortName = getSnakeCaseName(module.shortName)
+  module.nameInCamelCase = getCamelCaseName(module.name)
+  module.nameInPascalCase = getnameInPascalCase(module.name)
+  module.nameInSnakeCase = getSnakeCaseName(module.name)
+  module.shortNameInSnakeCase = getSnakeCaseName(module.shortName)
 
   # Import path
-  module.importPath = &"{module.package}/{module.snakeCaseShortName}"
+  module.importPath = &"{module.package}/{module.shortNameInSnakeCase}"
 
