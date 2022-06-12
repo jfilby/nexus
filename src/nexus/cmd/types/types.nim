@@ -159,11 +159,11 @@ type
     name*: string
     shortName*: string
     shortNameLower*: string
+    shortNameInSnakeCase*: string
 
     nameInCamelCase*: string
     nameInPascalCase*: string
     nameInSnakeCase*: string
-    shortNameInSnakeCase*: string
 
     package*: string
     importPath*: string
