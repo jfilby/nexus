@@ -1,5 +1,6 @@
 import os, streams, strformat, yaml
 import nexus/cmd/types/types
+import nexus/core/service/format/type_utils
 
 
 type
@@ -52,6 +53,14 @@ proc readNexusYaml*(confPath: string):
 
   load(s, nexusYAML)
   s.close()
+
+  # Validate
+  if isLowerAscii(nexusYAML.package) == false:
+
+    echo &"Error: package in conf{DirSep}nexus.yaml isn't all lowercase: " &
+         nexusYAML.package
+
+    quit(1)
 
   # Assign to generatorInfo properties
   generatorInfo.appName = nexusYAML.appName

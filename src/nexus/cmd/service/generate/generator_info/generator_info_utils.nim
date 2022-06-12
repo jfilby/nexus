@@ -59,7 +59,25 @@ proc getModuleAndBasePathAndSrcPathByProgram*(
               webArtifact.basePath,
               webArtifact.srcPath)
 
-  raise newException(
-          ValueError,
-          &"Module with package: {package} shortName: {shortName} not found")
+  # Not found
+  echo &"Module with package: {package} shortName: {shortName} not found"
+
+  if len(generatorInfo.libraries) > 0:
+
+    echo ".. searched libraries:"
+
+    for library in generatorInfo.libraries:
+
+      echo &".. package: {library.package} shortName: {library.shortName}"
+
+  if len(generatorInfo.webArtifacts) > 0:
+
+    echo ".. searched web-apps and web-services:"
+
+    for webArtifact in generatorInfo.webArtifacts:
+
+        echo &".. package: {webArtifact.package} " &
+             &"shortName: {webArtifact.shortName}"
+
+  quit(1)
 

@@ -98,17 +98,20 @@ proc getFieldByName*(fieldName: string,
     if field.name == fieldName:
       return field
 
-  raise newException(
-          ValueError,
-          &"Field not found by fieldName: \"{fieldName}\"")
+  # Field not found
+  echo &"Error: Field not found by fieldName: \"{fieldName}\""
+
+  quit(1)
 
 
-proc getFieldBySnakeCaseName*(fieldSnakeCaseName: string,
-                              model: Model): Field =
+proc getFieldBySnakeCaseName*(
+       fieldSnakeCaseName: string,
+       model: Model): Field =
 
   debug "getFieldBySnakeCaseName()",
     fieldSnakeCaseName = fieldSnakeCaseName
 
+  # Find and return field
   for field in model.fields:
 
     debug "getFieldBySnakeCaseName()",
@@ -117,10 +120,11 @@ proc getFieldBySnakeCaseName*(fieldSnakeCaseName: string,
     if field.nameInSnakeCase == fieldSnakeCaseName:
       return field
 
-  raise newException(
-          ValueError,
-          &"Field not found by fieldSnakeCaseName: \"{fieldSnakeCaseName}\" " &
-          &"for model: \"{model.name}\")")
+  # Field not found
+  echo &"Error: Field not found by fieldSnakeCaseName: " &
+       &"\"{fieldSnakeCaseName}\" for model: \"{model.name}\""
+
+  quit(1)
 
 
 proc getFieldsAsSnakeCaseName*(
@@ -179,9 +183,10 @@ proc getModelByName*(
     if model.namePlural == modelName:
       return (model, true)
 
-  raise newException(
-          ValueError,
-          &"Model not found by modelName: \"{modelName}\"")
+  # Model not found
+  echo &"Error: Model not found by modelName: \"{modelName}\""
+
+  quit(1)
 
 
 # Returns: Model, isPlural
@@ -198,9 +203,11 @@ proc getModelBynameInPascalCase*(
     elif model.namePluralInPascalCase == modelnameInPascalCase:
       return (model, true)
 
-  raise newException(
-          ValueError,
-          &"Model not found by modelnameInPascalCase: \"{modelnameInPascalCase}\"")
+  # Model not found
+  echo  "Error: Model not found by modelnameInPascalCase: " &
+       &"\"{modelnameInPascalCase}\""
+
+  quit(1)
 
 
 proc resolveDataString*(str: var string,
@@ -252,7 +259,8 @@ proc resolveDataValue(str: string,
 
             return model.nameInSnakeCase & "." & field.nameInSnakeCase
 
-    raise newException(
-            ValueError,
-            &"Field not found: {fieldName} in string \"{str}\"")
+    # Field not found
+    echo &"Error: Field not found: {fieldName} in string \"{str}\""
+
+    quit(1)
 

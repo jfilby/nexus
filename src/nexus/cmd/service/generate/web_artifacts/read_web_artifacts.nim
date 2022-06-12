@@ -1,5 +1,6 @@
 import chronicles, os, streams, strformat, strutils, tables, yaml
 import nexus/core/service/format/filename_utils
+import nexus/core/service/format/type_utils
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/types/types
 import utils
@@ -23,6 +24,12 @@ proc readWebArtifactDefinitionFilePass1(
       WebArtifact(
         artifact: artifact,
         package: generatorInfo.package)
+
+  # Validate
+  if isLowerAscii(webArtifact.package) == false:
+
+    echo &"Error: web artifact package isn't all lowercase: {webArtifact.package}"
+    quit(1)
 
   # Read web-app YAML
   if artifact == WebAppArtifact:

@@ -162,6 +162,16 @@ proc int64sWithOption*(int64s: seq[int64]): Option[seq[int64]] =
   return none(seq[int64])
 
 
+proc isLowerAscii*(str: string): bool =
+
+  for i in 0 .. len(str) - 1:
+
+    if isLowerAscii(str[i]) == false:
+      return false
+
+  return true
+
+
 proc readonlyDefault*(str: string): string =
 
   if strip(str) == "":

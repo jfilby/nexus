@@ -1,5 +1,6 @@
 import chronicles, os, streams, strformat, strutils, yaml
 import nexus/core/service/format/filename_utils
+import nexus/core/service/format/type_utils
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/types/types
 
@@ -30,6 +31,13 @@ proc readLibraryDefinition*(
        &"basePath: {library.basePath}, " &
        &"srcPath: {library.srcPath}"
 
+  # Validate
+  if isLowerAscii(library.package) == false:
+
+    echo &"Error: library package isn't all lowercase: {library.package}"
+    quit(1)
+
+  # Path processing
   let
     originalBasePath = library.basePath
     originalSrcPath = library.srcPath
