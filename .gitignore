@@ -2,5 +2,5 @@ nimcache/
 nimblecache/
 htmldocs/
 bin/
-docs/
 tmp/tmp_dict.yaml
+old_docs/
