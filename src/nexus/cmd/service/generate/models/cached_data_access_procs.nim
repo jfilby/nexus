@@ -432,11 +432,12 @@ proc cachedGetOrCreateProc*(
   str &= &"proc {procName}*(\n" &
          &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
 
-  listModelFieldNames(str,
-                      model,
-                      indent = "       ",
-                      skipAutoValue = true,
-                      withNimTypes = true)
+  listModelFieldNames(
+    str,
+    model,
+    indent = "       ",
+    skipAutoValue = true,
+    withNimTypes = true)
 
   let returnDetails =
         getProcPostDetails(

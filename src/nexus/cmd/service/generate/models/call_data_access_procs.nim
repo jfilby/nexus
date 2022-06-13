@@ -23,12 +23,13 @@ proc callCreateProc*(
 
   str &= proc_line
 
-  listModelFieldNames(str,
-                      model,
-                      indent = indent,
-                      skipAutoValue = true,
-                      withDefaults = true,
-                      withNimTypes = false)
+  listModelFieldNames(
+    str,
+    model,
+    indent = indent,
+    skipAutoValue = true,
+    withDefaults = true,
+    withNimTypes = false)
 
   str &= &")\n" &
          &"\n"
@@ -64,18 +65,21 @@ proc callDeleteProc*(
   str &= proc_line
 
   if withStringTypes == false:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withNimTypes = false,
-                   listFields = uniqueFields)
+
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withNimTypes = false,
+      listFields = uniqueFields)
 
   else:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withStringTypes = false,
-                   listFields = uniqueFields)
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withStringTypes = false,
+      listFields = uniqueFields)
 
   str &= &")\n" &
          &"\n"
@@ -111,18 +115,21 @@ proc callExistsProc*(
   str &= proc_line
 
   if withStringTypes == false:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withNimTypes = false,
-                   listFields = uniqueFields)
+
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withNimTypes = false,
+      listFields = uniqueFields)
 
   else:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withStringTypes = false,
-                   listFields = uniqueFields)
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withStringTypes = false,
+      listFields = uniqueFields)
 
   str &= &")\n" &
          &"\n"
@@ -206,18 +213,21 @@ proc callGetProc*(
   str &= proc_line
 
   if withStringTypes == false:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withNimTypes = false,
-                   listFields = uniqueFields)
+
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withNimTypes = false,
+      listFields = uniqueFields)
 
   else:
-    listFieldNames(str,
-                   model,
-                   indent = indent,
-                   withStringTypes = false,
-                   listFields = uniqueFields)
+    listFieldNames(
+      str,
+      model,
+      indent = indent,
+      withStringTypes = false,
+      listFields = uniqueFields)
 
   str &= &")\n" &
          &"\n"
@@ -234,13 +244,16 @@ proc callGetOrCreateProcByPK*(
     procName &= model.nameInPascalCase
 
   # Proc definition
-  str &= &"  let {model.nameInCamelCase} = {procName}ByPK(\n"
+  str &= &"  let {model.nameInCamelCase} =\n" &
+         &"        {procName}ByPK(\n" &
+         &"          {model.module.nameInCamelCase}Module,\n"
 
-  listModelFieldNames(str,
-                      model,
-                      indent = "       ",
-                      skipAutoValue = true,
-                      withNimTypes = false)
+  listModelFieldNames(
+    str,
+    model,
+    indent = "          ",
+    skipAutoValue = true,
+    withNimTypes = false)
 
   str &= &")\n" &
          &"\n"
@@ -271,11 +284,12 @@ proc callGetOrCreateProcByUniqueFields*(
 
   str &= proc_line
 
-  listModelFieldNames(str,
-                      model,
-                      indent = indent,
-                      skipAutoValue = true,
-                      withNimTypes = false)
+  listModelFieldNames(
+    str,
+    model,
+    indent = indent,
+    skipAutoValue = true,
+    withNimTypes = false)
 
   str &= &")\n" &
          &"\n"

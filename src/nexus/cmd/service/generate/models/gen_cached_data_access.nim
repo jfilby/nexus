@@ -40,15 +40,15 @@ proc generateCachedDataAccessFile*(
   let modulePath =
         &"{model.module.package}/{model.module.shortNameInSnakeCase}"
 
-  var str = &"# Nexus generated file\n" &
+  var str =  "# Nexus generated file\n" &
             &"import " & join(stdlib_seq, ", ") & "\n" &
-            &"import nexus/core/data_access/data_utils\n" &
-            &"import nexus/core/data_access/pg_try_insert_id\n" &
+             "import nexus/core/data_access/data_utils\n" &
+             "import nexus/core/data_access/pg_try_insert_id\n" &
             &"import {modulePath}/data_access/{model.nameInSnakeCase}_data\n" &
             &"import {modulePath}/types/model_types\n" &
-            &"\n" &
-            &"\n" &
-            &"# Code\n"
+             "\n" &
+             "\n" &
+             "# Code\n"
 
   let pragmas = "{.gcsafe.}"
 
