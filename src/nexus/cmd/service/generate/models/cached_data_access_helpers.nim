@@ -19,9 +19,20 @@ proc addIfNotExistModelRowToCache*(
     moduleVar = model.module.nameInCamelCase & "Module"
     pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
 
-  str &= "  # Add to the model row cache if it's not there\n" &
+  # Generate code to put the row in the row cache
+  var addToCacheStr =
+        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+
+  if len(addToCacheStr) > 80:
+
+    addToCacheStr =
+      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"      {model.nameInCamelCase}\n"
+
+  # Generate code to add to the row cache
+  str &=  "  # Add to the model row cache if it's not there\n" &
          &"  if not {moduleVar}.{cachedRows}.hasKey({pkField}):\n" &
-         &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n" &
+         addToCacheStr &
          "\n"
 
 
@@ -47,8 +58,19 @@ proc addModelRowToCache*(
     moduleVar = model.module.nameInCamelCase & "Module"
     pkField = &"{model.nameInCamelCase}{optionGet}.{model.pkNameInCamelCase}"
 
+  # Generate code to put the row in the row cache
+  var addToCacheStr =
+        &"{indent}{moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}{optionGet}\n"
+
+  if len(addToCacheStr) > 80:
+
+    addToCacheStr =
+      &"{indent}{moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"{indent}  {model.nameInCamelCase}{optionGet}\n"
+
+  # Generate code to add to the row cache
   str &= &"{indent}# Add to the model row cache\n" &
-         &"{indent}{moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}{optionGet}\n" &
+         addToCacheStr &
           "\n"
 
 
@@ -181,13 +203,24 @@ proc filterModelSetRowsInCacheWithWhereClause*(
     moduleVar = model.module.nameInCamelCase & "Module"
     pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
 
+  # Generate code to put the row in the row cache
+  var setInCacheStr =
+        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+
+  if len(setInCacheStr) > 80:
+
+    setInCacheStr =
+      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"      {model.nameInCamelCase}\n"
+
+  # Generate code to set to the row cache
   str &= "  # Set rows in filter cache\n" &
          &"  {moduleVar}.{cachedFilter}[filterKey] = pks\n" &
          "\n" &
          "  # Set rows in model row cache\n" &
          &"  for {model.nameInCamelCase} in {model.namePluralInCamelCase}:\n" &
          "\n" &
-         &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n" &
+         setInCacheStr &
          "\n"
 
 
@@ -201,13 +234,24 @@ proc filterModelSetRowsInCacheWithWhereFields*(
     moduleVar = model.module.nameInCamelCase & "Module"
     pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
 
+  # Generate code to put the row in the row cache
+  var setInCacheStr =
+        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+
+  if len(setInCacheStr) > 80:
+
+    setInCacheStr =
+      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"      {model.nameInCamelCase}\n"
+
+  # Generate code to set to the row cache
   str &= &"  # Set rows in filter cache\n" &
          &"  {moduleVar}.{cachedFilter}[filterKey] = pks\n" &
          "\n" &
          &"  # Set rows in model row cache\n" &
          &"  for {model.nameInCamelCase} in {model.namePluralInCamelCase}:\n" &
          "\n" &
-         &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n" &
+         setInCacheStr &
          &"\n"
 
 

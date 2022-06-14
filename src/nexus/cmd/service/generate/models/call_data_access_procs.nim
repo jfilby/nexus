@@ -1,5 +1,4 @@
-import strformat, strutils
-import nexus/core/service/format/type_utils
+import strformat
 import nexus/cmd/types/types
 import data_access_helpers
 
@@ -17,11 +16,13 @@ proc callCreateProc*(
 
   # Proc definition
   let
-    proc_line = &"  let {model.nameInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  let {model.nameInCamelCase} =\n" &
+      &"        {procName}({model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line
+    indent = "        "
+
+  str &= procLine
 
   listModelFieldNames(
     str,
@@ -58,11 +59,14 @@ proc callDeleteProc*(
 
   # Proc definition
   let
-    proc_line = &"  let rows_deleted = {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+       "  let rowsDeleted = \n" &
+      &"        {procName}(\n" &
+      &"          {model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line
+    indent = "          "
+
+  str &= procLine
 
   if withStringTypes == false:
 
@@ -108,11 +112,13 @@ proc callExistsProc*(
 
   # Proc definition
   let
-    proc_line = &"  return {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  return {procName}(\n" &
+      &"           {model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line
+    indent = "           "
+
+  str &= procLine
 
   if withStringTypes == false:
 
@@ -148,11 +154,11 @@ proc callFilterWithWhereClauseProc*(
 
   # Proc definition
   let
-    proc_line = &"  let {model.namePluralInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine = &"  let {model.namePluralInCamelCase} =\n" &
+               &"        {procName}({model.module.nameInCamelCase}Module,\n"
+    indent = "        "
 
-  str &= proc_line &
+  str &= procLine &
          &"{indent}whereClause,\n" &
          &"{indent}whereValues,\n" &
          &"{indent}orderByFields)\n" &
@@ -172,11 +178,13 @@ proc callFilterWithWhereFieldsProc*(
 
   # Proc definition
   let
-    proc_line = &"  let {model.namePluralInSnakeCase} = {procName}({model.module.nameInSnakeCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  let {model.namePluralInSnakeCase} =\n" &
+      &"        {procName}({model.module.nameInSnakeCase}Module,\n"
 
-  str &= proc_line &
+    indent = "        "
+
+  str &= procLine &
          &"{indent}whereFields,\n" &
          &"{indent}whereValues,\n" &
          &"{indent}orderByFields)\n" &
@@ -206,11 +214,13 @@ proc callGetProc*(
 
   # Proc definition
   let
-    proc_line = &"  let {model.nameInCamelCase} = {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  let {model.nameInCamelCase} =\n" &
+      &"        {procName}({model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line
+    indent = "        "
+
+  str &= procLine
 
   if withStringTypes == false:
 
@@ -277,12 +287,14 @@ proc callGetOrCreateProcByUniqueFields*(
         uniqueFields,
         model)
 
-    proc_line = &"  let {model.nameInCamelCase} = {procName}By{uniqueFieldsPascalCaseCase}(" &
-                &"{model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  let {model.nameInCamelCase} =\n" &
+      &"        {procName}By{uniqueFieldsPascalCaseCase}(" &
+      &"          {model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line
+    indent = "          "
+
+  str &= procLine
 
   listModelFieldNames(
     str,
@@ -310,11 +322,13 @@ proc callUpdateProc*(
 
   # Proc definition
   let
-    proc_line = &"  let rowsUpdated = {procName}({model.module.nameInCamelCase}Module,\n"
-    indentLen = find(proc_line, '(') + 1
-    indent = getIndentByLen(indentLen)
+    procLine =
+      &"  let rowsUpdated =\n" &
+      &"        {procName}({model.module.nameInCamelCase}Module,\n"
 
-  str &= proc_line &
+    indent = "        "
+
+  str &= procLine &
          &"{indent}{model.nameInCamelCase},\n" &
          &"{indent}setFields)\n" &
          &"\n"
