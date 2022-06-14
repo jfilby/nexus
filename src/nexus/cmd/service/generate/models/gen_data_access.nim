@@ -3,6 +3,7 @@ import nexus/cmd/types/types
 import data_access_helpers
 import data_access_procs
 import data_access_custom_procs
+import model_utils
 
 
 # Code
@@ -251,14 +252,21 @@ proc generateDataAccessFile*(
       str &= "\n"
 
   # Prepend the imports block
+
+  # Standard library imports
   var
-    stdlib_seq: seq[string]
+    stdlibSeqs: seq[string]
     stdlibImports = toOrderedSet( @[ "db_postgres",
                                      "options",
                                      "sequtils",
-                                     "strutils",
-                                     "times" ])
+                                     "strutils" ])
 
+  let hasDateTimeTypes = modelUsesDateTimeTypes(model)
+
+  if hasDateTimeTypes == true:
+    stdlibImports.incl("times")
+
+  # Add various module imports
   for module in stdlibImports:
 
     stdlibImports.incl(module)
@@ -269,18 +277,24 @@ proc generateDataAccessFile*(
 
   for module in stdlibImports:
 
-    stdlib_seq.add(module)
+    stdlibSeqs.add(module)
 
   var importsStr =
-        &"# Nexus generated file\n" &
-        &"import " & join(stdlib_seq, ", ") & "\n" &
-        &"import nexus/core/data_access/data_utils\n"
+         "# Nexus generated file\n" &
+        &"import " & join(stdlibSeqs, ", ") & "\n"
 
-  if pg_try_insertId == true:
+  # Import data_utils if specific types are used
+  if modelUsesArrayTypes(model) or
+     modelUsesBoolTypes(model) or
+     hasDateTimeTypes == true:
+
+    importsStr &= "import nexus/core/data_access/data_utils\n"
+
+  if pgTryInsertId == true:
     importsStr &= "import nexus/core/data_access/pg_try_insert_id\n"
 
   importsStr &= &"import {model.module.importPath}/types/model_types\n" &
-                &"\n\n"
+                 "\n\n"
 
   str = importsStr & str
 

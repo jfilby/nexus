@@ -2,6 +2,7 @@ import chronicles, sets, strformat, strutils
 import nexus/cmd/types/types
 import cached_data_access_procs
 import cached_data_access_custom_procs
+import model_utils
 
 
 # Code
@@ -16,14 +17,14 @@ proc generateCachedDataAccessFile*(
 
   # Generate the import block
   var
-    stdlib_seq: seq[string]
+    stdlibs: seq[string]
     stdlibImports =
-      toOrderedSet( @[ "db_postgres",
-                       "options",
-                       "sequtils",
+      toOrderedSet( @[ "options",
                        "strutils",
-                       "tables",
-                       "times" ])
+                       "tables" ])
+
+  if modelUsesDateTimeTypes(model):
+    stdlibImports.incl("times")
 
   for module in stdlibImports:
 
@@ -35,15 +36,13 @@ proc generateCachedDataAccessFile*(
 
   for module in stdlibImports:
 
-    stdlib_seq.add(module)
+    stdlibs.add(module)
 
   let modulePath =
         &"{model.module.package}/{model.module.shortNameInSnakeCase}"
 
   var str =  "# Nexus generated file\n" &
-            &"import " & join(stdlib_seq, ", ") & "\n" &
-             "import nexus/core/data_access/data_utils\n" &
-             "import nexus/core/data_access/pg_try_insert_id\n" &
+            &"import " & join(stdlibs, ", ") & "\n" &
             &"import {modulePath}/data_access/{model.nameInSnakeCase}_data\n" &
             &"import {modulePath}/types/model_types\n" &
              "\n" &

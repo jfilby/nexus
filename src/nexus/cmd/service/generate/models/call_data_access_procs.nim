@@ -18,9 +18,10 @@ proc callCreateProc*(
   let
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
-      &"        {procName}({model.module.nameInCamelCase}Module,\n"
+      &"        {procName}(\n" &
+      &"           {model.module.nameInCamelCase}Module,\n"
 
-    indent = "        "
+    indent = "           "
 
   str &= procLine
 
@@ -155,8 +156,9 @@ proc callFilterWithWhereClauseProc*(
   # Proc definition
   let
     procLine = &"  let {model.namePluralInCamelCase} =\n" &
-               &"        {procName}({model.module.nameInCamelCase}Module,\n"
-    indent = "        "
+               &"        {procName}(\n" &
+               &"          {model.module.nameInCamelCase}Module,\n"
+    indent = "          "
 
   str &= procLine &
          &"{indent}whereClause,\n" &
@@ -180,9 +182,10 @@ proc callFilterWithWhereFieldsProc*(
   let
     procLine =
       &"  let {model.namePluralInSnakeCase} =\n" &
-      &"        {procName}({model.module.nameInSnakeCase}Module,\n"
+      &"        {procName}(\n" &
+      &"          {model.module.nameInSnakeCase}Module,\n"
 
-    indent = "        "
+    indent = "          "
 
   str &= procLine &
          &"{indent}whereFields,\n" &
@@ -216,9 +219,10 @@ proc callGetProc*(
   let
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
-      &"        {procName}({model.module.nameInCamelCase}Module,\n"
+      &"        {procName}(\n" &
+      &"          {model.module.nameInCamelCase}Module,\n"
 
-    indent = "        "
+    indent = "          "
 
   str &= procLine
 
@@ -289,7 +293,7 @@ proc callGetOrCreateProcByUniqueFields*(
 
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
-      &"        {procName}By{uniqueFieldsPascalCaseCase}(" &
+      &"        {procName}By{uniqueFieldsPascalCaseCase}(\n" &
       &"          {model.module.nameInCamelCase}Module,\n"
 
     indent = "          "
@@ -324,9 +328,10 @@ proc callUpdateProc*(
   let
     procLine =
       &"  let rowsUpdated =\n" &
-      &"        {procName}({model.module.nameInCamelCase}Module,\n"
+      &"        {procName}(\n" &
+      &"          {model.module.nameInCamelCase}Module,\n"
 
-    indent = "        "
+    indent = "          "
 
   str &= procLine &
          &"{indent}{model.nameInCamelCase},\n" &

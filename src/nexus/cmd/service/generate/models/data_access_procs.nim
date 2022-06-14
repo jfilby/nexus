@@ -100,7 +100,7 @@ proc countWhereClauseProc*(
 
 
 proc createProc*(str: var string,
-                 pg_try_insertId: var bool,
+                 pgTryInsertId: var bool,
                  model: Model,
                  pragmas: string) =
 
@@ -140,7 +140,7 @@ proc createProc*(str: var string,
 
   # Exec the insert statement
   if model.fields[0].constraints.contains("auto-value"):
-    pg_try_insertId = true
+    pgTryInsertId = true
 
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  return tryInsertNamedID(\n" &

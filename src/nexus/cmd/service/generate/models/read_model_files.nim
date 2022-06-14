@@ -10,6 +10,7 @@ import gen_cached_data_access
 import gen_data_access
 import gen_model_type
 import gen_model_utils
+import model_utils
 
 
 # Types
@@ -23,7 +24,7 @@ type
 proc writeModelTypes(
        fileModuleName: string,
        modelFiles: var seq[string],
-       moduleMinimuMimports: seq[string],
+       moduleMinimumImports: seq[string],
        modelImportsTable: Table[string, OrderedSet[string]],
        modelTypesTable: Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
@@ -93,10 +94,42 @@ proc createBasicModuleFiles(
       module)
 
 
+proc expandModelTypesImports(
+        model: Model,
+        modelImportsTable: var Table[string, OrderedSet[string]]) =
+
+  var
+    usesDateTimeTypes = modelUsesDateTimeTypes(model)
+    usesJsonTypes = modelUsesJsonTypes(model)
+    usesOptionTypes = modelUsesOptionalTypes(model)
+
+  if usesDateTimeTypes == true or
+     usesJsonTypes == true or
+     usesOptionTypes == true:
+
+    if not modelImportsTable.hasKey(model.module.name):
+      modelImportsTable[model.module.name] = initOrderedSet[string]()
+
+  if usesDateTimeTypes == true:
+
+    if not modelImportsTable[model.module.name].contains("times"):
+      modelImportsTable[model.module.name].incl("times")
+
+  if usesJsonTypes == true:
+
+    if not modelImportsTable[model.module.name].contains("json"):
+      modelImportsTable[model.module.name].incl("json")
+
+  if usesOptionTypes == true:
+
+    if not modelImportsTable[model.module.name].contains("options"):
+      modelImportsTable[model.module.name].incl("options")
+
+
 proc processModel(
        model: var Model,
        srcPath: string,
-       moduleMinimuMimports: OrderedSet[string],
+       moduleMinimumImports: OrderedSet[string],
        modelImportsTable: var Table[string, OrderedSet[string]],
        modelTypesTable: var Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
@@ -141,7 +174,7 @@ proc processModel(
 
     modelTypesTable[model.module.name] = TypeInfo()
     modelTypesTable[model.module.name].path = &"{srcPath}{DirSep}types"
-    modelImportsTable[model.module.name] = moduleMinimuMimports
+    modelImportsTable[model.module.name] = moduleMinimumImports
 
   modelTypesTable[model.module.name].str = modelTypesStr
 
@@ -179,11 +212,8 @@ proc readModelFile(modelFiles: var seq[string],
     modelTypesTable: Table[string, TypeInfo]              # [ model.module, typeInfo ]
     modelModuleTypeTable: Table[string, string]           # [ model.module, moduleType definition ]
     fileModuleName = ""
-    moduleMinimuMimports = @[ "db_postgres",
-                              "options",
-                              "json",
-                              "tables",
-                              "times" ]
+    moduleMinimumImports = @[ "db_postgres",
+                              "tables" ]
 
   # Validate
   if getFileSize(filename) == 0:
@@ -247,19 +277,29 @@ proc readModelFile(modelFiles: var seq[string],
     # Which types to include
     if modelYAML.modelOptions.contains("object"):
 
-      modelObject = some(getModel(modelYAML,
-                                  generatorInfo,
-                                  isRef = false))
+      modelObject =
+        some(getModel(modelYAML,
+                      generatorInfo,
+                      isRef = false))
 
       baseModel = modelObject.get
 
+      expandModelTypesImports(
+        modelObject.get,
+        modelImportsTable)
+
     if modelYAML.modelOptions.contains("ref"):
 
-      modelRef = some(getModel(modelYAML,
-                               generatorInfo,
-                               isRef = true))
+      modelRef =
+        some(getModel(modelYAML,
+                      generatorInfo,
+                      isRef = true))
 
       baseModel = modelRef.get
+
+      expandModelTypesImports(
+        modelRef.get,
+        modelImportsTable)
 
     if modelObject == none(Model) and
        modelRef == none(Model):
@@ -276,7 +316,7 @@ proc readModelFile(modelFiles: var seq[string],
 
       processModel(modelObject.get,
                    srcPath,
-                   toOrderedSet(moduleMinimuMimports),
+                   toOrderedSet(moduleMinimumImports),
                    modelImportsTable,
                    modelTypesTable,
                    modelModuleTypeTable,
@@ -287,7 +327,7 @@ proc readModelFile(modelFiles: var seq[string],
 
       processModel(modelRef.get,
                    srcPath,
-                   toOrderedSet(moduleMinimuMimports),
+                   toOrderedSet(moduleMinimumImports),
                    modelImportsTable,
                    modelTypesTable,
                    modelModuleTypeTable,
@@ -296,7 +336,7 @@ proc readModelFile(modelFiles: var seq[string],
   # Write model types files per module
   writeModelTypes(fileModuleName,
                   modelFiles,
-                  moduleMinimuMimports,
+                  moduleMinimumImports,
                   modelImportsTable,
                   modelTypesTable,
                   modelModuleTypeTable,
@@ -370,7 +410,7 @@ proc readModelFilesPaths*(
 proc writeModelTypes(
        fileModuleName: string,
        modelFiles: var seq[string],
-       moduleMinimuMimports: seq[string],
+       moduleMinimumImports: seq[string],
        modelImportsTable: Table[string, OrderedSet[string]],
        modelTypesTable: Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
@@ -419,9 +459,9 @@ proc writeModelTypes(
         typeStr &= initModelTypesStr(modelImportsTable[module.name])
 
       else:
-        typeStr &= &"import " & moduleMinimuMimports.join(", ") & "\n" &
+        typeStr &= &"import " & moduleMinimumImports.join(", ") & "\n" &
                     "\n" &
-                    &"\n"
+                    "\n"
 
       typeStr &= &"type\n" &
                   typeInfo.str &

@@ -210,6 +210,92 @@ proc getModelBynameInPascalCase*(
   quit(1)
 
 
+proc modelUsesArrayTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if field.`type`[^2 .. ^1] == "[]":
+
+      return true
+
+  return false
+
+
+proc modelUsesBoolTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if @[ "bool",
+          "bool[]" ].contains(field.`type`):
+
+      return true
+
+  return false
+
+
+proc modelUsesCharTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if @[ "char",
+          "char[]" ].contains(field.`type`):
+
+      return true
+
+  return false
+
+
+proc modelUsesDateTimeTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if @[ "date",
+          "date[]",
+          "datetime",
+          "datetime[]" ].contains(field.`type`):
+
+      return true
+
+  return false
+
+
+proc modelUsesFloatTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if @[ "float",
+          "float[]" ].contains(field.`type`):
+
+      return true
+
+  return false
+
+
+proc modelUsesJsonTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if @[ "json",
+          "json[]",
+          "jsonb",
+          "jsonb[]" ].contains(field.`type`):
+
+      return true
+
+  return false
+
+
+proc modelUsesOptionalTypes*(model: Model): bool =
+
+  for field in model.fields:
+
+    if not field.constraints.contains("not null"):
+
+      return true
+
+  return false
+
+
 proc resolveDataString*(str: var string,
                         models: Models) =
 
