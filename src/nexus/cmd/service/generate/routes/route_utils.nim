@@ -136,7 +136,7 @@ proc verifyRouteStringParameter(
        paramStr: string,
        route: Route): RouteParameter =
 
-  info "verifyRouteStringParameter()",
+  debug "verifyRouteStringParameter()",
     paramStr = paramStr
 
   # Verify that the parameter is found
