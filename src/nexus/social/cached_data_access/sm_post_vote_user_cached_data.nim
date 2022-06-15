@@ -34,7 +34,7 @@ proc cachedDeleteSmPostVoteUser*(
        accountUserId: int64): int64 =
 
   # Call the model's delete proc
-  let rows_deleted = deleteSmPostVoteUserByPK(dai.db,
+  let rows_deleted = deleteSmPostVoteUserByPk(dai.db,
                                               sm_postId,
                                               accountUserId)
 
@@ -44,7 +44,7 @@ proc cachedDeleteSmPostVoteUser*(
   return rows_deleted
 
 
-proc cachedExistsSmPostVoteUserByPK*(
+proc cachedExistsSmPostVoteUserByPk*(
        dai: var DAI,
        sm_postId: int64,
        accountUserId: int64): bool =
@@ -54,7 +54,7 @@ proc cachedExistsSmPostVoteUserByPK*(
     return true
 
   # Call the model's exists proc
-  return existsSmPostVoteUserByPK(dai.db,
+  return existsSmPostVoteUserByPk(dai.db,
                                   sm_postId,
                                   accountUserId)
 
@@ -155,7 +155,7 @@ proc cachedFilterSmPostVoteUser*(
   return sm_post_vote_users
 
 
-proc cachedGetSmPostVoteUserByPK*(
+proc cachedGetSmPostVoteUserByPk*(
        dai: var DAI,
        sm_postId: int64,
        accountUserId: int64): bool =
@@ -165,12 +165,12 @@ proc cachedGetSmPostVoteUserByPK*(
     return dai.cached_sm_post_vote_user[sm_postId, accountUserId]
 
   # Call the model's get proc
-  return getSmPostVoteUserByPK(dai.db,
+  return getSmPostVoteUserByPk(dai.db,
                                sm_postId,
                                accountUserId)
 
 
-proc cachedGetOrCreateSmPostVoteUserByPK*(
+proc cachedGetOrCreateSmPostVoteUserByPk*(
        dai: var DAI,
        sm_postId: int64,
        accountUserId: int64,
@@ -181,7 +181,7 @@ proc cachedGetOrCreateSmPostVoteUserByPK*(
   if dai.cached_sm_post_vote_user.hasKey(sm_postId, accountUserId):
     return dai.cached_sm_post_vote_user[sm_postId, accountUserId]
 
-  let sm_post_vote_user = getOrCreateSmPostVoteUserByPK(
+  let sm_post_vote_user = getOrCreateSmPostVoteUserByPk(
        sm_postId,
        accountUserId,
        vote_up,
@@ -194,13 +194,13 @@ proc cachedGetOrCreateSmPostVoteUserByPK*(
   return sm_post_vote_user
 
 
-proc cachedUpdateSmPostVoteUserByPK*(
+proc cachedUpdateSmPostVoteUserByPk*(
        dai: var DAI,
        sm_post_vote_user: SmPostVoteUser,
        setFields: seq[string]): int64 =
 
   # Call the model's update proc
-  let rowsUpdated = updateSmPostVoteUserByPK(dai.db,
+  let rowsUpdated = updateSmPostVoteUserByPk(dai.db,
                                               sm_post_vote_user,
                                               setFields)
 

@@ -157,7 +157,7 @@ proc createListItem*(
   return listItem
 
 
-proc deleteListItemByPK*(
+proc deleteListItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItemId: int64): int64 {.gcsafe.} =
 
@@ -188,7 +188,7 @@ proc deleteListItem*(
            whereValues)
 
 
-proc existsListItemByPK*(
+proc existsListItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItemId: int64): bool {.gcsafe.} =
 
@@ -293,7 +293,7 @@ proc filterListItem*(
   return listItems
 
 
-proc getListItemByPK*(
+proc getListItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItemId: int64): Option[ListItem] {.gcsafe.} =
 
@@ -313,7 +313,7 @@ proc getListItemByPK*(
   return some(rowToListItem(row))
 
 
-proc getListItemByPK*(
+proc getListItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItemId: string): Option[ListItem] {.gcsafe.} =
 
@@ -469,7 +469,7 @@ proc updateListItemSetClause*(
 
 
 
-proc updateListItemByPK*(
+proc updateListItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItem: ListItem,
        setFields: seq[string],

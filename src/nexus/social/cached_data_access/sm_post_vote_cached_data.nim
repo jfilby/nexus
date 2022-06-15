@@ -31,7 +31,7 @@ proc cachedDeleteSmPostVote*(
        sm_postId: int64): int64 =
 
   # Call the model's delete proc
-  let rows_deleted = deleteSmPostVoteByPK(dai.db,
+  let rows_deleted = deleteSmPostVoteByPk(dai.db,
                                           sm_postId)
 
   # Remove from the model row cache
@@ -40,7 +40,7 @@ proc cachedDeleteSmPostVote*(
   return rows_deleted
 
 
-proc cachedExistsSmPostVoteByPK*(
+proc cachedExistsSmPostVoteByPk*(
        dai: var DAI,
        sm_postId: int64): bool =
 
@@ -49,7 +49,7 @@ proc cachedExistsSmPostVoteByPK*(
     return true
 
   # Call the model's exists proc
-  return existsSmPostVoteByPK(dai.db,
+  return existsSmPostVoteByPk(dai.db,
                               sm_postId)
 
 
@@ -149,7 +149,7 @@ proc cachedFilterSmPostVote*(
   return sm_post_votes
 
 
-proc cachedGetSmPostVoteByPK*(
+proc cachedGetSmPostVoteByPk*(
        dai: var DAI,
        sm_postId: int64): bool =
 
@@ -158,11 +158,11 @@ proc cachedGetSmPostVoteByPK*(
     return dai.cached_sm_post_vote[sm_postId]
 
   # Call the model's get proc
-  return getSmPostVoteByPK(dai.db,
+  return getSmPostVoteByPk(dai.db,
                            sm_postId)
 
 
-proc cachedGetOrCreateSmPostVoteByPK*(
+proc cachedGetOrCreateSmPostVoteByPk*(
        dai: var DAI,
        sm_postId: int64,
        votes_up_count: int,
@@ -172,7 +172,7 @@ proc cachedGetOrCreateSmPostVoteByPK*(
   if dai.cached_sm_post_vote.hasKey(sm_postId):
     return dai.cached_sm_post_vote[sm_postId]
 
-  let sm_post_vote = getOrCreateSmPostVoteByPK(
+  let sm_post_vote = getOrCreateSmPostVoteByPk(
        sm_postId,
        votes_up_count,
        votes_down_count)
@@ -184,13 +184,13 @@ proc cachedGetOrCreateSmPostVoteByPK*(
   return sm_post_vote
 
 
-proc cachedUpdateSmPostVoteByPK*(
+proc cachedUpdateSmPostVoteByPk*(
        dai: var DAI,
        sm_post_vote: SmPostVote,
        setFields: seq[string]): int64 =
 
   # Call the model's update proc
-  let rowsUpdated = updateSmPostVoteByPK(dai.db,
+  let rowsUpdated = updateSmPostVoteByPk(dai.db,
                                           sm_post_vote,
                                           setFields)
 

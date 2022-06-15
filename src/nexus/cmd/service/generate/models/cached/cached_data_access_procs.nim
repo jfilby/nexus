@@ -192,7 +192,7 @@ proc cachedExistsProc*(
 
   # Return if in cache
   if uniqueFields == model.pkFields:
-    existsModelRowInCacheByPK(
+    existsModelRowInCacheByPk(
       str,
       model)
 
@@ -338,7 +338,7 @@ proc cachedGetProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
@@ -429,7 +429,7 @@ proc cachedGetOrCreateProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
@@ -456,7 +456,7 @@ proc cachedGetOrCreateProc*(
 
   # Return if in cache
   if uniqueFields == model.pkFields:
-    getModelRowInCacheByPK(
+    getModelRowInCacheByPk(
       str,
       model,
       withOption = false)
@@ -471,7 +471,7 @@ proc cachedGetOrCreateProc*(
   # Call getOrCreate() proc
   if uniqueFields == model.pkFields:
 
-    callGetOrCreateProcByPK(
+    callGetOrCreateProcByPk(
       str,
       model,
       uniqueFields)
@@ -492,7 +492,7 @@ proc cachedGetOrCreateProc*(
           "\n"
 
 
-proc cachedUpdateByPKProc*(
+proc cachedUpdateByPkProc*(
        str: var string,
        model: Model,
        pragmas: string) =
@@ -509,7 +509,7 @@ proc cachedUpdateByPKProc*(
           "int64",
           pragmas)
 
-  str &= &"proc {procName}ByPK*(\n" &
+  str &= &"proc {procName}ByPk*(\n" &
          &"       {model.module.nameInCamelCase}Module: var " &
            &"{model.module.nameInPascalCase}Module,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &

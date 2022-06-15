@@ -22,7 +22,7 @@ proc getListItemDisplayNames*(
 
   for listItemId in listItemIds:
 
-    let listItem = getListItemByPK(nexusCoreExtrasModule,
+    let listItem = getListItemByPk(nexusCoreExtrasModule,
                                    listItemId)
 
     strs.add(listItem.get.displayName)
@@ -64,7 +64,7 @@ proc getListItemByNameAndParentName*(
 
       if listItem.parentListItemId != none(int64):
 
-        let parentlistItem = getListItemByPK(
+        let parentlistItem = getListItemByPk(
                                nexusCoreExtrasModule,
                                listItem.parentListItemId.get)
 
@@ -109,7 +109,7 @@ proc getListItemsByListItemIds*(
   for listItemId in listItemIds:
 
     let listItem =
-          getListItemByPK(
+          getListItemByPk(
             nexusCoreExtrasModule,
             listItemId)
 
@@ -376,7 +376,7 @@ proc getListItemByParentNameAndDisplayNameCascade*(
     if displayNames[i] == displayName:
 
       let listItem =
-            getListItemByPK(
+            getListItemByPk(
               nexusCoreExtrasModule,
               ids[i])
 
@@ -426,7 +426,7 @@ proc getListItemDisplayNameById*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        listItemId: int64): Option[string] =
 
-  let listItem = getListItemByPK(nexusCoreExtrasModule,
+  let listItem = getListItemByPk(nexusCoreExtrasModule,
                                   listItemId)
 
   if listItem == none(ListItem):
@@ -463,7 +463,7 @@ proc getListItemNames*(
 
   for listItemId in listItemIds:
 
-    let listItem = getListItemByPK(nexusCoreExtrasModule,
+    let listItem = getListItemByPk(nexusCoreExtrasModule,
                                    listItemId)
 
     strs.add(listItem.get.name)

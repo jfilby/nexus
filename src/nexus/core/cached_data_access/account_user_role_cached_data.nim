@@ -31,7 +31,7 @@ proc cachedDeleteAccountUserRole*(
        accountUser_roleId: int64): int64 =
 
   # Call the model's delete proc
-  let rows_deleted = deleteAccountUserRoleByPK(dai.db,
+  let rows_deleted = deleteAccountUserRoleByPk(dai.db,
                                                accountUser_roleId)
 
   # Remove from the model row cache
@@ -40,7 +40,7 @@ proc cachedDeleteAccountUserRole*(
   return rows_deleted
 
 
-proc cachedExistsAccountUserRoleByPK*(
+proc cachedExistsAccountUserRoleByPk*(
        dai: var DAI,
        accountUser_roleId: int64): bool =
 
@@ -49,7 +49,7 @@ proc cachedExistsAccountUserRoleByPK*(
     return true
 
   # Call the model's exists proc
-  return existsAccountUserRoleByPK(dai.db,
+  return existsAccountUserRoleByPk(dai.db,
                                    accountUser_roleId)
 
 
@@ -164,7 +164,7 @@ proc cachedFilterAccountUserRole*(
   return accountUser_roles
 
 
-proc cachedGetAccountUserRoleByPK*(
+proc cachedGetAccountUserRoleByPk*(
        dai: var DAI,
        accountUser_roleId: int64): bool =
 
@@ -173,7 +173,7 @@ proc cachedGetAccountUserRoleByPK*(
     return dai.cached_accountUser_role[accountUser_roleId]
 
   # Call the model's get proc
-  return getAccountUserRoleByPK(dai.db,
+  return getAccountUserRoleByPk(dai.db,
                                 accountUser_roleId)
 
 
@@ -215,13 +215,13 @@ proc cachedGetOrCreateAccountUserRoleByAccountUserIdAndRole*(
   return accountUser_role
 
 
-proc cachedUpdateAccountUserRoleByPK*(
+proc cachedUpdateAccountUserRoleByPk*(
        dai: var DAI,
        accountUser_role: AccountUserRole,
        setFields: seq[string]): int64 =
 
   # Call the model's update proc
-  let rowsUpdated = updateAccountUserRoleByPK(dai.db,
+  let rowsUpdated = updateAccountUserRoleByPk(dai.db,
                                                accountUser_role,
                                                setFields)
 

@@ -136,7 +136,7 @@ proc createTempFormData*(
   return tempFormData
 
 
-proc deleteTempFormDataByPK*(
+proc deleteTempFormDataByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        token: string): int64 {.gcsafe.} =
 
@@ -167,7 +167,7 @@ proc deleteTempFormData*(
            whereValues)
 
 
-proc existsTempFormDataByPK*(
+proc existsTempFormDataByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        token: string): bool {.gcsafe.} =
 
@@ -252,7 +252,7 @@ proc filterTempFormData*(
   return tempFormDatas
 
 
-proc getTempFormDataByPK*(
+proc getTempFormDataByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        token: string): Option[TempFormData] {.gcsafe.} =
 
@@ -272,7 +272,7 @@ proc getTempFormDataByPK*(
   return some(rowToTempFormData(row))
 
 
-proc getOrCreateTempFormDataByPK*(
+proc getOrCreateTempFormDataByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        token: string,
        format: string,
@@ -280,7 +280,7 @@ proc getOrCreateTempFormDataByPK*(
        created: DateTime): TempFormData {.gcsafe.} =
 
   let tempFormData =
-        getTempFormDataByPK(
+        getTempFormDataByPk(
           nexusCoreExtrasModule,
           token)
 
@@ -353,7 +353,7 @@ proc updateTempFormDataSetClause*(
 
 
 
-proc updateTempFormDataByPK*(
+proc updateTempFormDataByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        tempFormData: TempFormData,
        setFields: seq[string],

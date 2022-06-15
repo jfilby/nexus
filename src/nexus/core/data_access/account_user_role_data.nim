@@ -128,7 +128,7 @@ proc createAccountUserRole*(
   return accountUserRole
 
 
-proc deleteAccountUserRoleByPK*(
+proc deleteAccountUserRoleByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserRoleId: int64): int64 {.gcsafe.} =
 
@@ -159,7 +159,7 @@ proc deleteAccountUserRole*(
            whereValues)
 
 
-proc existsAccountUserRoleByPK*(
+proc existsAccountUserRoleByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserRoleId: int64): bool {.gcsafe.} =
 
@@ -267,7 +267,7 @@ proc filterAccountUserRole*(
   return accountUserRoles
 
 
-proc getAccountUserRoleByPK*(
+proc getAccountUserRoleByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserRoleId: int64): Option[AccountUserRole] {.gcsafe.} =
 
@@ -287,7 +287,7 @@ proc getAccountUserRoleByPK*(
   return some(rowToAccountUserRole(row))
 
 
-proc getAccountUserRoleByPK*(
+proc getAccountUserRoleByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserRoleId: string): Option[AccountUserRole] {.gcsafe.} =
 
@@ -410,7 +410,7 @@ proc updateAccountUserRoleSetClause*(
 
 
 
-proc updateAccountUserRoleByPK*(
+proc updateAccountUserRoleByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserRole: AccountUserRole,
        setFields: seq[string],

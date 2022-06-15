@@ -87,7 +87,7 @@ proc clearFilterCache*(
          "\n"
 
 
-proc existsModelRowInCacheByPK*(
+proc existsModelRowInCacheByPk*(
        str: var string,
        model: Model) =
 
@@ -255,7 +255,7 @@ proc filterModelSetRowsInCacheWithWhereFields*(
          &"\n"
 
 
-proc getModelRowInCacheByPK*(
+proc getModelRowInCacheByPk*(
        str: var string,
        model: Model,
        withOption: bool) =

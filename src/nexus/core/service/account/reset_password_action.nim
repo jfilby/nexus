@@ -68,7 +68,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
     accountUser.get.passwordResetCode = some(generateSignUpCode())
 
     # Update accountUser with the passwordResetCode
-    let rows_affected = updateAccountUserByPK(
+    let rows_affected = updateAccountUserByPk(
                           nexusCoreModule,
                           accountUser.get,
                           setFields = @[ "password_reset_code"])
@@ -155,7 +155,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
      accountUser.get.passwordSalt) = hashPassword(password1,
                                                   inSalt = "")
 
-    let rows_affected = updateAccountUserByPK(nexusCoreModule,
+    let rows_affected = updateAccountUserByPk(nexusCoreModule,
                                               accountUser.get,
                                               setFields = @[ "password_hash",
                                                              "password_salt" ])

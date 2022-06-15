@@ -84,7 +84,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
       accountUser.get.isVerified = true
 
       var rowsUpdated =
-            updateAccountUserByPK(
+            updateAccountUserByPk(
               nexusCoreModule,
               accountUser.get,
               setFields = @[ "is_active",
@@ -154,7 +154,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
         mailingListSubscriber.isVerified = true
 
         rowsUpdated =
-          updateMailingListSubscriberByPK(
+          updateMailingListSubscriberByPk(
             nexusCRMModule,
             mailingListSubscriber,
             setFields = @[ "is_active",

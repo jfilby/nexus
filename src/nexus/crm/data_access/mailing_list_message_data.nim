@@ -164,7 +164,7 @@ proc createMailingListMessage*(
   return mailingListMessage
 
 
-proc deleteMailingListMessageByPK*(
+proc deleteMailingListMessageByPk*(
        nexusCRMModule: NexusCRMModule,
        mailingListMessageId: int64): int64 {.gcsafe.} =
 
@@ -195,7 +195,7 @@ proc deleteMailingListMessage*(
            whereValues)
 
 
-proc existsMailingListMessageByPK*(
+proc existsMailingListMessageByPk*(
        nexusCRMModule: NexusCRMModule,
        mailingListMessageId: int64): bool {.gcsafe.} =
 
@@ -302,7 +302,7 @@ proc filterMailingListMessage*(
   return mailingListMessages
 
 
-proc getMailingListMessageByPK*(
+proc getMailingListMessageByPk*(
        nexusCRMModule: NexusCRMModule,
        mailingListMessageId: int64): Option[MailingListMessage] {.gcsafe.} =
 
@@ -323,7 +323,7 @@ proc getMailingListMessageByPK*(
   return some(rowToMailingListMessage(row))
 
 
-proc getMailingListMessageByPK*(
+proc getMailingListMessageByPk*(
        nexusCRMModule: NexusCRMModule,
        mailingListMessageId: string): Option[MailingListMessage] {.gcsafe.} =
 
@@ -487,7 +487,7 @@ proc updateMailingListMessageSetClause*(
 
 
 
-proc updateMailingListMessageByPK*(
+proc updateMailingListMessageByPk*(
        nexusCRMModule: NexusCRMModule,
        mailingListMessage: MailingListMessage,
        setFields: seq[string],

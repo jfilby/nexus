@@ -39,7 +39,7 @@ proc cachedDeleteInvite*(
        inviteId: int64): int64 =
 
   # Call the model's delete proc
-  let rows_deleted = deleteInviteByPK(dai.db,
+  let rows_deleted = deleteInviteByPk(dai.db,
                                       inviteId)
 
   # Remove from the model row cache
@@ -48,7 +48,7 @@ proc cachedDeleteInvite*(
   return rows_deleted
 
 
-proc cachedExistsInviteByPK*(
+proc cachedExistsInviteByPk*(
        dai: var DAI,
        inviteId: int64): bool =
 
@@ -57,7 +57,7 @@ proc cachedExistsInviteByPK*(
     return true
 
   # Call the model's exists proc
-  return existsInviteByPK(dai.db,
+  return existsInviteByPk(dai.db,
                           inviteId)
 
 
@@ -170,7 +170,7 @@ proc cachedFilterInvite*(
   return invites
 
 
-proc cachedGetInviteByPK*(
+proc cachedGetInviteByPk*(
        dai: var DAI,
        inviteId: int64): bool =
 
@@ -179,7 +179,7 @@ proc cachedGetInviteByPK*(
     return dai.cached_invite[inviteId]
 
   # Call the model's get proc
-  return getInviteByPK(dai.db,
+  return getInviteByPk(dai.db,
                        inviteId)
 
 
@@ -227,13 +227,13 @@ proc cachedGetOrCreateInviteByToEmail*(
   return invite
 
 
-proc cachedUpdateInviteByPK*(
+proc cachedUpdateInviteByPk*(
        dai: var DAI,
        invite: Invite,
        setFields: seq[string]): int64 =
 
   # Call the model's update proc
-  let rowsUpdated = updateInviteByPK(dai.db,
+  let rowsUpdated = updateInviteByPk(dai.db,
                                       invite,
                                       setFields)
 

@@ -53,7 +53,7 @@ proc callDeleteProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
@@ -106,7 +106,7 @@ proc callExistsProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
@@ -210,7 +210,7 @@ proc callGetProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
@@ -247,7 +247,7 @@ proc callGetProc*(
          &"\n"
 
 
-proc callGetOrCreateProcByPK*(
+proc callGetOrCreateProcByPk*(
        str: var string,
        model: Model,
        uniqueFields: seq[string]) =
@@ -259,7 +259,7 @@ proc callGetOrCreateProcByPK*(
 
   # Proc definition
   str &= &"  let {model.nameInCamelCase} =\n" &
-         &"        {procName}ByPK(\n" &
+         &"        {procName}ByPk(\n" &
          &"          {model.module.nameInCamelCase}Module,\n"
 
   listModelFieldNames(
@@ -322,7 +322,7 @@ proc callUpdateProc*(
   if model.longNames == true:
     procName &= model.nameInPascalCase
 
-  procName &= "ByPK"
+  procName &= "ByPk"
 
   # Proc definition
   let

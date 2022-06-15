@@ -263,7 +263,7 @@ proc createAccountUser*(
   return accountUser
 
 
-proc deleteAccountUserByPK*(
+proc deleteAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): int64 {.gcsafe.} =
 
@@ -294,7 +294,7 @@ proc deleteAccountUser*(
            whereValues)
 
 
-proc existsAccountUserByPK*(
+proc existsAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): bool {.gcsafe.} =
 
@@ -443,7 +443,7 @@ proc filterAccountUser*(
   return accountUsers
 
 
-proc getAccountUserByPK*(
+proc getAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): Option[AccountUser] {.gcsafe.} =
 
@@ -465,7 +465,7 @@ proc getAccountUserByPK*(
   return some(rowToAccountUser(row))
 
 
-proc getAccountUserByPK*(
+proc getAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: string): Option[AccountUser] {.gcsafe.} =
 
@@ -553,7 +553,7 @@ proc getAccountUserByLastToken*(
   return some(rowToAccountUser(row))
 
 
-proc getAPIKeyFromAccountUserByPK*(
+proc getAPIKeyFromAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): Option[string] =
 
@@ -911,7 +911,7 @@ proc updateAccountUserSetClause*(
 
 
 
-proc updateAccountUserByPK*(
+proc updateAccountUserByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUser: AccountUser,
        setFields: seq[string],
@@ -1013,7 +1013,7 @@ proc updateAccountUserByWhereEqOnly*(
                   whereValues))
 
 
-proc updateAccountUserSetLastLoginByPK*(
+proc updateAccountUserSetLastLoginByPk*(
        nexusCoreModule: NexusCoreModule,
        lastLogin: Option[DateTime],
        accountUserId: int64): int64 =

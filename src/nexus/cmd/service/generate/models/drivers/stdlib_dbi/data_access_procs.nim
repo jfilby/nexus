@@ -22,7 +22,8 @@ proc countProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       whereFields: seq[string] = @[],\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -71,7 +72,8 @@ proc countWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       whereClause: string,\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -114,7 +116,8 @@ proc createProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -174,7 +177,8 @@ proc createWithTypeProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -268,7 +272,7 @@ proc deleteProcByPk*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
     if len(model.pkFields) == 0:
       return false
@@ -278,7 +282,8 @@ proc deleteProcByPk*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -338,7 +343,8 @@ proc deleteWhereClauseProc*(
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string,\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -372,7 +378,8 @@ proc deleteWhereEqOnlyProc*(
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -435,7 +442,8 @@ proc existsProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -553,7 +561,8 @@ proc filterProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -609,7 +618,8 @@ proc filterWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -679,7 +689,7 @@ proc getProc*(str: var string,
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
     if len(model.pkFields) == 0:
       return false
@@ -762,7 +772,7 @@ proc getOrCreateProc*(str: var string,
 
   # Proc definition
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
     if len(model.pkFields) == 0:
       return false
@@ -776,7 +786,8 @@ proc getOrCreateProc*(str: var string,
     procName &= "By" & uniqueFieldsPascalCaseCase
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -858,7 +869,8 @@ proc truncate*(str: var string,
   let sql = &"truncate table {model.base_nameInSnakeCase} restart identity"
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       cascade: bool = false) =\n" &
           "\n" &
           "  if cascade == false:\n" &
@@ -871,7 +883,7 @@ proc truncate*(str: var string,
           "\n"
 
 
-proc updateByPKProc*(str: var string,
+proc updateByPkProc*(str: var string,
                      model: Model,
                      pragmas: string): bool =
 
@@ -890,8 +902,9 @@ proc updateByPKProc*(str: var string,
           "int64",
           pragmas)
 
-  str &= &"proc {procName}ByPK*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+  str &= &"proc {procName}ByPk*(\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
          &"       exceptionOnNRowsUpdated: bool = true){returnDetails} =\n" &
@@ -980,7 +993,8 @@ proc updateWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereClause*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
           "       whereClause: string,\n" &
@@ -1023,7 +1037,8 @@ proc updateWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereEqOnly*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
           "       whereFields: seq[string],\n" &

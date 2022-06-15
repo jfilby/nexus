@@ -242,14 +242,14 @@ proc loginActionVerified*(
 
   # Set lastLogin
   let rowsUpdated =
-        updateAccountUserSetLastLoginByPK(
+        updateAccountUserSetLastLoginByPk(
           nexusCoreModule,
           lastLogin = some(now()),
           accountUserId)
 
   # Get API key
   let apiKey =
-        getAPIKeyFromAccountUserByPK(
+        getAPIKeyFromAccountUserByPk(
           nexusCoreModule,
           accountUserId)
 
@@ -258,7 +258,7 @@ proc loginActionVerified*(
 
   # Get AccountUserToken record
   var accountUserToken =
-        getAccountUserTokenByPK(
+        getAccountUserTokenByPk(
           nexusCoreModule,
           accountUserId)
 
@@ -289,7 +289,7 @@ proc loginActionVerified*(
     accountUserToken.get.token = docUIReturn.token
     accountUserToken.get.deleted = none(DateTime)
 
-    discard updateAccountUserTokenByPK(
+    discard updateAccountUserTokenByPk(
               nexusCoreModule,
               accountUserToken.get,
               setFields = @[ "token",
@@ -297,7 +297,7 @@ proc loginActionVerified*(
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPK(
+        getAccountUserByPk(
           nexusCoreModule,
           accountUserId)
 
@@ -310,7 +310,7 @@ proc loginActionVerified*(
   # Update AccountUser.lastToken
   accountUser.get.lastToken = some(docUIReturn.token)
 
-  discard updateAccountUserByPK(
+  discard updateAccountUserByPk(
             nexusCoreModule,
             accountUser.get,
             setFields = @[ "last_token" ])
@@ -337,7 +337,7 @@ template logoutAction*(request: Request,
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPK(
+        getAccountUserByPk(
           nexusCoreModule,
           webContext.accountUserId)
 
@@ -351,7 +351,7 @@ template logoutAction*(request: Request,
   # Update AccountUser.lastToken
   accountUser.get.lastToken = none(string)
 
-  discard updateAccountUserByPK(
+  discard updateAccountUserByPk(
             nexusCoreModule,
             accountUser.get,
             setFields = @[ "last_token" ])

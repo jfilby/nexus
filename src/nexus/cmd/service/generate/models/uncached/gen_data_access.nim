@@ -215,7 +215,7 @@ proc generateDataAccessFile*(
   # Update
   if model.pkNameInSnakeCase != "":
 
-    if updateByPKProc(str,
+    if updateByPkProc(str,
                       model,
                       pragmas) == true:
 

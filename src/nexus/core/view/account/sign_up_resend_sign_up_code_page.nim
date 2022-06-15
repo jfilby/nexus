@@ -78,7 +78,7 @@ proc signUpResendSignUpCodePagePost*(
 
   # Update the user's sign up code
   let rowsAffected =
-        updateAccountUserByPK(
+        updateAccountUserByPk(
           nexusCoreModule,
           accountUser.get,
           setFields = @[ "sign_up_code" ])

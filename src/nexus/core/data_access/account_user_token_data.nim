@@ -145,7 +145,7 @@ proc createAccountUserToken*(
   return accountUserToken
 
 
-proc deleteAccountUserTokenByPK*(
+proc deleteAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): int64 {.gcsafe.} =
 
@@ -176,7 +176,7 @@ proc deleteAccountUserToken*(
            whereValues)
 
 
-proc existsAccountUserTokenByPK*(
+proc existsAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): bool {.gcsafe.} =
 
@@ -301,7 +301,7 @@ proc filterAccountUserToken*(
   return accountUserTokens
 
 
-proc getAccountUserTokenByPK*(
+proc getAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64): Option[AccountUserToken] {.gcsafe.} =
 
@@ -321,7 +321,7 @@ proc getAccountUserTokenByPK*(
   return some(rowToAccountUserToken(row))
 
 
-proc getAccountUserTokenByPK*(
+proc getAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: string): Option[AccountUserToken] {.gcsafe.} =
 
@@ -381,7 +381,7 @@ proc getAccountUserTokenByToken*(
   return some(rowToAccountUserToken(row))
 
 
-proc getOrCreateAccountUserTokenByPK*(
+proc getOrCreateAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserId: int64,
        uniqueHash: string,
@@ -390,7 +390,7 @@ proc getOrCreateAccountUserTokenByPK*(
        deleted: Option[DateTime]): AccountUserToken {.gcsafe.} =
 
   let accountUserToken =
-        getAccountUserTokenByPK(
+        getAccountUserTokenByPk(
           nexusCoreModule,
           accountUserId)
 
@@ -527,7 +527,7 @@ proc updateAccountUserTokenSetClause*(
 
 
 
-proc updateAccountUserTokenByPK*(
+proc updateAccountUserTokenByPk*(
        nexusCoreModule: NexusCoreModule,
        accountUserToken: AccountUserToken,
        setFields: seq[string],

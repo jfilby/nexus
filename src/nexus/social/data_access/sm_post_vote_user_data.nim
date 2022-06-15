@@ -134,7 +134,7 @@ proc createSMPostVoteUser*(
   return smPostVoteUser
 
 
-proc deleteSMPostVoteUserByPK*(
+proc deleteSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64,
        accountUserId: int64): int64 {.gcsafe.} =
@@ -168,7 +168,7 @@ proc deleteSMPostVoteUser*(
            whereValues)
 
 
-proc existsSMPostVoteUserByPK*(
+proc existsSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64,
        accountUserId: int64): bool {.gcsafe.} =
@@ -256,7 +256,7 @@ proc filterSMPostVoteUser*(
   return smPostVoteUsers
 
 
-proc getSMPostVoteUserByPK*(
+proc getSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64,
        accountUserId: int64): Option[SMPostVoteUser] {.gcsafe.} =
@@ -279,7 +279,7 @@ proc getSMPostVoteUserByPK*(
   return some(rowToSMPostVoteUser(row))
 
 
-proc getSMPostVoteUserByPK*(
+proc getSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: string,
        accountUserId: string): Option[SMPostVoteUser] {.gcsafe.} =
@@ -302,7 +302,7 @@ proc getSMPostVoteUserByPK*(
   return some(rowToSMPostVoteUser(row))
 
 
-proc getOrCreateSMPostVoteUserByPK*(
+proc getOrCreateSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64,
        accountUserId: int64,
@@ -310,7 +310,7 @@ proc getOrCreateSMPostVoteUserByPK*(
        voteDown: bool): SMPostVoteUser {.gcsafe.} =
 
   let smPostVoteUser =
-        getSMPostVoteUserByPK(
+        getSMPostVoteUserByPk(
           nexusSocialModule,
           smPostId,
           accountUserId)
@@ -384,7 +384,7 @@ proc updateSMPostVoteUserSetClause*(
 
 
 
-proc updateSMPostVoteUserByPK*(
+proc updateSMPostVoteUserByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostVoteUser: SMPostVoteUser,
        setFields: seq[string],

@@ -50,12 +50,12 @@ proc cachedCreateSMPost*(
   return smPost
 
 
-proc cachedDeleteSMPostByPK*(
+proc cachedDeleteSMPostByPk*(
        nexusSocialModule: var NexusSocialModule,
        smPostId: int64): int64 {.gcsafe.} =
 
   # Call the model's delete proc
-  let rows_deleted = deleteSMPostByPK(nexusSocialModule,
+  let rows_deleted = deleteSMPostByPk(nexusSocialModule,
                                       smPostId)
 
   # Remove from the model row cache
@@ -70,7 +70,7 @@ proc cachedDeleteSMPostByPK*(
   return rowsDeleted
 
 
-proc cachedExistsSMPostByPK*(
+proc cachedExistsSMPostByPk*(
        nexusSocialModule: var NexusSocialModule,
        smPostId: int64): bool {.gcsafe.} =
 
@@ -79,7 +79,7 @@ proc cachedExistsSMPostByPK*(
     return true
 
   # Call the model's exists proc
-  return existsSMPostByPK(nexusSocialModule,
+  return existsSMPostByPk(nexusSocialModule,
                           smPostId)
 
 
@@ -188,7 +188,7 @@ proc cachedFilterSMPost*(
   return smPosts
 
 
-proc cachedGetSMPostByPK*(
+proc cachedGetSMPostByPk*(
        nexusSocialModule: var NexusSocialModule,
        smPostId: int64): Option[SMPost] {.gcsafe.} =
 
@@ -197,7 +197,7 @@ proc cachedGetSMPostByPK*(
     return some(nexusSocialModule.cachedSMPosts[smPostId])
 
   # Call the model's get proc
-  let smPost = getSMPostByPK(nexusSocialModule,
+  let smPost = getSMPostByPk(nexusSocialModule,
                              smPostId)
 
   if smPost != none(SMPost):
@@ -278,13 +278,13 @@ proc cachedGetOrCreateSMPostByUniqueHash*(
   return smPost
 
 
-proc cachedUpdateSMPostByPK*(
+proc cachedUpdateSMPostByPk*(
        nexusSocialModule: var NexusSocialModule,
        smPost: SMPost,
        setFields: seq[string]): int64 {.gcsafe.} =
 
   # Call the model's update proc
-  let rowsUpdated = updateSMPostByPK(nexusSocialModule,
+  let rowsUpdated = updateSMPostByPk(nexusSocialModule,
                                      smPost,
                                      setFields)
 

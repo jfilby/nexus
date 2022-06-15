@@ -45,7 +45,7 @@ proc logoutJSON*(
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPK(
+        getAccountUserByPk(
           nexusCoreModule,
           webContext.accountUserId)
 
@@ -59,7 +59,7 @@ proc logoutJSON*(
   # Update AccountUser.lastToken
   accountUser.get.lastToken = none(string)
 
-  discard updateAccountUserByPK(
+  discard updateAccountUserByPk(
             nexusCoreModule,
             accountUser.get,
             setFields = @[ "last_token" ])

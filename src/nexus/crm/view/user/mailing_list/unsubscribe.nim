@@ -111,7 +111,7 @@ proc mailingListUnsubscribePagePost*(
 
   # Set to unsubscribed
   discard
-    updateMailingListSubscriberByPK(
+    updateMailingListSubscriberByPk(
       nexusCRMModule,
       mailingListSubscriber.get,
       setFields = @[ "active" ])

@@ -138,7 +138,7 @@ proc createNexusSetting*(
   return nexusSetting
 
 
-proc deleteNexusSettingByPK*(
+proc deleteNexusSettingByPk*(
        nexusCoreModule: NexusCoreModule,
        nexusSettingId: int64): int64 {.gcsafe.} =
 
@@ -169,7 +169,7 @@ proc deleteNexusSetting*(
            whereValues)
 
 
-proc existsNexusSettingByPK*(
+proc existsNexusSettingByPk*(
        nexusCoreModule: NexusCoreModule,
        nexusSettingId: int64): bool {.gcsafe.} =
 
@@ -277,7 +277,7 @@ proc filterNexusSetting*(
   return nexusSettings
 
 
-proc getNexusSettingByPK*(
+proc getNexusSettingByPk*(
        nexusCoreModule: NexusCoreModule,
        nexusSettingId: int64): Option[NexusSetting] {.gcsafe.} =
 
@@ -297,7 +297,7 @@ proc getNexusSettingByPK*(
   return some(rowToNexusSetting(row))
 
 
-proc getNexusSettingByPK*(
+proc getNexusSettingByPk*(
        nexusCoreModule: NexusCoreModule,
        nexusSettingId: string): Option[NexusSetting] {.gcsafe.} =
 
@@ -435,7 +435,7 @@ proc updateNexusSettingSetClause*(
 
 
 
-proc updateNexusSettingByPK*(
+proc updateNexusSettingByPk*(
        nexusCoreModule: NexusCoreModule,
        nexusSetting: NexusSetting,
        setFields: seq[string],

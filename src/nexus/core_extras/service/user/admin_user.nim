@@ -71,7 +71,7 @@ proc getOrCreateAdminUser*(
   var rowsUpdated: int64
 
   rowsUpdated =
-    updateAccountUserByPK(
+    updateAccountUserByPk(
       nexusCoreModule,
       accountUser.get,
       setFields = @[ "is_active",

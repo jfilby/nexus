@@ -221,7 +221,7 @@ proc createSMPost*(
   return smPost
 
 
-proc deleteSMPostByPK*(
+proc deleteSMPostByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64): int64 {.gcsafe.} =
 
@@ -252,7 +252,7 @@ proc deleteSMPost*(
            whereValues)
 
 
-proc existsSMPostByPK*(
+proc existsSMPostByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64): bool {.gcsafe.} =
 
@@ -359,7 +359,7 @@ proc filterSMPost*(
   return smPosts
 
 
-proc getSMPostByPK*(
+proc getSMPostByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: int64): Option[SMPost] {.gcsafe.} =
 
@@ -380,7 +380,7 @@ proc getSMPostByPK*(
   return some(rowToSMPost(row))
 
 
-proc getSMPostByPK*(
+proc getSMPostByPk*(
        nexusSocialModule: NexusSocialModule,
        smPostId: string): Option[SMPost] {.gcsafe.} =
 
@@ -618,7 +618,7 @@ proc updateSMPostSetClause*(
 
 
 
-proc updateSMPostByPK*(
+proc updateSMPostByPk*(
        nexusSocialModule: NexusSocialModule,
        smPost: SMPost,
        setFields: seq[string],

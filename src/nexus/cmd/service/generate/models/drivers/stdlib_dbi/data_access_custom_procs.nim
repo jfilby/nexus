@@ -14,7 +14,8 @@ proc getCustomProc*(
   debug "getCustomProc()",
     getFunction = getFunction
 
-  # Get select/where fields with the primary key renamed to PK, and with primary key name preserved
+  # Get select/where fields with the primary key renamed to PK, and with
+  # primary key name preserved.
   let
     selectFieldsWithPkName =
       getFieldsWithPKNamed(
@@ -76,7 +77,8 @@ proc getCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   let withStringTypes = false
 
@@ -139,7 +141,8 @@ proc updateCustomProc*(
   debug "updateCustomProc()",
     updateFunction = updateFunction
 
-  # Get set/where fields with the primary key renamed to PK, and with primary key name preserved
+  # Get set/where fields with the primary key renamed to PK, and with
+  # primary key name preserved.
   let
     setFieldsWithPkName =
       getFieldsWithPKNamed(
@@ -187,7 +190,8 @@ proc updateCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   let withStringTypes = false
 

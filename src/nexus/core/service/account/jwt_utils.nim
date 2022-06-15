@@ -103,7 +103,7 @@ proc connectWithJWT*(
 
     # Get accountUser
     let accountUser =
-          getAccountUserByPK(
+          getAccountUserByPk(
             nexusCoreModule,
             accountUserId)
 
@@ -313,7 +313,7 @@ proc purgeDeletedJWTs*(nexusCoreModule: NexusCoreModule) {.gcsafe.} =
 
   for accountUserToken in accountUserTokens:
 
-    discard deleteAccountUserTokenByPK(
+    discard deleteAccountUserTokenByPk(
               nexusCoreModule,
               accountUserToken.accountUserId)
 
@@ -366,7 +366,7 @@ proc setJWTDeleted*(
 
   accountUserToken.get.deleted = some(now())
 
-  discard updateAccountUserTokenByPK(
+  discard updateAccountUserTokenByPk(
             nexusCoreModule,
             accountUserToken.get,
             setFields = @[ "deleted" ])
@@ -383,7 +383,7 @@ proc verifyJWTByAPIKey*(
     accountUserId = accountUserId
 
   # Get API key for the specified user
-  let apiKey = getAPIKeyFromAccountUserByPK(
+  let apiKey = getAPIKeyFromAccountUserByPk(
                  nexusCoreModule,
                  parseBiggestInt(accountUserId))
 

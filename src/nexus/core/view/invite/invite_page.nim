@@ -66,7 +66,7 @@ proc inviteSendPageMain*(
 
   # Get accountUser row
   let accountUser =
-        getAccountUserByPK(
+        getAccountUserByPk(
           nexusCoreModule,
           webContext.accountUserId)
 

@@ -53,7 +53,7 @@ proc myAccountPageMain(request: Request,
     return redirectToLogin()
 
   # Get accountUser record
-  let accountUser = getAccountUserByPK(nexusCoreModule,
+  let accountUser = getAccountUserByPk(nexusCoreModule,
                                        webContext.accountUserId)
 
   # Set form fields, if not already set from a previous form post
@@ -157,7 +157,7 @@ proc myAccountPagePost*(request: Request,
   if verified == true:
 
     # Get accountUser row
-    var accountUser = getAccountUserByPK(nexusCoreModule,
+    var accountUser = getAccountUserByPk(nexusCoreModule,
                                          webContext.accountUserId)
 
     var
@@ -175,7 +175,7 @@ proc myAccountPagePost*(request: Request,
        accountUser.get.passwordSalt) = hashPassword(password1,
                                                     "")
 
-      let rowsUpdated = updateAccountUserByPK(
+      let rowsUpdated = updateAccountUserByPk(
                           nexusCoreModule,
                           accountUser.get,
                           setFields = @[ "password_hash",
@@ -188,7 +188,7 @@ proc myAccountPagePost*(request: Request,
 
       accountUser.get.name = name
 
-      let updated_rows = updateAccountUserByPK(
+      let updated_rows = updateAccountUserByPk(
                            nexusCoreModule,
                            accountUser.get,
                            setFields = @[ "name" ])
@@ -200,7 +200,7 @@ proc myAccountPagePost*(request: Request,
 
       accountUser.get.email = email
 
-      let updatedRows = updateAccountUserByPK(nexusCoreModule,
+      let updatedRows = updateAccountUserByPk(nexusCoreModule,
                                               accountUser.get,
                                               setFields = @[ "email" ])
 

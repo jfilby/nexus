@@ -158,7 +158,7 @@ proc generateCachedDataAccessFile*(
 
   # Update
   if model.pkNameInSnakeCase != "":
-    cachedUpdateByPKProc(
+    cachedUpdateByPkProc(
       str,
       model,
       pragmas)

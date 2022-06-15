@@ -14,7 +14,8 @@ proc cachedGetCustomProc*(
   debug "cachedGetCustomProc()",
     getFunction = getFunction
 
-  # Get select/where fields with the primary key renamed to PK, and with primary key name preserved
+  # Get select/where fields with the primary key renamed to PK, and with
+  # primary key name preserved.
   let
     selectFieldsWithPkName =
       getFieldsWithPKNamed(

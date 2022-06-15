@@ -175,7 +175,7 @@ proc createMenuItem*(
   return menuItem
 
 
-proc deleteMenuItemByPK*(
+proc deleteMenuItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        menuItemId: int64): int64 {.gcsafe.} =
 
@@ -206,7 +206,7 @@ proc deleteMenuItem*(
            whereValues)
 
 
-proc existsMenuItemByPK*(
+proc existsMenuItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        menuItemId: int64): bool {.gcsafe.} =
 
@@ -317,7 +317,7 @@ proc filterMenuItem*(
   return menuItems
 
 
-proc getMenuItemByPK*(
+proc getMenuItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        menuItemId: int64): Option[MenuItem] {.gcsafe.} =
 
@@ -337,7 +337,7 @@ proc getMenuItemByPK*(
   return some(rowToMenuItem(row))
 
 
-proc getMenuItemByPK*(
+proc getMenuItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        menuItemId: string): Option[MenuItem] {.gcsafe.} =
 
@@ -515,7 +515,7 @@ proc updateMenuItemSetClause*(
 
 
 
-proc updateMenuItemByPK*(
+proc updateMenuItemByPk*(
        nexusCoreExtrasModule: NexusCoreExtrasModule,
        menuItem: MenuItem,
        setFields: seq[string],

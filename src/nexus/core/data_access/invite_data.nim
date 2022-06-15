@@ -164,7 +164,7 @@ proc createInvite*(
   return invite
 
 
-proc deleteInviteByPK*(
+proc deleteInviteByPk*(
        nexusCoreModule: NexusCoreModule,
        inviteId: int64): int64 {.gcsafe.} =
 
@@ -195,7 +195,7 @@ proc deleteInvite*(
            whereValues)
 
 
-proc existsInviteByPK*(
+proc existsInviteByPk*(
        nexusCoreModule: NexusCoreModule,
        inviteId: int64): bool {.gcsafe.} =
 
@@ -300,7 +300,7 @@ proc filterInvite*(
   return invites
 
 
-proc getInviteByPK*(
+proc getInviteByPk*(
        nexusCoreModule: NexusCoreModule,
        inviteId: int64): Option[Invite] {.gcsafe.} =
 
@@ -320,7 +320,7 @@ proc getInviteByPK*(
   return some(rowToInvite(row))
 
 
-proc getInviteByPK*(
+proc getInviteByPk*(
        nexusCoreModule: NexusCoreModule,
        inviteId: string): Option[Invite] {.gcsafe.} =
 
@@ -475,7 +475,7 @@ proc updateInviteSetClause*(
 
 
 
-proc updateInviteByPK*(
+proc updateInviteByPk*(
        nexusCoreModule: NexusCoreModule,
        invite: Invite,
        setFields: seq[string],
