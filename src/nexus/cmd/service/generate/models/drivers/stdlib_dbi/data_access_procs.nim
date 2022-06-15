@@ -1,7 +1,7 @@
 import chronicles, strformat
+import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/types/types
 import data_access_helpers
-import gen_model_utils
 
 
 # Code
@@ -425,7 +425,7 @@ proc existsProc*(str: var string,
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
     if len(model.pkFields) == 0:
       return false

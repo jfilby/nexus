@@ -2,12 +2,12 @@ import chronicles, os, sets, streams, strformat, strutils, tables, yaml
 import nexus/core/service/format/name_utils
 import nexus/cmd/service/generate/generator_info/generator_info_utils
 import nexus/cmd/service/generate/migrations/gen_migration_utils
+import nexus/cmd/service/generate/models/cached/gen_cached_data_access
+import nexus/cmd/service/generate/models/uncached/gen_data_access
 import nexus/cmd/service/generate/modules/gen_module_type
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
 import nexus/cmd/types/types
-import gen_cached_data_access
-import gen_data_access
 import gen_model_type
 import gen_model_utils
 import model_utils

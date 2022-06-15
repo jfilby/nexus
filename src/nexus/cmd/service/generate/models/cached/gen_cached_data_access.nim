@@ -1,8 +1,8 @@
 import chronicles, sets, strformat, strutils
+import nexus/cmd/service/generate/models/model_utils
 import nexus/cmd/types/types
 import cached_data_access_procs
 import cached_data_access_custom_procs
-import model_utils
 
 
 # Code

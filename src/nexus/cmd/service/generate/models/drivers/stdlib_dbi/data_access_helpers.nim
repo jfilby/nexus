@@ -1,8 +1,8 @@
 import chronicles, options, strformat, strutils
 import nexus/core/service/format/type_utils
+import nexus/cmd/service/generate/models/gen_model_utils
+import nexus/cmd/service/generate/models/model_utils
 import nexus/cmd/types/types
-import gen_model_utils
-import model_utils
 
 
 # Forward declarations

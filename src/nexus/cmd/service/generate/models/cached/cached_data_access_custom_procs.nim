@@ -1,17 +1,17 @@
 import chronicles, strformat, strutils
 import nexus/core/service/format/type_utils
+import nexus/cmd/service/generate/models/gen_model_utils
+import nexus/cmd/service/generate/models/drivers/stdlib_dbi/data_access_helpers
 import nexus/cmd/types/types
-import data_access_helpers
-import gen_model_utils
 
 
 # Code
-proc getCustomProc*(
+proc cachedGetCustomProc*(
        str: var string,
        getFunction: GetFunction,
        model: Model) =
 
-  debug "getCustomProc()",
+  debug "cachedGetCustomProc()",
     getFunction = getFunction
 
   # Get select/where fields with the primary key renamed to PK, and with primary key name preserved
@@ -47,7 +47,7 @@ proc getCustomProc*(
     #     model)
 
   # Header
-  var procName = "get"
+  var procName = "cachedGet"
 
   if getFunction.name == "by fields":
     procName &= stripAllStrings(selectFieldsWithPkName.join())
@@ -76,7 +76,7 @@ proc getCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         "       db: DbConn,\n"
 
   let withStringTypes = false
 
@@ -95,7 +95,7 @@ proc getCustomProc*(
                    listFields = whereFieldsWithActualPkName)
 
   str &= &"): {returnType} =\n" &
-         &"\n"
+         "\n"
 
   selectQuery(str,
               selectFieldsWithActualPkName,
@@ -114,32 +114,31 @@ proc getCustomProc*(
                  indent = "              ",
                  listFields = whereFieldsWithActualPkName)
 
-  str &= &")\n" &
-         &"\n"
+  str &= ")\n" &
+         "\n"
 
   # Return none if no row was returned
-  str &= &"  if row[0] == \"\":\n" &
+  str &= "  if row[0] == \"\":\n" &
          &"    return none({returnTypeWoOption})\n" &
-         &"\n"
+         "\n"
 
   # Return the selected fields
-  let returnFields =
-        getFieldsFromRowToReturn(
-          selectFields,
-          model)
+  let returnFields = getFieldsFromRowToReturn(selectFields,
+                                               model)
 
   str &= &"  return some({returnFields})\n"
 
 
-proc updateCustomProc*(
+proc cachedUpdateCustomProc*(
        str: var string,
        updateFunction: UpdateFunction,
        model: Model) =
 
-  debug "updateCustomProc()",
-    updateFunction = updateFunction
+  debug "cachedUpdateCustomProc()",
+    updateFunction = $updateFunction
 
-  # Get set/where fields with the primary key renamed to PK, and with primary key name preserved
+  # Get set/where fields with the primary key renamed to PK, and with primary
+  # key name preserved
   let
     setFieldsWithPkName =
       getFieldsWithPKNamed(
@@ -172,7 +171,7 @@ proc updateCustomProc*(
         model)
 
   # Header
-  var procName = "update"
+  var procName = "cachedUpdate"
 
   if updateFunction.name == "by fields":
     procName &= model.nameInPascalCase
@@ -187,7 +186,7 @@ proc updateCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: {model.module.nameInPascalCase}Module,\n"
+         "       db: DbConn,\n"
 
   let withStringTypes = false
 
@@ -199,7 +198,7 @@ proc updateCustomProc*(
       withNimTypes = true,
       listFields = setFieldsWithActualPkName)
 
-    str &= ",\n"
+    str = ",\n"
 
     listFieldNames(
       str,
@@ -216,7 +215,7 @@ proc updateCustomProc*(
       withStringTypes = true,
       listFields = setFieldsWithActualPkName)
 
-    str &= ",\n"
+    str = ",\n"
 
     listFieldNames(
       str,
@@ -229,7 +228,7 @@ proc updateCustomProc*(
          "\n"
 
   # Update statement
-  str &=  "  var updateStatement =\n" &
+  str &= "  var updateStatement =\n" &
          &"    \"update {model.baseNameInSnakeCase}\" &\n"
 
   # Set and where clauses
@@ -252,21 +251,19 @@ proc updateCustomProc*(
   for setField in setFieldsWithActualPkName:
 
     if first == false:
-      str &= &",\n"
+      str &= ",\n"
     else:
       first = false
 
     var getOption = ""
 
-    let field =
-          getModelFieldByName(
-            setField,
-            model)
+    let field = getModelFieldByName(setField,
+                                    model)
 
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &"           {field.nameInSnakeCase}{getOption}"
+    str &= &"           {field.nameInCamelCase}{getOption}"
 
   # List where fields
   for whereField in whereFieldsWithActualPkName:
@@ -279,7 +276,7 @@ proc updateCustomProc*(
     if not field.constraints.contains("not null"):
       getOption = ".get"
 
-    str &= &",\n           {field.nameInSnakeCase}{getOption}"
+    str &= &",\n           {field.nameInCamelCase}{getOption}"
 
-  str &= &")\n"
+  str &= ")\n"
 

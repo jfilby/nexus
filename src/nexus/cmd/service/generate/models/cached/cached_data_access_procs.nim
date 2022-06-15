@@ -1,9 +1,9 @@
 import chronicles, strformat
+import nexus/cmd/service/generate/models/gen_model_utils
+import nexus/cmd/service/generate/models/uncached/call_data_access_procs
+import nexus/cmd/service/generate/models/drivers/stdlib_dbi/data_access_helpers
 import nexus/cmd/types/types
 import cached_data_access_helpers
-import call_data_access_procs
-import data_access_helpers
-import gen_model_utils
 
 
 # Code
@@ -20,7 +20,8 @@ proc cachedCreateWithTypeProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -86,14 +87,15 @@ proc cachedDeleteProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listFieldNames(str,
                  model,
@@ -156,14 +158,15 @@ proc cachedExistsProc*(
     procName &= model.nameInPascalCase
 
   if uniqueFields == model.pkFields:
-    procName &= "ByPK"
+    procName &= "ByPk"
 
   else:
     procName &= "By" & uniqueFieldsPascalCaseCase
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -225,7 +228,8 @@ proc cachedFilterProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -274,7 +278,8 @@ proc cachedFilterWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string] = @[],\n" &
          &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
@@ -340,7 +345,8 @@ proc cachedGetProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -366,7 +372,7 @@ proc cachedGetProc*(
 
   # Return if in cache
   if uniqueFields == model.pkFields:
-    getModelRowInCacheByPK(
+    getModelRowInCacheByPk(
       str,
       model,
       withOption = true)
@@ -430,7 +436,8 @@ proc cachedGetOrCreateProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n"
 
   listModelFieldNames(
     str,
@@ -503,7 +510,8 @@ proc cachedUpdateByPKProc*(
           pragmas)
 
   str &= &"proc {procName}ByPK*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var {model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}Module: var " &
+           &"{model.module.nameInPascalCase}Module,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
          &"       setFields: seq[string]){returnDetails} =\n" &
           "\n"

@@ -1,9 +1,9 @@
 import chronicles, sets, strformat, strutils
+import nexus/cmd/service/generate/models/model_utils
+import nexus/cmd/service/generate/models/drivers/stdlib_dbi/data_access_custom_procs
+import nexus/cmd/service/generate/models/drivers/stdlib_dbi/data_access_helpers
+import nexus/cmd/service/generate/models/drivers/stdlib_dbi/data_access_procs
 import nexus/cmd/types/types
-import data_access_helpers
-import data_access_procs
-import data_access_custom_procs
-import model_utils
 
 
 # Code
