@@ -30,7 +30,7 @@ proc callCreateProc*(
     model,
     indent = indent,
     skipAutoValue = true,
-    withDefaults = true,
+    withDefaults = false,
     withNimTypes = false)
 
   str &= &")\n" &
