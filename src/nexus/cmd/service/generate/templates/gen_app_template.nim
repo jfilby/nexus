@@ -1,6 +1,6 @@
 import chronicles, os, strformat, strutils
 import nexus/core/service/format/filename_utils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/core/service/format/tokenize
 import nexus/cmd/service/generate/main_config/gen_nexus_conf
 import nexus/cmd/service/generate/main_config/write_file
@@ -210,7 +210,7 @@ proc promptForInfo(appTemplate: var AppTemplate) =
 
   # appName processing
   appTemplate.appNameInSnakeCase =
-    getSnakeCaseName(appTemplate.appName)
+    inSnakeCase(appTemplate.appName)
 
   appTemplate.appNameInUpperSnakeCase =
     toUpperAscii(appTemplate.appNameInSnakeCase)
@@ -220,7 +220,7 @@ proc promptForInfo(appTemplate: var AppTemplate) =
 
   # moduleName formulations
   appTemplate.moduleNameInSnakeCase =
-    getSnakeCaseName(appTemplate.moduleName)
+    inSnakeCase(appTemplate.moduleName)
 
   appTemplate.moduleNameUpperInSnakeCase =
     toUpperAscii(appTemplate.moduleNameInSnakeCase)
@@ -289,7 +289,7 @@ proc validateAndTransformName*(name: var string): bool =
 proc verifyAppNamePathDoesntExist(appTemplate: AppTemplate) =
 
   # Ensure appName-based path doesn't already exist
-  let appNameInLowerSnakeCase = getSnakeCaseName(appTemplate.appName)
+  let appNameInLowerSnakeCase = inSnakeCase(appTemplate.appName)
 
   if dirExists(appNameInLowerSnakeCase) == true:
 

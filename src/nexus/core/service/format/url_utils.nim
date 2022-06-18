@@ -36,7 +36,7 @@ proc parseURLConvertModelNamesToSnakeCase*(url: var string): bool =
 
     let
       var_name = url[starting + 1 .. ending - 1]
-      var_name_snake_case = getSnakeCaseName(var_name)
+      var_name_snake_case = inSnakeCase(var_name)
 
     debug "parseURLConvertModelNamesToSnakeCase()",
       var_name = var_name,

@@ -1,5 +1,5 @@
 import chronicles, httpclient, os, osproc, strformat, strutils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/cmd/types/types
 
 
@@ -53,7 +53,7 @@ proc sourceBulma(
 
   let
     mediaName =
-      getSnakeCaseName(
+      inSnakeCase(
         &"{media.name}_{media.version}",
         replacePunctuation = false)
 

@@ -1,5 +1,5 @@
 import os, strformat
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/cmd/types/types
 
 
@@ -31,7 +31,7 @@ proc getModuleAndBasePathAndSrcPathByProgram*(
                 &"for package: {library.package} and " &
                 &"for shortName: {library.shortName}")
 
-      return (getSnakeCaseName(library.shortName),
+      return (inSnakeCase(library.shortName),
               library.basePath,
               library.srcPath)
 
@@ -55,7 +55,7 @@ proc getModuleAndBasePathAndSrcPathByProgram*(
                 &"for package: {webArtifact.package} and " &
                 &"shortName: {webArtifact.shortName}")
 
-      return (getSnakeCaseName(webArtifact.shortName),
+      return (inSnakeCase(webArtifact.shortName),
               webArtifact.basePath,
               webArtifact.srcPath)
 

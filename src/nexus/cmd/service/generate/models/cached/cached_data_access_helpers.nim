@@ -60,7 +60,8 @@ proc addModelRowToCache*(
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
-        &"{indent}{moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}{optionGet}\n"
+        &"{indent}{moduleVar}.{cachedRows}[{pkField}] = " &
+          &"{model.nameInCamelCase}{optionGet}\n"
 
   if len(addToCacheStr) > 80:
 

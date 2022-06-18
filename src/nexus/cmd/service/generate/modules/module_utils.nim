@@ -1,6 +1,6 @@
 import chronicles, options, os, streams, strformat, strutils, yaml
 import nexus/core/service/format/filename_utils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/cmd/types/types
 
 
@@ -398,7 +398,7 @@ proc enrichModuleNaming*(module: var Module) =
             "module.package is a blank string")
 
   # Name conversions and assignments
-  let packageSnakeCase = getSnakeCaseName(module.package)
+  let packageSnakeCase = inSnakeCase(module.package)
 
   if module.package != packageSnakeCase:
     raise newException(
@@ -407,10 +407,10 @@ proc enrichModuleNaming*(module: var Module) =
 
   module.name = &"{packageSnakeCase} {module.shortName}"
 
-  module.nameInCamelCase = getCamelCaseName(module.name)
-  module.nameInPascalCase = getnameInPascalCase(module.name)
-  module.nameInSnakeCase = getSnakeCaseName(module.name)
-  module.shortNameInSnakeCase = getSnakeCaseName(module.shortName)
+  module.nameInCamelCase = inCamelCase(module.name)
+  module.nameInPascalCase = inPascalCase(module.name)
+  module.nameInSnakeCase = inSnakeCase(module.name)
+  module.shortNameInSnakeCase = inSnakeCase(module.shortName)
 
   # Import path
   module.importPath = &"{module.package}/{module.shortNameInSnakeCase}"

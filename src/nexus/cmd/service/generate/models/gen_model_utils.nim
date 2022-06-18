@@ -1,5 +1,5 @@
 import chronicles, options, sets, strformat, strutils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/core/service/format/tokenize
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/types/types
@@ -72,9 +72,9 @@ proc getModel*(modelYaml: ModelYAML,
 
   model.refSuffixInSnakeCase = refSnakeCaseSuffix
 
-  model.baseNameInCamelCase = getCamelCaseName(model.name)
-  model.baseNameInPascalCase = getnameInPascalCase(model.name)
-  model.baseNameInSnakeCase = getSnakeCaseName(model.name)
+  model.baseNameInCamelCase = inCamelCase(model.name)
+  model.baseNameInPascalCase = inPascalCase(model.name)
+  model.baseNameInSnakeCase = inSnakeCase(model.name)
 
   model.nameInCamelCase =
     &"{model.baseNameInCamelCase}{refPascalCaseSuffix}"
@@ -136,9 +136,9 @@ proc getModel*(modelYaml: ModelYAML,
                          &"type is \"{field.`type`}\" (type must be lowercase)")
 
     # Set additional fields
-    field.nameInCamelCase = getCamelCaseName(field.name)
-    field.nameInPascalCase = getnameInPascalCase(field.name)
-    field.nameInSnakeCase = getSnakeCaseName(field.name)
+    field.nameInCamelCase = inCamelCase(field.name)
+    field.nameInPascalCase = inPascalCase(field.name)
+    field.nameInSnakeCase = inSnakeCase(field.name)
 
     debug "getModel()",
       fieldName = field.name,
@@ -169,8 +169,8 @@ proc getModel*(modelYaml: ModelYAML,
   for field in model.pkFields:
 
     let
-      fieldCamelCaseName = getCamelCaseName(field)
-      fieldSnakeCaseName = getSnakeCaseName(field)
+      fieldCamelCaseName = inCamelCase(field)
+      fieldSnakeCaseName = inSnakeCase(field)
 
       modelField =
         getFieldBySnakeCaseName(
@@ -733,7 +733,7 @@ proc getPKFieldNames*(model: Model): seq[string] =
 
   for field in model.pkFields:
 
-    pkFields.add(getSnakeCaseName(field))    
+    pkFields.add(inSnakeCase(field))    
 
   return pkFields
 
@@ -885,7 +885,7 @@ proc snakeCaseFields*(strSeq: var seq[string]) =
 
   for i in 0 .. len(strSeq) - 1:
 
-    strSeq[i] = getSnakeCaseName(strSeq[i])
+    strSeq[i] = inSnakeCase(strSeq[i])
 
 
 proc splitModelFields*(str: string): seq[string] =

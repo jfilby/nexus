@@ -1,5 +1,5 @@
 import chronicles, options, strformat, strutils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/types/types
 
@@ -124,7 +124,7 @@ proc createPgForeignKeys*(
               &"model: \"{model.name}\"")
 
     let
-      to_tableName = getSnakeCaseName(relationship.to[0 .. to_dot - 1])
+      to_tableName = inSnakeCase(relationship.to[0 .. to_dot - 1])
       to_columns = relationship.to[to_dot + 1 .. len(relationship.to) - 1]
 
     var to_column_fields = splitModelFields(to_columns)

@@ -1,5 +1,5 @@
 import chronicles, os, sets, streams, strformat, strutils, tables, yaml
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import nexus/cmd/service/generate/generator_info/generator_info_utils
 import nexus/cmd/service/generate/migrations/gen_migration_utils
 import nexus/cmd/service/generate/models/cached/gen_cached_data_access
@@ -212,8 +212,9 @@ proc readModelFile(modelFiles: var seq[string],
     modelTypesTable: Table[string, TypeInfo]              # [ model.module, typeInfo ]
     modelModuleTypeTable: Table[string, string]           # [ model.module, moduleType definition ]
     fileModuleName = ""
-    moduleMinimumImports = @[ "db_postgres",
-                              "tables" ]
+    moduleMinimumImports =
+      @[ "db_postgres",
+         "tables" ]
 
   # Validate
   if getFileSize(filename) == 0:
@@ -234,7 +235,7 @@ proc readModelFile(modelFiles: var seq[string],
   let package = generatorInfo.package
 
   # Loop through the models, generating cached data access files, data access
-  # files and type information
+  # files and type information.
   for modelYAML in modelCollection:
 
     # Define the module paths using the selected module
@@ -247,7 +248,7 @@ proc readModelFile(modelFiles: var seq[string],
 
     # Migrations path
     let
-      moduleSnakeCaseName = getSnakeCaseName(moduleName)
+      moduleSnakeCaseName = inSnakeCase(moduleName)
 
       migrationsPath =
         &"{basePath}{DirSep}data{DirSep}{moduleSnakeCaseName}{DirSep}db" &

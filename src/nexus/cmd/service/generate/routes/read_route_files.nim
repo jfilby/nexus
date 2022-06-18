@@ -1,7 +1,7 @@
 import chronicles, options, os, streams, strformat, strutils, yaml
 import nexus/cmd/types/types
 import nexus/core/service/format/filename_utils
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 import route_utils
 
 
@@ -146,7 +146,7 @@ proc readRoutesFile(
             "Non .yaml file found: " & filename)
 
   webArtifact.routes.name =
-    getNaturalCaseName(filename[0 .. dotPos])
+    inNaturalCase(filename[0 .. dotPos])
 
   echo &"Routes: {webArtifact.routes.name} ({len(routeFilesCollection)})"
 

@@ -1,6 +1,6 @@
 import chronicles, strformat
 import nexus/cmd/types/types
-import nexus/core/service/format/name_utils
+import nexus/core/service/format/case_utils
 
 
 # Forward declarations
@@ -14,9 +14,9 @@ proc enrichRouteNamesAndPaths*(
        route: var Route,
        moduleSnakeCaseName: string) =
 
-  route.groupInSnakeCase = getSnakeCaseName(route.group)
-  route.nameInCamelCase = getCamelCaseName(route.name)
-  route.nameInSnakeCase = getSnakeCaseName(route.name)
+  route.groupInSnakeCase = inSnakeCase(route.group)
+  route.nameInCamelCase = inCamelCase(route.name)
+  route.nameInSnakeCase = inSnakeCase(route.name)
 
   route.pagesImport =
     &"{moduleSnakeCaseName}/view/" &
@@ -36,7 +36,7 @@ proc routeParametersYAMLtoRouteParameters(
             `type`: routeParameterYAML.`type`,
             constraints: routeParameterYAML.constraints,
             description: routeParameterYAML.description,
-            nameInCamelCase: getCamelCaseName(routeParameterYAML.name))
+            nameInCamelCase: inCamelCase(routeParameterYAML.name))
 
     routeParameters.add(routeParameter)
 
