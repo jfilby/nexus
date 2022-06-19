@@ -64,20 +64,13 @@ proc updateTmpDictFileWritten*(
 proc writeTmpDict*(tmpDict: Table[string, string],
                    filename: string) =
 
-  var output = ""
+  {.hint[XCannotRaiseY]: off.}
 
-  try:
-    output =
-      dump(tmpDict,
-           tsRootOnly,
-           asTidy,
-           defineOptions(style = psMinimal))
-
-  except YamlSerializationError:
-    echo "A YAML serialization error occurred for the tmp file contents"
-
-  finally:
-    quit(1)
+  var output =
+        dump(tmpDict,
+             tsRootOnly,
+             asTidy,
+             defineOptions(style = psMinimal))
 
   writeFile(filename,
             output)
