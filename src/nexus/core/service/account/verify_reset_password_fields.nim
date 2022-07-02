@@ -14,8 +14,9 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
               children)
 
 
-proc verifyResetPasswordRequestFields*(email: string,
-                                       accountUser: Option[AccountUser]): DocUIReturn =
+proc verifyResetPasswordRequestFields*(
+       email: string,
+       accountUser: Option[AccountUser]): DocUIReturn =
 
   var errorMessage = ""
 
@@ -28,10 +29,9 @@ proc verifyResetPasswordRequestFields*(email: string,
                  fieldError("email",
                             errorMessage) ])
 
-    return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+    return newDocUIReturn(isVerified = false,
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Verify that the account exists
   if accountUser == none(AccountUser):
@@ -42,20 +42,20 @@ proc verifyResetPasswordRequestFields*(email: string,
                  fieldError("email",
                             errorMessage) ])
 
-    return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+    return newDocUIReturn(isVerified = false,
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Return OK
   return newDocUIReturn(true)
 
 
-proc verifyChangePasswordFields*(email: string,
-                                 passwordResetCode: string,
-                                 password1: string,
-                                 password2: string,
-                                 accountUser: Option[AccountUser]): DocUIReturn =
+proc verifyChangePasswordFields*(
+       email: string,
+       passwordResetCode: string,
+       password1: string,
+       password2: string,
+       accountUser: Option[AccountUser]): DocUIReturn =
 
   # Verify email is specified
   if email == "":
@@ -65,8 +65,6 @@ proc verifyChangePasswordFields*(email: string,
                             "Email must be specified.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # Verify reset code
@@ -77,8 +75,6 @@ proc verifyChangePasswordFields*(email: string,
                             "Please enter the password reset code sent you by email.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   if accountUser.get.passwordResetCode.get != passwordResetCode:
@@ -88,8 +84,6 @@ proc verifyChangePasswordFields*(email: string,
                             "Password reset code not as expected.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # Verify that the account exists
@@ -100,13 +94,13 @@ proc verifyChangePasswordFields*(email: string,
                             "An account doesn't exist for the specified email.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # Verify password
-  let docuiReturn = verifyPasswordFields(password1,
-                                         password2)
+  let docuiReturn =
+        verifyPasswordFields(
+          password1,
+          password2)
 
   if docuiReturn.isVerified == false:
 

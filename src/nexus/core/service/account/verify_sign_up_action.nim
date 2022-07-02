@@ -97,8 +97,6 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
                                 "Email address not found in the system") ])
 
         return newDocUIReturn(false,
-                              "",
-                              "",
                               form)
 
       # Get mailing list
@@ -166,8 +164,6 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
                                 "Incorrect verification code.") ])
 
         return newDocUIReturn(false,
-                              "",
-                              "",
                               form)
 
   # Return OK

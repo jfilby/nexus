@@ -28,8 +28,6 @@ proc verifySignUpCodeFields*(
                             "Email must be specified.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # Verify email address
@@ -49,8 +47,6 @@ proc verifySignUpCodeFields*(
                             "That email address is not in the system.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # sign_up code
@@ -61,8 +57,6 @@ proc verifySignUpCodeFields*(
                             "The sign up code must be specified.") ])
 
     return newDocUIReturn(false,
-                          "",
-                          "",
                           form)
 
   # Return OK

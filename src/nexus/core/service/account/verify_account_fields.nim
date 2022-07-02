@@ -31,9 +31,8 @@ proc verifyEmailAddress*(
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Locate the position of the @ symbol
   let atPos = find(email,
@@ -49,9 +48,8 @@ proc verifyEmailAddress*(
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Does the email address have at least one position before the @ symbol? Fail if it doesn't.
   if at_pos == 0:
@@ -63,9 +61,8 @@ proc verifyEmailAddress*(
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Does the email address have a dot one position after the @ symbol? Fail if it doesn't.
   if find(email,
@@ -79,9 +76,8 @@ proc verifyEmailAddress*(
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Does the email address have a space? Fail if it does.
   if find(email,
@@ -94,9 +90,8 @@ proc verifyEmailAddress*(
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Verify that the email address doesn't already exist in the account table
   if checkExists == true:
@@ -110,9 +105,8 @@ proc verifyEmailAddress*(
                               errorMessage) ])
 
       return newDocUIReturn(false,
-                            "",
-                            errorMessage,
-                            form)
+                            errorMessage = errorMessage,
+                            results = form)
 
   # Return OK
   return newDocUIReturn(true)
@@ -133,9 +127,8 @@ proc verifyPassword*(fieldName: string,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Is there at least one lowercase alpha char?
   var passed = false
@@ -155,9 +148,8 @@ proc verifyPassword*(fieldName: string,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Is there at least one uppercase alpha char?
   passed = false
@@ -177,9 +169,8 @@ proc verifyPassword*(fieldName: string,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Is there at least one numeric char?
   passed = false
@@ -199,9 +190,8 @@ proc verifyPassword*(fieldName: string,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Return OK
   return newDocUIReturn(true)

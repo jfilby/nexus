@@ -14,8 +14,9 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
               children)
 
 
-proc verifyPasswordFields*(password1: string,
-                           password2: string): DocUIReturn =
+proc verifyPasswordFields*(
+       password1: string,
+       password2: string): DocUIReturn =
 
   var errorMessage = ""
 
@@ -38,19 +39,19 @@ proc verifyPasswordFields*(password1: string,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Return OK
   return newDocUIReturn(true)
 
 
-proc verifySignUpFields*(nexusCoreModule: NexusCoreModule,
-                         name: string,
-                         email: string,
-                         password1: string,
-                         password2: string): DocUIReturn =
+proc verifySignUpFields*(
+       nexusCoreModule: NexusCoreModule,
+       name: string,
+       email: string,
+       password1: string,
+       password2: string): DocUIReturn =
 
   var errorMessage = ""
 
@@ -64,9 +65,8 @@ proc verifySignUpFields*(nexusCoreModule: NexusCoreModule,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Verify email is specified
   if email == "":
@@ -78,9 +78,8 @@ proc verifySignUpFields*(nexusCoreModule: NexusCoreModule,
                             errorMessage) ])
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Verify that the email is not already signed up
   let emailExists =
@@ -97,9 +96,8 @@ proc verifySignUpFields*(nexusCoreModule: NexusCoreModule,
                             errorMessage) ])      
 
     return newDocUIReturn(false,
-                          "",
-                          errorMessage,
-                          form)
+                          errorMessage = errorMessage,
+                          results = form)
 
   # Verify email address
   var docuiReturn =
@@ -111,8 +109,10 @@ proc verifySignUpFields*(nexusCoreModule: NexusCoreModule,
     return docuiReturn
 
   # Verify password
-  docuiReturn = verifyPasswordFields(password1,
-                                     password2)
+  docuiReturn =
+    verifyPasswordFields(
+      password1,
+      password2)
 
   if docuiReturn.isVerified == false:
     return docuiReturn

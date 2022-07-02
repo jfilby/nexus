@@ -5,11 +5,12 @@ import nexus/core/types/model_types
 import verify_account_fields
 
 
-proc verifyMyAccountFields*(nexusCoreModule: NexusCoreModule,
-                            name: string,
-                            email: string,
-                            password1: string,
-                            password2: string): DocUIReturn =
+proc verifyMyAccountFields*(
+       nexusCoreModule: NexusCoreModule,
+       name: string,
+       email: string,
+       password1: string,
+       password2: string): DocUIReturn =
 
   var
     verified: bool
@@ -18,7 +19,7 @@ proc verifyMyAccountFields*(nexusCoreModule: NexusCoreModule,
   # Verify first name
   if name == "":
     return newDocUIReturn(
-             false,
+             isVerified = false,
              errorMessage = "Name must be specified.")
 
   # Verify email address
@@ -36,8 +37,9 @@ proc verifyMyAccountFields*(nexusCoreModule: NexusCoreModule,
       return docUIReturn
 
     # Verify password
-    docUIReturn = verifyPassword("password1",
-                                 password1)
+    docUIReturn =
+      verifyPassword("password1",
+                     password1)
 
     if docUIReturn.isVerified == false:
       return docUIReturn
@@ -46,7 +48,7 @@ proc verifyMyAccountFields*(nexusCoreModule: NexusCoreModule,
     if password1 != password2:
 
       return newDocUIReturn(
-               false,
+               isVerified = false,
                errorMessage = "The initial and retyped passwords don't match.")
 
   # Return OK
