@@ -4,21 +4,23 @@ Installing Nexus
 Pre-requisites
 ====
 
-Nexus requires Nim v1.6.4 or later.
+Nexus requires Nim v1.6.0 or later.
 
-Run the following Nimble commands to install the required Nim modules:
+Install Nexus using the Nimble command:
 
 ```
-nimble install argon2
-nimble install chronicles
-nimble install jester
-nimble install karax
-nimble install quickjwt
-nimble install yaml
+nimble install nexus
 ```
 
+If you prefer to install Nexus via source, you can still use the above Nimble
+command to install dependencies and then uninstall the nexus package. If you
+wish to install those depedencies manually, then please refer to the
+nexus.nimble file for a list of required packages.
 
-Linux/MacOS Install
+There are still additional steps, covered in the next sections.
+
+
+Linux/MacOS Install of Modules
 ====
 
 Copy nexus_env.template.sh to nexus_env.sh. Set the NEXUS_BASE_PATH and
@@ -49,7 +51,7 @@ scripts/dist.sh
 ```
 
 
-Windows Install
+Windows Install of Modules
 ====
 
 Copy nexus_env.template.bat to nexus_env.bat. Set the NEXUS_BASE_PATH and
