@@ -6,6 +6,9 @@ import nexus/cmd/types/types
 
 
 # Forward declarations
+proc getDbToStringFunc*(
+       `type`: string,
+       inParentheses: Option[string] = none(string)): string
 proc getWherePredicates*(
        whereFields: seq[string],
        model: Model): seq[string]
@@ -111,8 +114,9 @@ proc buildInsertSQLFromModelFieldNames*(
            &"{indent}# Field: {field.name}\n"
 
     # Get fieldNimType
-    let fieldNimType = getNimType(field,
-                                    withOption = false)
+    let fieldNimType =
+          getNimType(field,
+                     withOption = false)
 
     # Add field value
     var
@@ -125,7 +129,7 @@ proc buildInsertSQLFromModelFieldNames*(
       aIndent &= "  "
       getOption = ".get"
 
-      str &= &"{indent}if {field.nameInSnakeCase} != none({fieldNimType}):\n"
+      str &= &"{indent}if {field.nameInCamelCase} != none({fieldNimType}):\n"
 
     skipFieldsComma = false
     skipValuesComma = false
@@ -141,45 +145,29 @@ proc buildInsertSQLFromModelFieldNames*(
     else:
       str &= &"{aIndent}insertStatement &= \"{field.nameInSnakeCase}, \"\n"
 
+    # Define field, which may be quoted
+    var valueStr = &"{field.nameInCamelCase}{getOption}"
+
     # Add field value to the values clause
     let andComma = &"& \", \""
 
-    if field.`type` == "bool":
-      str &= &"{aIndent}valuesClause &= pgToBool({field.nameInSnakeCase}{getOption}) {andComma}\n"
+    var dbToStringFunc =
+          getDbToStringFunc(
+            field.`type`,
+            inParentheses = some(valueStr))
 
-    elif field.`type` == "char[]":
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
+    if @[ "char",
+          "float[]",
+          "int[]",
+          "int64[]",
+          "json",
+          "jsonb",
+          "string",
+          "string[]" ].contains(field.`type`):
 
-    elif field.`type` == "date":
-      str &= &"{aIndent}valuesClause &= pgToDateString({field.nameInSnakeCase}{getOption}) {andComma}\n"
+      dbToStringFunc = "\"'\" & " & dbToStringFunc & " & \"'\""
 
-    elif field.`type` == "datetime":
-      str &= &"{aIndent}valuesClause &= pgToDateTimeString({field.nameInSnakeCase}{getOption}) {andComma}\n"
-
-    elif field.`type` == "float[]":
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
-
-    elif field.`type` == "int64[]":
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqNonStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
-
-    elif field.`type` == "string":
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add({field.nameInSnakeCase}{getOption})\n"
-
-    elif field.`type` == "string[]":
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(getSeqStringAsPgArrayString({field.nameInSnakeCase}{getOption}))\n"
-
-    elif field.`type` == "uuid":
-      debug "buildInsertSQLFromModelFieldNames(): uuid has no field value"
-      skipValuesComma = true
-
-    else:
-      str &= &"{aIndent}valuesClause &= \"?, \"\n"
-      str &= &"{aIndent}insertValues.add(${field.nameInSnakeCase}{getOption})\n"
+    str &= &"{aIndent}valuesClause &= {dbToStringFunc} {andComma}\n"
 
   # Remove trailing commas and finalize insertStatement
   str &= "\n" &
@@ -398,6 +386,56 @@ proc fieldListWithoutOptionalFields*(
   return returnFields
 
 
+proc getDbToStringFunc*(
+       `type`: string,
+       inParentheses: Option[string] = none(string)): string =
+
+  var
+    isFunc = true
+    str = ""
+
+  case `type`:
+
+    of "bool":
+      str = "pgToBool"
+
+    of "char[]", "float[]", "int64[]":
+      str = "getSeqNonStringAsPgArrayString"
+
+    of "date":
+      str = "pgToDateString"
+
+    of "datetime":
+      str = "pgToDateTimeString"
+
+    of "char", "float", "int", "int64", "json", "jsonb":
+      isFunc = false
+      str = "$"
+
+    of "string", "uuid":
+      isFunc = false
+      str = ""
+
+    of "string[]":
+      str = "getSeqStringAsPgArrayString"
+
+    else:
+      raise newException(
+              ValueError,
+              &"Unhandled type: {`type`}")
+
+  # In parentheses?
+  if inParentheses == none(string):
+    return str
+
+  # With parentheses
+  if isFunc == false:
+    return &"{str}{inParentheses.get}"
+
+  else:
+    return &"{str}({inParentheses.get})"
+
+
 proc listFieldNames*(
        str: var string,
        model: Model,
@@ -419,8 +457,9 @@ proc listFieldNames*(
   for listField in listFields:
 
     # Get field
-    let field = getFieldByName(listField,
-                               model)
+    let field =
+          getFieldByName(listField,
+                         model)
 
     # Compose lines (for string and non-strings)
     if first == false:
@@ -485,6 +524,37 @@ proc listFieldNames*(
                          withOption = false)
 
         str &= &" = none({nimTypeWithoutOption})"
+
+
+proc listFieldNamesWithDbToStringFuncs*(
+       str: var string,
+       model: Model,
+       indent: string,
+       listFields: seq[string]) =
+
+  var first = true
+
+  for listField in listFields:
+
+    # Comma and new line if not first iter
+    if first == false:
+      str &= ",\n"
+
+    else:
+      first = false
+
+    # Get field
+    let
+      field =
+        getFieldByName(listField,
+                       model)
+
+      dbToStringFunc =
+        getDbToStringFunc(
+          field.`type`,
+          inParentheses = some(field.nameInCamelCase))
+
+    str &= &"{indent}{dbToStringFunc}"
 
 
 proc listModelFieldNames*(

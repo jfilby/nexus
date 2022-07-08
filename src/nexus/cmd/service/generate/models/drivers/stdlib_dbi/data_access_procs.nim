@@ -479,10 +479,11 @@ proc existsProc*(str: var string,
          &"              {model.module.nameInCamelCase}Module.db,\n" &
           "              sql(selectStatement),\n"
 
-  listFieldNames(str,
-                 model,
-                 indent = "              ",
-                 listFields = uniqueFields)
+  listFieldNamesWithDbToStringFuncs(
+    str,
+    model,
+    indent = "              ",
+    listFields = uniqueFields)
 
   str &= &")\n" &
          &"\n"
@@ -497,9 +498,10 @@ proc existsProc*(str: var string,
   return true
 
 
-proc rowToModelTypeDecl*(str: var string,
-                         model: Model,
-                         pragmas: string) =
+proc rowToModelTypeDecl*(
+       str: var string,
+       model: Model,
+       pragmas: string) =
 
   # Proc name
   var procName = &"rowTo{model.nameInPascalCase}"
