@@ -56,6 +56,25 @@ proc createMigrationsFile*(
     writeFile(filename = dmlFilename,
               dmlStr)
 
+  # Constraints
+  if len(model.uniqueFieldSets) > 0:
+
+    dmlStr =
+      &"REM Nexus generated DML file\n" &
+      &"\n"
+
+    createPgUniqueConstraints(
+      model,
+      dmlStr)
+
+    # Write migration file
+    dmlFilename = &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_uq_dml.sql"
+
+    echo ".. writing: " & dmlFilename
+
+    writeFile(filename = dmlFilename,
+              dmlStr)
+
   # Indexes
   if len(model.indexes) > 0:
 

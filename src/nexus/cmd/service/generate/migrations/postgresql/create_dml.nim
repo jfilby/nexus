@@ -90,6 +90,17 @@ proc createPgTable*(
   dmlStr &= ";\n" &
             "\n"
 
+  # Timescale hypertable
+  if model.tableOptions.contains("timescale hypertable"):
+
+    # Assume the time field is the first field
+    let timeField = model.fields[0].nameInSnakeCase
+
+    # DML for converting the table to a hypertable
+    dmlStr &=
+      &"SELECT create_hypertable('{tableName}', '{timeField}');\n" &
+       "\n"
+
 
 proc createPgForeignKeys*(
        model: Model,
@@ -174,8 +185,39 @@ proc createPgBTreeIndex(
 
   # Index DML
   dmlStr &= &"CREATE {unique}INDEX {indexName}\n" &
-             &"  ON {tableName} ({indexColumns});\n" &
-             &"\n"
+            &"    ON {tableName} ({indexColumns});\n" &
+             "\n"
+
+
+proc createUniqueConstraint(
+       id: int,
+       uniqueFields: UniqueFields,
+       model: Model,
+       dmlStr: var string) =
+
+  # Index details
+  let tableName = model.baseNameInSnakeCase
+  
+  var
+    first = true
+    constraintColumns = ""
+
+  for field in uniqueFields.fields:
+
+    if first == false:
+      constraintColumns &= ", "
+
+    else:
+      first = false
+
+    constraintColumns &= inSnakeCase(field)
+
+  let constraintName = &"{tableName}_uq_{id}"
+
+  # Index DML
+  dmlStr &= &"ALTER TABLE {tableName}\n" &
+            &"  ADD CONSTRAINT {constraintName} UNIQUE ({constraintColumns});\n" &
+             "\n"
 
 
 proc getPgIndexType(index: Index,
@@ -184,12 +226,30 @@ proc getPgIndexType(index: Index,
   return BTreeIndex
 
 
+proc createPgUniqueConstraints*(
+       model: Model,
+       dmlStr: var string) =
+
+  var id = 1
+
+  for uniqueFields in model.uniqueFieldSets:
+
+    # Generate unique constraint DML
+    createUniqueConstraint(
+      id,
+      uniqueFields,
+      model,
+      dmlStr)
+
+    # Inc id
+    id += 1
+
+
 proc createPgIndexes*(
        model: Model,
        dmlStr: var string) =
 
-  var
-    id = 1
+  var id = 1
 
   for index in model.indexes:
 
