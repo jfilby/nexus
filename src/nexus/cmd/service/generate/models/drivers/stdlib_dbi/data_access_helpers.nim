@@ -151,23 +151,44 @@ proc buildInsertSQLFromModelFieldNames*(
     # Add field value to the values clause
     let andComma = &"& \", \""
 
-    var dbToStringFunc =
-          getDbToStringFunc(
-            field.`type`,
-            inParentheses = some(valueStr))
+    # The string type (no conversion necessary)
+    if field.`type` == "string":
+      str &= &"{aIndent}valuesClause &= \"?\" {andComma}\n"
+      str &= &"{aIndent}insertValues.add({valueStr})\n"
 
-    if @[ "char",
-          "float[]",
-          "int[]",
-          "int64[]",
-          "json",
-          "jsonb",
-          "string",
-          "string[]" ].contains(field.`type`):
+    # Types that must be handled by DB functions
+    elif @[ "char",
+            "datetime",
+            "datetime[]",
+            "float[]",
+            "int[]",
+            "int64[]",
+            "json",
+            "jsonb",
+            "string[]" ].contains(field.`type`):
 
-      dbToStringFunc = "\"'\" & " & dbToStringFunc & " & \"'\""
+      var dbToStringFunc =
+            getDbToStringFunc(
+              field.`type`,
+              inParentheses = some(valueStr))
 
-    str &= &"{aIndent}valuesClause &= {dbToStringFunc} {andComma}\n"
+      # Certain DB functions must be quoted: chars, array and json types
+      if @[ "char",
+            "float[]",
+            "int[]",
+            "int64[]",
+            "json",
+            "jsonb",
+            "string[]" ].contains(field.`type`):
+
+        dbToStringFunc = "\"'\" & " & dbToStringFunc & " & \"'\""
+
+      str &= &"{aIndent}valuesClause &= {dbToStringFunc} {andComma}\n"
+
+    # Types that can be safely stringified with $
+    else:
+      str &= &"{aIndent}valuesClause &= \"?, \"\n"
+      str &= &"{aIndent}insertValues.add(${valueStr})\n"
 
   # Remove trailing commas and finalize insertStatement
   str &= "\n" &
