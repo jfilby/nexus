@@ -128,7 +128,8 @@ proc getPackageModules*(
 
   debug "getPackageModules()",
     packageName = packageName,
-    packageConfPath = packageConfPath
+    packageConfPath = packageConfPath,
+    dirSep = $DirSep
 
   discard packageName
   discard packageConfPath
@@ -148,10 +149,14 @@ proc getPackageModules*(
     # Additional paths
     module.confPath = resolveCrossPlatformPath(packageYaml.confPath)
 
+    debug "getPackageModules()",
+      moduleConfPath = module.confPath
+
     # Load library
-    var library = findAndLoadLibraryYAMLFile(
-                    packageYaml.confPath,
-                    module)
+    var library =
+          findAndLoadLibraryYAMLFile(
+            module.confPath,
+            module)
 
     let
       moduleShortNameLower = toLowerAscii(module.shortName)

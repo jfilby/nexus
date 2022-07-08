@@ -256,10 +256,11 @@ proc generateDataAccessFile*(
   # Standard library imports
   var
     stdlibSeqs: seq[string]
-    stdlibImports = toOrderedSet( @[ "db_postgres",
-                                     "options",
-                                     "sequtils",
-                                     "strutils" ])
+    stdlibImports =
+      toOrderedSet( @[ "db_postgres",
+                       "options",
+                       "sequtils",
+                       "strutils" ])
 
   let hasDateTimeTypes = modelUsesDateTimeTypes(model)
 

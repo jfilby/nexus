@@ -53,13 +53,13 @@ proc createBasicModuleFile(
   echo ".. writing: " & typesFilename
 
   var typeStr =
-    &"# Basic model_types file (no models defined) with only a basic module definition\n" &
-    &"import db_postgres\n" &
-    "\n" &
-    &"type\n" &
-    &"  {module.nameInPascalCase}Module* = object\n" &
-    &"    db*: DbConn\n" &
-    &"\n"
+        "# Basic model_types file (no models defined) with only a basic module definition\n" &
+        "import db_postgres\n" &
+        "\n" &
+        "type\n" &
+       &"  {module.nameInPascalCase}Module* = object\n" &
+        "    db*: DbConn\n" &
+        "\n"
 
   createDir(typesPath)
 
