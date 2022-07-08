@@ -158,6 +158,7 @@ proc buildInsertSQLFromModelFieldNames*(
 
     # Types that must be handled by DB functions
     elif @[ "char",
+            "char[]",
             "datetime",
             "datetime[]",
             "float[]",
@@ -174,6 +175,7 @@ proc buildInsertSQLFromModelFieldNames*(
 
       # Certain DB functions must be quoted: chars, array and json types
       if @[ "char",
+            "char[]",
             "float[]",
             "int[]",
             "int64[]",
