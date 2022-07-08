@@ -210,7 +210,7 @@ proc createJWT*(nexusCoreModule: NexusCoreModule,
   return token
 
 
-# getJWT(): returns (sub: accountUserId, new_jwt_token (if any))
+# getJWT(): returns (sub: accountUserId, newJwtToken (if any))
 proc getJWT*(nexusCoreModule: NexusCoreModule,
              token: string,
              secret: string): (string, string) =
@@ -228,19 +228,19 @@ proc getJWT*(nexusCoreModule: NexusCoreModule,
   # Get the accountUserId
   let
     accountUserId = token.claim["sub"].getStr()
-    expiry_time = token.claim["exp"].getInt()
+    expiryTime = token.claim["exp"].getInt()
     mobile = token.claim["mbl"].getStr()
 
   # Check the expiry time:
   # The token is renewed if this one has expired recently (within 10 minutes after the initial expiry time).
   let
-    unix_time = toUnix(getTime())
-    expired_time = unix_time + (60 * expiryMinutes)
-    renew_time = unix_time + (60 * renewMinutes)
+    unixTime = toUnix(getTime())
+    expiredTime = unixTime + (60 * expiryMinutes)
+    renewTime = unixTime + (60 * renewMinutes)
 
-  if unix_time > renew_time:
+  if unixTime > renewTime:
 
-    if unix_time < expired_time:
+    if unixTime < expiredTime:
 
       # Expired, but within the time to renew
       let token = createJWT(nexusCoreModule,
@@ -254,8 +254,9 @@ proc getJWT*(nexusCoreModule: NexusCoreModule,
       # Expired, too late to renew
       return ("", "")
 
-  # Return the accountUserId
-  return (accountUserId, "")
+  # Return the accountUserId and the original token
+  return (accountUserId,
+          token)
 
 
 proc logoutJWT*(
