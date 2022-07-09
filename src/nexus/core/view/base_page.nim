@@ -252,13 +252,14 @@ proc baseForDesktopContent*(
           tdiv(class = "columns"):
             tdiv(class = sideMarginsClass):
               leftMenu(webContext)
-            tdiv(style = style((StyleAttr.backgroundColor, "#fafafa"),
+            tdiv(style = style(# (StyleAttr.backgroundColor, "#fafafa"),
                                (StyleAttr.margin, contentsMargin)),
                  class = pageContentsClass):
 
               if pageContext.displayPageHeading == true:
 
-                tdiv(class = "title_div"):
+                tdiv(class = "title_div",
+                     style = style(StyleAttr.marginBottom, "1em")):
 
                   if pageContext.pageTitle != "":
                       h1(class = "title"): text pageContext.pageTitle

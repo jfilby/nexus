@@ -52,7 +52,8 @@ proc nameField*(name: string,
 proc loginButton*(): VNode =
 
   submitButton(fieldName = "login",
-               name = "Login")
+               name = "Login",
+               buttonStyle = "is-info")
 
 
 proc emailAddressField*(email: string,
@@ -168,18 +169,18 @@ proc passwordMinimalField*(label: string,
 
 
 proc signUpButton*(color = "",
-                   button_style: string = "",
-                   extra_style: string = ""): VNode =
+                   buttonStyle: string = "is-danger",
+                   extraStyle: string = ""): VNode =
 
-  var new_button_style = button_style
+  var newButtonStyle = buttonStyle
 
   if color == "red":
-    new_button_style = "is-danger"
+    newButtonStyle = "is-danger"
 
   submitButton(fieldName = "sign_up",
                name = "Sign Up",
-               button_style = new_button_style,
-               extra_style = extra_style)
+               buttonStyle = newButtonStyle,
+               extraStyle = extraStyle)
 
 
 proc signUpCodeField*(signUpCode: string): VNode =

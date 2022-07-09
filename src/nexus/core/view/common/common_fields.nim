@@ -8,7 +8,7 @@ proc requiredAsterisk*(): VNode {.gcsafe.}
 proc submitButton*(fieldName: string,
                    name: string,
                    value: string = name,
-                   isLight: string = "is-light",
+                   isLight: string = "",
                    buttonStyle: string = "is-link",
                    extraStyle: string = ""): VNode {.gcsafe.}
 proc tableHeaderRow*(headers: seq[string],
@@ -157,11 +157,11 @@ proc searchButton*(): VNode {.gcsafe.} =
 proc submitButton*(fieldName: string,
                    name: string,
                    value: string = name,
-                   isLight: string = "is-light",
+                   isLight: string = "",
                    buttonStyle: string = "is-link",
                    extraStyle: string = ""): VNode {.gcsafe.} =
 
-  var class = "button"
+  var class = "button is-rounded"
 
   if buttonStyle != "":
     class &= " " & buttonStyle
