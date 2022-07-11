@@ -5,3 +5,5 @@ Features:
 - JWT-based session management.
 - Nexus Settings model for storing both Nexus and app related settings.
 
+Join the [Discord server](https://discord.gg/PcjVrSgTMj) to chat with other Nexus users.
+
