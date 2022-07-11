@@ -9,3 +9,5 @@ web-services and console applications.
 See the [documentation](https://jfilby.github.io/nexus) to learn about Nexus,
 and how to use it to write web-apps and web-services.
 
+Join the [Discord server](https://discord.gg/PcjVrSgTMj) to chat with other Nexus users.
+
