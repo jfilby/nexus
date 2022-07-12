@@ -41,10 +41,17 @@ you log in with your development user.
 
 **Setup Nexus**
 
-Go to src/nexus and run:
+Install the compile scripts:
 
 ```
+cd src/nexus/cmd
 scripts/dist.sh
+```
+
+Now compile the Nexus CLI:
+
+```
+compile.sh nexus
 ```
 
 
@@ -66,10 +73,17 @@ NEXUS_BIN_PATH, which is the directory you just created in this section.
 
 **Setup Nexus**
 
-Go to src\nexus and run:
+Install the compile scripts:
 
 ```
+cd src\nexus\cmd
 scripts\dist
+```
+
+Now compile the Nexus CLI:
+
+```
+compile nexus
 ```
 
 
