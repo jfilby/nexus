@@ -52,7 +52,9 @@ proc resetPasswordRequestPage*(
                  vnode)
 
 
-proc resetPasswordRequestPagePost*(request: Request): string =
+proc resetPasswordRequestPagePost*(
+       request: Request,
+       webContext: WebContext): string =
 
   # Get email
   var email = ""
@@ -61,12 +63,18 @@ proc resetPasswordRequestPagePost*(request: Request): string =
     email = request.params["email"]
 
   # Reset password request action
-  let docUIReturn = resetPasswordRequestAction(request)
+  let docUiReturn = resetPasswordRequestAction(request)
 
-  discard docUIReturn
+  if docUiReturn.isVerified == true:
 
-  # Redirect to verify page
-  return redirectToURL("/account/reset-password/verify?email=" & email)
+    # Redirect to verify page
+    return redirectToURL("/account/reset-password/verify?email=" & email)
+
+  # Error
+  resetPasswordRequestPage(
+    webContext,
+    docUiReturn.errorMessage,
+    email)
 
 
 proc resetPasswordVerifyPage*(

@@ -47,12 +47,16 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
           siteName = formValues["siteName"].getStr()
 
   # Get accountUser record
-  let accountUser = getAccountUserByEmail(nexusCoreModule,
-                                          email)
+  let accountUser =
+        getAccountUserByEmail(
+          nexusCoreModule,
+          email)
 
   # Verify the input
-  let docuiReturn = verifyResetPasswordRequestFields(email,
-                                                     accountUser)
+  let docuiReturn =
+        verifyResetPasswordRequestFields(
+          email,
+          accountUser)
 
   if docuiReturn.isVerified == false:
     return docuiReturn
@@ -61,22 +65,25 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
   else:
 
     # Get accountUser record
-    var accountUser = getAccountUserByEmail(nexusCoreModule,
-                                             email)
+    var accountUser =
+          getAccountUserByEmail(
+            nexusCoreModule,
+            email)
 
     # Get passwordResetCode
     accountUser.get.passwordResetCode = some(generateSignUpCode())
 
     # Update accountUser with the passwordResetCode
-    let rows_affected = updateAccountUserByPk(
-                          nexusCoreModule,
-                          accountUser.get,
-                          setFields = @[ "password_reset_code"])
+    discard updateAccountUserByPk(
+              nexusCoreModule,
+              accountUser.get,
+              setFields = @[ "password_reset_code"])
 
     # Send email for password request verification
-    sendResetPasswordRequestEmail(email,
-                                  accountUser.get.passwordResetCode.get,
-                                  siteName)
+    sendResetPasswordRequestEmail(
+      email,
+      accountUser.get.passwordResetCode.get,
+      siteName)
 
   # Return
   return newDocUIReturn(true)
@@ -129,15 +136,19 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
           password2 = formValues["password2"].getStr()
 
   # Get accountUser record
-  let accountUser = getAccountUserByEmail(nexusCoreModule,
-                                          email)
+  let accountUser =
+        getAccountUserByEmail(
+          nexusCoreModule,
+          email)
 
   # Verify the input
-  let docuiReturn = verifyChangePasswordFields(email,
-                                               passwordResetCode,
-                                               password1,
-                                               password2,
-                                               accountUser)
+  let docuiReturn =
+        verifyChangePasswordFields(
+          email,
+          passwordResetCode,
+          password1,
+          password2,
+          accountUser)
 
   # Generate reset code and send password reset email
   if docuiReturn.isVerified == false:
@@ -146,19 +157,23 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
   else:
 
     # Get accountUser record
-    var accountUser = getAccountUserByEmail(nexusCoreModule,
-                                            email)
+    var accountUser =
+          getAccountUserByEmail(
+            nexusCoreModule,
+            email)
 
     # Update password
     # Get the passwordHash and salt
     (accountUser.get.passwordHash,
-     accountUser.get.passwordSalt) = hashPassword(password1,
-                                                  inSalt = "")
+     accountUser.get.passwordSalt) =
+      hashPassword(password1,
+                   inSalt = "")
 
-    let rows_affected = updateAccountUserByPk(nexusCoreModule,
-                                              accountUser.get,
-                                              setFields = @[ "password_hash",
-                                                             "password_salt" ])
+    discard updateAccountUserByPk(
+              nexusCoreModule,
+              accountUser.get,
+              setFields = @[ "password_hash",
+                             "password_salt" ])
 
   # Return
   return newDocUIReturn(true)
