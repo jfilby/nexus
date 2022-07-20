@@ -127,6 +127,8 @@ proc createProc*(str: var string,
     withDefaults = true,
     withNimTypes = true)
 
+  str &= ",\n       ignoreExistingPk: bool = false"
+
   let returnDetails =
         getProcPostDetails(
           model.pkNimType,

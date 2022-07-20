@@ -1,4 +1,5 @@
 import chronicles, options, strformat, strutils
+import nexus/core/service/format/case_utils
 import nexus/core/service/format/type_utils
 import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/service/generate/models/model_utils
@@ -204,8 +205,25 @@ proc buildInsertSQLFromModelFieldNames*(
 
   # End fields clause and begin values clause
   str &= &"{indent}# Finalize insertStatement\n" &
-         &"{indent}insertStatement &= \") values (\" & valuesClause & \")\"\n" &
-         &"\n"
+         &"{indent}insertStatement &=\n" &
+         &"{indent}  \") values (\" & valuesClause & \")\"\n"
+
+  # Ignore PK fields if ignoreExistingPk == true
+  if len(model.pkFields) > 0:
+
+    var pkFieldsSnakeCase: seq[string]
+
+    for pkField in model.pkFields:
+
+      pkFieldsSnakeCase.add(inSnakeCase(pkField))
+
+    let pkFieldsStr = join(pkFieldsSnakeCase, ", ")
+
+    str &=  "\n" &
+           &"{indent}if ignoreExistingPk == true:\n" &
+           &"{indent}  insertStatement &= \" on conflict ({pkFieldsStr}) do nothing\"\n"
+
+  str &= "\n"
 
 
 proc deleteFromOnly*(
