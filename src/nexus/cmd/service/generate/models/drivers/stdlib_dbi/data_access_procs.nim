@@ -191,7 +191,8 @@ proc createWithTypeProc*(
     withNimTypes = true)
 
   # Move these options to a type that includes db
-  str &= ",\n       copyAllStringFields: bool = true" &
+  str &= ",\n       ignoreExistingPk: bool = false" &
+         ",\n       copyAllStringFields: bool = true" &
          ",\n       convertToRawTypes: bool = true"
 
   let returnDetails =
@@ -200,7 +201,7 @@ proc createWithTypeProc*(
           pragmas)
 
   str &= &"){returnDetails} =\n" &
-         "\n"
+          "\n"
 
   # Init type
   initType(str,
@@ -235,8 +236,8 @@ proc createWithTypeProc*(
     indent = indent,
     skipAutoValue = true)
 
-  str &= ")\n" &
-         "\n"
+  str &= &",\n{indent}ignoreExistingPk)\n" &
+          "\n"
 
   setTypeFromFields(str,
                     model,
