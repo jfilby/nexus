@@ -1,9 +1,13 @@
 import strformat, strutils
 import nexus/cmd/service/generate/models/model_utils
+import nexus/core/service/format/case_utils
 import types/types
 
 
 # Forward declarations
+proc getPkString(model: Model,
+                 withModel: bool = true,
+                 withOption: bool = false): string
 proc getUniqueFieldValuesStringStr*(
        uniqueFields: seq[string],
        model: Model): string
@@ -17,7 +21,7 @@ proc addIfNotExistModelRowToCache*(
   let
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
+    pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
@@ -39,6 +43,7 @@ proc addIfNotExistModelRowToCache*(
 proc addModelRowToCache*(
        str: var string,
        model: Model,
+       withModel: bool = true,
        withOption: bool = false) =
 
   var
@@ -56,7 +61,10 @@ proc addModelRowToCache*(
   let
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = &"{model.nameInCamelCase}{optionGet}.{model.pkNameInCamelCase}"
+
+    pkField = getPkString(model,
+                          withModel = withModel,
+                          withOption = withOption)
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
@@ -96,7 +104,9 @@ proc existsModelRowInCacheByPk*(
     # cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.pkNameInCamelCase
+
+    pkField = getPkString(model,
+                          withModel = false)
 
   str &= "  # Check existence in the model row cache\n" &
          &"  if {moduleVar}.{cachedRows}.hasKey({pkField}):\n" &
@@ -111,9 +121,7 @@ proc existsModelRowInCacheByUniqueFields*(
 
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
-    # cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    # pkField = model.pkNameInCamelCase
     uniqueFieldsStr = join(uniqueFields, "|")
     uniqueValuesStr = getUniqueFieldValuesStringStr(uniqueFields,
                                                       model)
@@ -132,7 +140,7 @@ proc filterModelGetPKsFromResults*(
        str: var string,
        model: Model) =
 
-  let pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
+  let pkField = getPkString(model)
 
   str &= "  # Get PKs from the filter results\n" &
          &"  var pks: seq[{model.pkNimType}]\n" &
@@ -202,7 +210,7 @@ proc filterModelSetRowsInCacheWithWhereClause*(
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
+    pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
@@ -233,7 +241,7 @@ proc filterModelSetRowsInCacheWithWhereFields*(
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.nameInCamelCase & "." & model.pkNameInCamelCase
+    pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
@@ -264,7 +272,9 @@ proc getModelRowInCacheByPk*(
   let
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.pkNameInCamelCase
+
+    pkField = getPkString(model,
+                          withModel = false)
 
   var
     preRet = ""
@@ -290,8 +300,8 @@ proc getModelRowInCacheByUniqueFields*(
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    # pkField = model.pkNameInCamelCase
     uniqueFieldsStr = join(uniqueFields, " ")
+
     uniqueValuesStr =
       getUniqueFieldValuesStringStr(
         uniqueFields,
@@ -313,6 +323,45 @@ proc getModelRowInCacheByUniqueFields*(
          &"  if {moduleVar}.{cachedFilter}.hasKey(filterKey):\n" &
          &"    return {preRet}{moduleVar}.{cachedRows}[{moduleVar}.{cachedFilter}[filterKey][0]]{postRet}\n" &
          &"\n"
+
+
+proc getPkString(model: Model,
+                 withModel: bool = true,
+                 withOption: bool = false): string =
+
+  # Get model if it's an option
+  var modelAccessor = ""
+
+  if withModel == true:
+    modelAccessor = model.nameInCamelCase
+
+    if withOption == true:
+      modelAccessor &= ".get"
+
+    modelAccessor &= "."
+
+  # No PK fields set
+  if len(model.pkFields) == 0:
+
+    raise newException(
+            ValueError,
+            "Cached models currently require a primary key")
+
+  # 1 PK field set
+  elif len(model.pkFields) == 1:
+    return &"{modelAccessor}{model.pkNameInCamelCase}"
+
+  # 1+ PK fields set
+  elif len(model.pkFields) > 1:
+
+    var pkFieldsCamelCase: seq[string]
+
+    for pkField in model.pkFields:
+
+      pkFieldsCamelCase.add(
+        &"{modelAccessor}{inCamelCase(pkField)}")
+
+    return "(" & join(pkFieldsCamelCase, ", ") & ")"
 
 
 proc getUniqueFieldValuesStringStr*(
@@ -351,7 +400,9 @@ proc removeModelRowFromCache*(
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
     moduleVar = model.module.nameInCamelCase & "Module"
-    pkField = model.pkNameInCamelCase
+
+    pkField = getPkString(model,
+                          withModel = false)
 
   str &= &"  # Remove from the model row cache\n" &
          &"  {moduleVar}.{cachedRows}.del({pkField})\n" &

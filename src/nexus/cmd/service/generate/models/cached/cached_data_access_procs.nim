@@ -395,6 +395,7 @@ proc cachedGetProc*(
   addModelRowToCache(
     str,
     model,
+    # withModel = false,
     withOption = true)
 
   # Return
