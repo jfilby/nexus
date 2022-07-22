@@ -711,6 +711,13 @@ proc initType*(str: var string,
          &"\n"
 
 
+proc limitByClause*(str: var string,
+                    query: string) =
+
+  str &= &"  if limitBy != none(int):\n" &
+         &"    {query} &= \" limit by \" & $limitBy.get\n"
+
+
 proc orderByClause*(str: var string,
                     query: string) =
 

@@ -163,7 +163,8 @@ proc callFilterWithWhereClauseProc*(
   str &= procLine &
          &"{indent}whereClause,\n" &
          &"{indent}whereValues,\n" &
-         &"{indent}orderByFields)\n" &
+         &"{indent}orderByFields,\n" &
+         &"{indent}limitBy)\n" &
          &"\n"
 
 
@@ -190,7 +191,8 @@ proc callFilterWithWhereFieldsProc*(
   str &= procLine &
          &"{indent}whereFields,\n" &
          &"{indent}whereValues,\n" &
-         &"{indent}orderByFields)\n" &
+         &"{indent}orderByFields,\n" &
+         &"{indent}limitBy)\n" &
          &"\n"
 
 

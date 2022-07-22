@@ -232,7 +232,8 @@ proc cachedFilterProc*(
            &"{model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
-         &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
+          "       orderByFields: seq[string] = @[],\n" &
+         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Return if in cache
@@ -282,7 +283,8 @@ proc cachedFilterWhereEqOnlyProc*(
            &"{model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string] = @[],\n" &
-         &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
+          "       orderByFields: seq[string] = @[],\n" &
+         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Return if in cache

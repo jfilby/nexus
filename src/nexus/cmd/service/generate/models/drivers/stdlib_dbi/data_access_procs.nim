@@ -570,7 +570,8 @@ proc filterProc*(str: var string,
            &"{model.module.nameInPascalCase}Module,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
-         &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
+          "       orderByFields: seq[string] = @[],\n" &
+         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Select query
@@ -587,6 +588,12 @@ proc filterProc*(str: var string,
 
   orderByClause(str,
                 "selectStatement")
+
+  str &= "\n"
+
+  limitByClause(
+    str,
+    "selectStatement")
 
   str &= "\n"
 
@@ -627,7 +634,8 @@ proc filterWhereEqOnlyProc*(
            &"{model.module.nameInPascalCase}Module,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string],\n" &
-         &"       orderByFields: seq[string] = @[]){returnDetails} =\n" &
+          "       orderByFields: seq[string] = @[],\n" &
+         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Select query
@@ -647,6 +655,12 @@ proc filterWhereEqOnlyProc*(
     "selectStatement")
 
   orderByClause(
+    str,
+    "selectStatement")
+
+  str &= "\n"
+
+  limitByClause(
     str,
     "selectStatement")
 
