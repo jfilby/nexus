@@ -136,7 +136,7 @@ proc existsModelRowInCacheByUniqueFields*(
          "\n"
 
 
-proc filterModelGetPKsFromResults*(
+proc filterModelGetPksFromResults*(
        str: var string,
        model: Model) =
 

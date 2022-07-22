@@ -112,7 +112,7 @@ proc createProc*(str: var string,
   if model.longNames == true:
     procName &= model.nameInPascalCase
 
-  procName &= "ReturnsPK"
+  procName &= "ReturnsPk"
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
@@ -225,7 +225,7 @@ proc createWithTypeProc*(
 
     indent &= "  "
 
-  str &= &"{indent}create{model.nameInPascalCase}ReturnsPK(\n" &
+  str &= &"{indent}create{model.nameInPascalCase}ReturnsPk(\n" &
          &"{indent}  {model.module.nameInCamelCase}Module,\n"
 
   indent &= "  "
@@ -259,7 +259,7 @@ proc deleteProcByPk*(
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -419,7 +419,7 @@ proc existsProc*(str: var string,
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -678,7 +678,7 @@ proc getProc*(str: var string,
 
   var
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -815,6 +815,7 @@ proc getOrCreateProc*(str: var string,
 
   if uniqueFields == model.pkFields:
     getByFields = "PK"
+
   else:
     getByFields =
       getFieldsAsPascalCaseCase(
@@ -922,7 +923,7 @@ proc updateByPkProc*(str: var string,
                    model)
 
   # Where clause
-  wherePKClause(str,
+  wherePkClause(str,
                 "updateStatement",
                 "update",
                 model)

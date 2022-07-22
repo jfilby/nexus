@@ -287,7 +287,7 @@ proc getFieldsAsPascalCaseCase*(
        joinStr = "And"): string =
 
   let uniqueFieldNames =
-        getFieldsWithPKNamed(
+        getFieldsWithPkNamed(
           uniqueFields,
           model)
 
@@ -954,7 +954,7 @@ proc whereClauseByCustomFields*(
          &"\n"
 
 
-proc wherePKClause*(str: var string,
+proc wherePkClause*(str: var string,
                     whereStr: string,
                     queryType: string,
                     model: Model) =

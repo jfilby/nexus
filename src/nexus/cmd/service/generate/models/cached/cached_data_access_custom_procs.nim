@@ -18,22 +18,22 @@ proc cachedGetCustomProc*(
   # primary key name preserved.
   let
     selectFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         getFunction.selectFields,
         model)
 
     whereFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         getFunction.whereFields,
         model)
 
     selectFieldsWithActualPkName =
-      getFieldsWithPKActualName(
+      getFieldsWithPkActualName(
         getFunction.selectFields,
         model)
 
     whereFieldsWithActualPkName =
-      getFieldsWithPKActualName(
+      getFieldsWithPkActualName(
         getFunction.whereFields,
         model)
 
@@ -142,22 +142,22 @@ proc cachedUpdateCustomProc*(
   # key name preserved
   let
     setFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         updateFunction.setFields,
         model)
 
     whereFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         updateFunction.whereFields,
         model)
 
     setFieldsWithActualPkName =
-      getFieldsWithPKActualName(
+      getFieldsWithPkActualName(
         updateFunction.setFields,
         model)
 
     whereFieldsWithActualPkName =
-      getFieldsWithPKActualName(
+      getFieldsWithPkActualName(
         updateFunction.whereFields,
         model)
 

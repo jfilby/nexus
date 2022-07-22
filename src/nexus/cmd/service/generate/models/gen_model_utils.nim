@@ -13,7 +13,7 @@ proc getNimType*(field: Field,
                  withOption: bool = true): string
 proc getNimType*(fields: Fields,
                  withOption: bool = true): string
-proc getPKFieldNames*(model: Model): seq[string]
+proc getPkFieldNames*(model: Model): seq[string]
 proc setPartitioning(model: var Model)
 proc tokenError(
       errorHeading: string,
@@ -466,11 +466,11 @@ proc getFieldNamesInSnakeCase*(
   return fieldNames
 
 
-proc getFieldsWithPKActualName*(
+proc getFieldsWithPkActualName*(
        fields: seq[string],
        model: Model): seq[string] =
 
-  # let pkFieldNames = getPKFieldNames(model)
+  # let pkFieldNames = getPkFieldNames(model)
 
   var returnFields: seq[string]
 
@@ -487,11 +487,11 @@ proc getFieldsWithPKActualName*(
   return returnFields
 
 
-proc getFieldsWithPKNamed*(
+proc getFieldsWithPkNamed*(
        fields: seq[string],
        model: Model): seq[string] =
 
-  let pkField_names = getPKFieldNames(model)
+  let pkField_names = getPkFieldNames(model)
 
   var returnFields: seq[string]
 
@@ -727,7 +727,7 @@ proc getNimType*(fields: Fields,
   return nimType
 
 
-proc getPKFieldNames*(model: Model): seq[string] =
+proc getPkFieldNames*(model: Model): seq[string] =
 
   var pkFields: seq[string]
 

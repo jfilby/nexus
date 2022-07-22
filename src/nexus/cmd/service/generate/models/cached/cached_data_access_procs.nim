@@ -71,7 +71,7 @@ proc cachedDeleteProc*(
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -142,7 +142,7 @@ proc cachedExistsProc*(
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -246,7 +246,7 @@ proc cachedFilterProc*(
     model)
 
   # Extract PKs for caching
-  filterModelGetPKsFromResults(
+  filterModelGetPksFromResults(
     str,
     model)
 
@@ -296,7 +296,7 @@ proc cachedFilterWhereEqOnlyProc*(
     model)
 
   # Extract PKs for caching
-  filterModelGetPKsFromResults(
+  filterModelGetPksFromResults(
     str,
     model)
 
@@ -322,7 +322,7 @@ proc cachedGetProc*(
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
@@ -414,7 +414,7 @@ proc cachedGetOrCreateProc*(
 
   let
     uniqueFieldsWithPkName =
-      getFieldsWithPKNamed(
+      getFieldsWithPkNamed(
         uniqueFields,
         model)
 
