@@ -571,7 +571,7 @@ proc filterProc*(str: var string,
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
-         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
+         &"       limit: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Select query
@@ -591,7 +591,7 @@ proc filterProc*(str: var string,
 
   str &= "\n"
 
-  limitByClause(
+  limitClause(
     str,
     "selectStatement")
 
@@ -635,7 +635,7 @@ proc filterWhereEqOnlyProc*(
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string],\n" &
           "       orderByFields: seq[string] = @[],\n" &
-         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
+         &"       limit: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Select query
@@ -660,7 +660,7 @@ proc filterWhereEqOnlyProc*(
 
   str &= "\n"
 
-  limitByClause(
+  limitClause(
     str,
     "selectStatement")
 

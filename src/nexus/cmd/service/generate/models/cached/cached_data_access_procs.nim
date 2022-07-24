@@ -233,7 +233,7 @@ proc cachedFilterProc*(
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
-         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
+         &"       limit: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Return if in cache
@@ -284,7 +284,7 @@ proc cachedFilterWhereEqOnlyProc*(
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
-         &"       limitBy: Option[int] = none(int)){returnDetails} =\n" &
+         &"       limit: Option[int] = none(int)){returnDetails} =\n" &
           "\n"
 
   # Return if in cache
