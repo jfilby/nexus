@@ -844,33 +844,43 @@ proc setClause*(str: var string,
 
     str &= &"    {el}if field == \"{field.nameInSnakeCase}\":\n"
 
-    let
-      modelField = &"{model.nameInCamelCase}.{field.nameInCamelCase}"
+    let modelField = &"{model.nameInCamelCase}.{field.nameInCamelCase}"
 
-      valueToAdd =
-        getDbToStringFunc(
-          field.`type`,
-          some(&"{modelField}{getOption}"))
+    # Get DB value/function call
+    var valueToAdd =
+          getDbToStringFunc(
+            field.`type`,
+            some(&"{modelField}{getOption}"))
 
     # If a function is used the put in the statement
-    let fieldName = field.nameInCamelCase
+    let fieldName = field.nameInSnakeCase
 
     if valueToAdd[^1] == ')':
 
+      # For arrays, use quotes around the returned function value
+      var quote = ""
+
+      if @[ "bool[]", "char[]", "float[]", "float64[]", "int[]", "int64[]" ].
+           contains(field.`type`):
+
+        quote = "'"
+
+      # Set value in statement
       if option == false:
         str &= 
           &"        {statement} &= " &
-            &"\"       {fieldName} = \" & {valueToAdd} & \",\"\n"
+            &"\"       {fieldName} = {quote}\" & {valueToAdd} & \"{quote},\"\n" &
+           "\n"
 
       else:
         str &=
           &"      if {modelField} != none({fieldNimType}):\n" &
           &"        {statement} &= " &
-            &"\"       {fieldName} = \" & {valueToAdd} & \",\"\n" &
-          &"      else:\n" &
+            &"\"       {fieldName} = {quote}\" & {valueToAdd} & \"{quote},\"\n" &
+           "      else:\n" &
           &"        {statement} &= \"       {fieldName}" &
             &" = null,\"\n" &
-          &"\n"
+           "\n"
 
     # Else use a binding variable
     else:
@@ -878,20 +888,20 @@ proc setClause*(str: var string,
       if option == false:
         str &=
           &"      {statement} &= \"       {fieldName}" &
-            &" = ?,\"\n" &
+            " = ?,\"\n" &
           &"      {queryType}Values.add({valueToAdd})\n" &
-          &"\n"
+           "\n"
 
       else:
         str &=
           &"      if {modelField} != none({fieldNimType}):\n" &
           &"        {statement} &= \"       {fieldName}" &
-            &" = ?,\"\n" &
+            " = ?,\"\n" &
           &"        {queryType}Values.add({valueToAdd})\n" &
-          &"      else:\n" &
+           "      else:\n" &
           &"        {queryType}Statement &= \"       {fieldName}" &
-            &" = null,\"\n" &
-          &"\n"
+            " = null,\"\n" &
+          "\n"
 
   # Remove last ,
   str &= &"  {statement}[len({queryType}Statement) - 1] = ' '\n"
