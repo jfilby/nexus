@@ -440,7 +440,7 @@ proc getDbToStringFunc*(
     of "bool":
       str = "pgToBool"
 
-    of "char[]", "float[]", "int64[]":
+    of "bool[]", "char[]", "float[]", "float64[]", "int[]", "int64[]":
       str = "getSeqNonStringAsPgArrayString"
 
     of "date":
@@ -816,6 +816,9 @@ proc setClause*(str: var string,
          &"  for field in setFields:\n" &
          &"\n"
 
+  # Vars
+  let statement = &"{queryType}Statement"
+
   # Set field as specified
   var first = true
 
@@ -841,36 +844,57 @@ proc setClause*(str: var string,
 
     str &= &"    {el}if field == \"{field.nameInSnakeCase}\":\n"
 
-    var valueToAdd = ""
+    let
+      modelField = &"{model.nameInCamelCase}.{field.nameInCamelCase}"
 
-    if @[ "bool[]",
-          "char[]",
-          "float[]",
-          "float64[]",
-          "int[]",
-          "int64[]" ].contains(field.`type`):
-      valueToAdd = &"getSeqNonStringAsPgArrayString({model.nameInSnakeCase}.{field.nameInSnakeCase}{getOption})"
+      valueToAdd =
+        getDbToStringFunc(
+          field.`type`,
+          some(&"{modelField}{getOption}"))
 
-    elif field.`type` == "string[]":
-      valueToAdd = &"getSeqStringAsPgArrayString({model.nameInSnakeCase}.{field.nameInSnakeCase}{getOption})"
+    # If a function is used the put in the statement
+    let fieldName = field.nameInCamelCase
 
+    if valueToAdd[^1] == ')':
+
+      if option == false:
+        str &= 
+          &"        {statement} &= " &
+            &"\"       {fieldName} = \" & {valueToAdd} & \",\"\n"
+
+      else:
+        str &=
+          &"      if {modelField} != none({fieldNimType}):\n" &
+          &"        {statement} &= " &
+            &"\"       {fieldName} = \" & {valueToAdd} & \",\"\n" &
+          &"      else:\n" &
+          &"        {statement} &= \"       {fieldName}" &
+            &" = null,\"\n" &
+          &"\n"
+
+    # Else use a binding variable
     else:
-      valueToAdd = &"${model.nameInCamelCase}.{field.nameInCamelCase}{getOption}"
 
-    if option == false:
-      str &= &"      {queryType}Statement &= \"       {field.nameInSnakeCase} = ?,\"\n" &
-             &"      {queryType}Values.add({valueToAdd})\n" &
-             &"\n"
-    else:
-      str &= &"      if {model.nameInCamelCase}.{field.nameInCamelCase} != none({fieldNimType}):\n" &
-             &"        {queryType}Statement &= \"       {field.nameInSnakeCase} = ?,\"\n" &
-             &"        {queryType}Values.add({valueToAdd})\n" &
-             &"      else:\n" &
-             &"        {queryType}Statement &= \"       {field.nameInSnakeCase} = null,\"\n" &
-             &"\n"
+      if option == false:
+        str &=
+          &"      {statement} &= \"       {fieldName}" &
+            &" = ?,\"\n" &
+          &"      {queryType}Values.add({valueToAdd})\n" &
+          &"\n"
+
+      else:
+        str &=
+          &"      if {modelField} != none({fieldNimType}):\n" &
+          &"        {statement} &= \"       {fieldName}" &
+            &" = ?,\"\n" &
+          &"        {queryType}Values.add({valueToAdd})\n" &
+          &"      else:\n" &
+          &"        {queryType}Statement &= \"       {fieldName}" &
+            &" = null,\"\n" &
+          &"\n"
 
   # Remove last ,
-  str &= &"  {queryType}Statement[len({queryType}Statement) - 1] = ' '\n"
+  str &= &"  {statement}[len({queryType}Statement) - 1] = ' '\n"
 
   # New line
   str &= "\n"
