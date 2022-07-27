@@ -93,14 +93,14 @@ proc getModel*(modelYaml: ModelYAML,
   # PK
   var pkIsSet = false
 
-  for field_yaml in modelYaml.fields:
+  for fieldYaml in modelYaml.fields:
 
     # Convert FieldYAML to Field
     var field = Field()
 
-    field.name = field_yaml.name
-    field.`type` = field_yaml.`type`
-    field.constraints = field_yaml.constraints
+    field.name = fieldYaml.name
+    field.`type` = fieldYaml.`type`
+    field.constraints = fieldYaml.constraints
 
     # Verify type
     let fieldTypes = @[ "bool",
@@ -134,6 +134,13 @@ proc getModel*(modelYaml: ModelYAML,
       raise newException(ValueError,
                          &"Invalid type for model: \"{model.name}\" field: \"{field.name}\"; " &
                          &"type is \"{field.`type`}\" (type must be lowercase)")
+
+    # Set isArray
+    if field.`type`[^1] == ']':
+      field.isArray = true
+
+    else:
+      field.isArray = false
 
     # Set additional fields
     field.nameInCamelCase = inCamelCase(field.name)

@@ -81,6 +81,7 @@ type
     `type`*: string
     constraints*: seq[string]
 
+    isArray*: bool
     shortHash*: string
 
 

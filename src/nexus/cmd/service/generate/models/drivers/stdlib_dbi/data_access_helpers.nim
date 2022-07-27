@@ -860,9 +860,7 @@ proc setClause*(str: var string,
       # For arrays, use quotes around the returned function value
       var quote = ""
 
-      if @[ "bool[]", "char[]", "float[]", "float64[]", "int[]", "int64[]" ].
-           contains(field.`type`):
-
+      if field.isArray == true:
         quote = "'"
 
       # Set value in statement
