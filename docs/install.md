@@ -21,63 +21,10 @@ nexus.nimble file for a list of required packages.
 Next you need to setup Nexus.
 
 
-### Linux/MacOS Setup
+## Setup
 
-Copy nexus_env.template.sh to nexus_env.sh. Set the NEXUS_BASE_PATH and
-NEXUS_BIN_PATH in the script appropriately according to where you have deployed
-the Nexus codebase.
+Nexus uses a CLI (called nexus) which requires some minimal setup:
 
-
-**Nexus Bin**
-
-Add Nexus' bin directory to your PATH environment variable. This should be in
-PATH before you proceed to the next step, but should also be in PATH whenever
-you log in with your development user.
-
-
-**Setup Nexus**
-
-Install the compile scripts:
-
-```
-cd src/nexus/cmd
-scripts/dist.sh
-```
-
-Now compile the Nexus CLI:
-
-```
-compile.sh nexus
-```
-
-
-### Windows Setup
-
-Copy nexus_env.template.bat to nexus_env.bat. Set the NEXUS_BASE_PATH and
-NEXUS_BIN_PATH in the script appropriately according to where you have deployed
-the Nexus codebase.
-
-
-**Nexus Bin**
-
-Add Nexus' bin directory to your PATH environment variable. In Windows 10:
-Start -> Settings -> System. Type "env" and click "Edit the environment
-variables for your account". Edit the PATH environment variable and add the
-NEXUS_BIN_PATH, which is the directory you just created in this section.
-
-
-**Setup Nexus**
-
-Install the compile scripts:
-
-```
-cd src\nexus\cmd
-scripts\dist
-```
-
-Now compile the Nexus CLI:
-
-```
-compile nexus
-```
+- [Linux or MacOS](setup_for_linux_and_macos.md)
+- [Windows](setup_for_windows.md)
 
