@@ -10,11 +10,11 @@ import utils
 # Forward declarations
 proc writeConfWebAppYaml(
        pathName: string,
-       appTemplate: AppTemplate)
+       projectTemplate: ProjectTemplate)
 proc writeRoutesYamlFile(
        routesYamlFilename: string,
        routes: Routes,
-       appTemplate: AppTemplate)
+       projectTemplate: ProjectTemplate)
 
 
 # Code
@@ -32,7 +32,7 @@ proc createInitialRoutes(moduleSnakeCaseName: string): Routes =
     route,
     moduleSnakeCaseName)
 
-  var routes = Routes(name: "Frontpage")
+  var routes = Routes(name: moduleSnakeCaseName)
 
   routes.routes.add(route)
 
@@ -42,30 +42,30 @@ proc createInitialRoutes(moduleSnakeCaseName: string): Routes =
 proc generateInitialWebArtifact*(
        pathName: string,
        routes: Routes,
-       appTemplate: var AppTemplate,
+       projectTemplate: var ProjectTemplate,
        generatorInfo: var GeneratorInfo) =
 
   # Defined a WebArtifact object
   var webArtifact =
-        getWebArtifactFromAppTemplate(
+        getWebArtifactFromProjectTemplate(
           pathName,
           routes,
-          appTemplate,
+          projectTemplate,
           generatorInfo)
 
   # Set GeneratorInfo fields
-  # generatorInfo.confPath = appTemplate.confPath
+  # generatorInfo.confPath = projectTemplate.confPath
 
   # This will generate the initial web artifact, including the routes file and
   # any page files.
   generateWebArtifact(
-    appTemplate.basePath,
+    projectTemplate.basePath,
     webArtifact,
     generatorInfo)
 
 
 proc generateWebArtifactTemplate*(
-       appTemplate: var AppTemplate,
+       projectTemplate: var ProjectTemplate,
        generatorInfo: var GeneratorInfo) =
 
   debug "generateWebArtifactTemplate()"
@@ -73,25 +73,25 @@ proc generateWebArtifactTemplate*(
   # Get path name
   let pathName =
         replace(
-          appTemplate.artifact,
+          projectTemplate.artifact,
           '-',
           '_')
 
   # Get paths
-  var srcPath = &"{appTemplate.modulePath}{DirSep}view{DirSep}{pathName}"
+  var srcPath = &"{projectTemplate.applPath}{DirSep}view{DirSep}{pathName}"
 
   discard parseFilenameExpandEnvVars(srcPath)
 
-  appTemplate.confWebApp =
-    &"{appTemplate.moduleConfPath}{DirSep}{pathName}s{DirSep}" &
-    appTemplate.appNameInSnakeCase
+  projectTemplate.confWebApp =
+    &"{projectTemplate.applConfPath}{DirSep}{pathName}s{DirSep}" &
+    projectTemplate.projectNameInSnakeCase
 
-  appTemplate.confWebAppYaml =
-    &"{appTemplate.confWebApp}{DirSep}{pathName}.yaml"
+  projectTemplate.confWebAppYaml =
+    &"{projectTemplate.confWebApp}{DirSep}{pathName}.yaml"
 
   var
-    confWebApp = appTemplate.confWebApp
-    confWebAppYaml = appTemplate.confWebAppYaml
+    confWebApp = projectTemplate.confWebApp
+    confWebAppYaml = projectTemplate.confWebAppYaml
 
   discard parseFilenameExpandEnvVars(confWebApp)
   discard parseFilenameExpandEnvVars(confWebAppYaml)
@@ -108,13 +108,13 @@ proc generateWebArtifactTemplate*(
 
   writeConfWebAppYaml(
     confWebAppYaml,
-    appTemplate)
+    projectTemplate)
 
   # An initial routes.yaml file
   debug "generateWebArtifactTemplate(): create initial routes.yaml file"
 
   let
-    routesPath = &"{appTemplate.confWebApp}{DirSep}routes"
+    routesPath = &"{projectTemplate.confWebApp}{DirSep}routes"
     routesYamlFilename = &"{routesPath}{DirSep}routes.yaml"
 
   echo ".. creating initial routes.yaml file: " & routesYamlFilename
@@ -124,7 +124,7 @@ proc generateWebArtifactTemplate*(
   writeRoutesYamlFile(
     routesYamlFilename,
     routes,
-    appTemplate)
+    projectTemplate)
 
   # Source directory and generate routes file
   debug "generateWebArtifactTemplate(): generating initial web source files"
@@ -137,7 +137,7 @@ proc generateWebArtifactTemplate*(
   generateInitialWebArtifact(
     pathName,
     routes,
-    appTemplate,
+    projectTemplate,
     generatorInfo)
 
   # Done
@@ -146,23 +146,23 @@ proc generateWebArtifactTemplate*(
 
 proc writeConfWebAppYaml(
        pathName: string,
-       appTemplate: AppTemplate) =
+       projectTemplate: ProjectTemplate) =
 
-  # Check if appTemplate.confWebAppYaml file already exists, prompt for
+  # Check if projectTemplate.confWebAppYaml file already exists, prompt for
   # overwrite
   promptToOverwriteFile(
     &"A {pathName}.yaml file already exists:\n" &
-    &"{appTemplate.confWebAppYaml}\n" &
+    &"{projectTemplate.confWebAppYaml}\n" &
      "Would you like to overwrite this file?",
-    appTemplate.confWebAppYaml,
+    projectTemplate.confWebAppYaml,
      "%YAML 1.2\n" &
      "---\n" &
      "\n" &
-    &"shortName: {appTemplate.moduleName}\n" &
+    &"shortName: {projectTemplate.appName}\n" &
     &"description: Web application.\n" &
-    &"basePath: ${appTemplate.basePathEnvVar}\n" &
-    &"srcPath: ${appTemplate.nimSrcPathEnvVar}/" &
-      &"{appTemplate.moduleNameInSnakeCase}\n" &
+    &"basePath: ${projectTemplate.basePathEnvVar}\n" &
+    &"srcPath: ${projectTemplate.nimSrcPathEnvVar}/" &
+      &"{projectTemplate.appNameInSnakeCase}\n" &
      "mediaList: []\n" &
      "\n")
 
@@ -170,7 +170,7 @@ proc writeConfWebAppYaml(
 proc writeRoutesYamlFile(
        routesYamlFilename: string,
        routes: Routes,
-       appTemplate: AppTemplate) =
+       projectTemplate: ProjectTemplate) =
 
   # Get the frontpage route
   let

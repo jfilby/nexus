@@ -5,27 +5,27 @@ import nexus/core/service/format/type_utils
 
 type
   NexusYAML* = object
-    app_name*: string
+    project*: string
     package*: string
 
 
 proc generateMainConfigFile*(
-       appTemplate: AppTemplate,
+       projectTemplate: ProjectTemplate,
        generatorInfo: GeneratorInfo) =
 
   let
-    nexusYamlFilename = &"{appTemplate.confPath}{DirSep}nexus.yaml"
+    nexusYamlFilename = &"{projectTemplate.confPath}{DirSep}nexus.yaml"
     nexusYamlStr =
        "%YAML 1.2\n" &
        "---\n" &
        "\n" &
-      &"app_name: {appTemplate.appName}\n" &
+      &"project: {projectTemplate.projectName}\n" &
       &"package: {generatorInfo.package}\n" &
        "\n"
 
   # Create conf directory if it doesn't exist
-  if not dirExists(appTemplate.confPath):
-    createDir(appTemplate.confPath)
+  if not dirExists(projectTemplate.confPath):
+    createDir(projectTemplate.confPath)
 
   # Write nexus.yaml file
   writeFile(nexusYamlFilename,
@@ -63,7 +63,7 @@ proc readNexusYaml*(confPath: string):
     quit(1)
 
   # Assign to generatorInfo properties
-  generatorInfo.appName = nexusYAML.appName
+  generatorInfo.projectName = nexusYAML.project
   generatorInfo.package = nexusYAML.package
 
   return (true,

@@ -4,13 +4,13 @@ import nexus/cmd/service/generate/main_config/write_file
 import nexus/cmd/types/types
 
 
-proc generateConsoleAppTemplate*(appTemplate: AppTemplate) =
+proc generateConsoleProjectTemplate*(projectTemplate: ProjectTemplate) =
 
-  debug "generateConsoleAppTemplate"
+  debug "generateConsoleProjectTemplate"
 
   var
-    programs = &"{appTemplate.modulePath}{DirSep}programs"
-    consoleNim = &"{programs}{DirSep}{appTemplate.moduleNameInSnakeCase}.nim"
+    programs = &"{projectTemplate.applPath}{DirSep}programs"
+    consoleNim = &"{programs}{DirSep}{projectTemplate.appNameInSnakeCase}.nim"
 
   discard parseFilenameExpandEnvVars(programs)
   discard parseFilenameExpandEnvVars(consoleNim)
@@ -26,9 +26,9 @@ proc generateConsoleAppTemplate*(appTemplate: AppTemplate) =
     consoleNim,
      "# Write your console app here then:\n" &
      "# 1. Compile with:\n" &
-    &"#    {appTemplate.compileScript} {appTemplate.moduleNameInSnakeCase}\n" &
+    &"#    {projectTemplate.compileScript} {projectTemplate.appNameInSnakeCase}\n" &
      "# 2. Run with\n" &
-    &"#    bin{DirSep}{appTemplate.moduleNameInSnakeCase}\n")
+    &"#    bin{DirSep}{projectTemplate.appNameInSnakeCase}\n")
 
-  debug "generateConsoleAppTemplate: done"
+  debug "generateConsoleProjectTemplate: done"
 

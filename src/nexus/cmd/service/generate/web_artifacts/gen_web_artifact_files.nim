@@ -61,14 +61,13 @@ proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
 
   # Initial imports
   imports.incl("chronicles, jester, os, strutils, uri")
-  imports.incl("nexus_core/service/common/globals")
-  imports.incl("nexus_core/types/module_globals as nexus_core_module_globals")
+  imports.incl("nexus/core/service/common/globals")
+  imports.incl("nexus/core/types/module_globals as nexus_core_module_globals")
 
   # Process routes generated for the web app
   for route in webArtifact.routes.routes.mitems:
 
     debug "generateWebArtifactFile()",
-      name = model.name,
       pagesImport = route.pagesImport
 
     # Add import

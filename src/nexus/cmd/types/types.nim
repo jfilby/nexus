@@ -19,16 +19,16 @@ type
     envEnd*: string
 
 
-  AppTemplate* = object
+  ProjectTemplate* = object
+    projectName*: string
+    projectNameInSnakeCase*: string
+    projectNameInUpperSnakeCase*: string
+    projectNameInLowerSnakeCase*: string
+
     appName*: string
     appNameInSnakeCase*: string
-    appNameInUpperSnakeCase*: string
-    appNameInLowerSnakeCase*: string
-
-    moduleName*: string
-    moduleNameInSnakeCase*: string
-    moduleNameUpperInSnakeCase*: string
-    moduleNameLowerInSnakeCase*: string
+    appNameUpperInSnakeCase*: string
+    appNameLowerInSnakeCase*: string
 
     artifact*: string
     docUi*: bool
@@ -43,11 +43,11 @@ type
 
     basePath*: string
     confPath*: string
-    moduleConfPath*: string
+    applConfPath*: string
     srcPath*: string
     nimPath*: string
     nimPathExpanded*: string
-    modulePath*: string
+    applPath*: string
     confWebApp*: string
     confWebAppYaml*: string
 
@@ -489,10 +489,10 @@ type
     tmpDict*: TmpDictYAML
     envTable*: Table[string, string]
 
-    appName*: string
-    appNameInSnakeCase*: string
-    appNameInUpperSnakeCase*: string
-    appNameInLowerSnakeCase*: string
+    projectName*: string
+    projectNameInSnakeCase*: string
+    projectNameInUpperSnakeCase*: string
+    projectNameInLowerSnakeCase*: string
     package*: string
 
     libraries*: LibrariesYAML

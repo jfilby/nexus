@@ -36,7 +36,8 @@ proc createInitialViewSourceFile(
 
   # Imports
   str =  "import jester\n" &
-        &"import {webArtifact.nameInSnakeCase}/view/new_web_context\n" &
+         "import nexus/core/types/view_types\n" &
+        &"import {webArtifact.nameInSnakeCase}/view/web_app/new_web_context\n" &
          "\n" &
          "\n"
 

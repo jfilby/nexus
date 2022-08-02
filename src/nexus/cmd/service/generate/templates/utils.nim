@@ -3,10 +3,10 @@ import nexus/cmd/service/generate/web_artifacts/utils
 import nexus/cmd/types/types
 
 
-proc getWebArtifactFromAppTemplate*(
+proc getWebArtifactFromProjectTemplate*(
        pathName: string,
        routes: Routes,
-       appTemplate: AppTemplate,
+       projectTemplate: ProjectTemplate,
        generatorInfo: GeneratorInfo): WebArtifact =
 
   # Validate
@@ -19,12 +19,12 @@ proc getWebArtifactFromAppTemplate*(
   # Create WebArtifact object
   var webArtifact =
         WebArtifact(
-          artifact: appTemplate.artifact,
+          artifact: projectTemplate.artifact,
           pathName: pathName,
-          shortName: appTemplate.moduleName,
-          confPath: &"{appTemplate.confPath}{DirSep}{pathName}",
-          srcPath: &"{appTemplate.nimPathExpanded}{DirSep}" &
-                   appTemplate.moduleNameLowerInSnakeCase,
+          shortName: projectTemplate.appName,
+          confPath: &"{projectTemplate.confWebApp}",
+          srcPath: &"{projectTemplate.nimPathExpanded}{DirSep}" &
+                   projectTemplate.appNameLowerInSnakeCase,
           routes: routes)
 
   enrichWebArtifaceNamesAndPaths(webArtifact)

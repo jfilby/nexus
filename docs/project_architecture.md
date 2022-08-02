@@ -3,7 +3,7 @@
 At a high-level a Nexus project consists of:
 - Config files
 - Environment scripts
-- Source files organized into modules
+- Source files organized for modules (apps/libraries)
 
 
 ## Config Files
@@ -20,9 +20,14 @@ These are shell scripts which set environment variables used for:
 - Define other application environment variables.
 
 
+## Modules
+
+A module is an application or library in a project.
+
+
 ## Applications
 
-Applications could be web-apps, web-services, console programs or libraries.
+Applications could be web-apps, web-services or console programs.
 
 It's even possible that an application could be written in a different
 programming language than Nim, e.g. if you want a Next.js front-end that talks
@@ -30,7 +35,4 @@ to a Nim web-service.
 
 When you create your project with the nexus CLI, you will be prompted for the
 name of your initial application.
-
-You may see the term module in the config and source. A module is another term
-for application. This ambiguity will be resolved in the near future.
 

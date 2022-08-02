@@ -4,7 +4,7 @@ import nexus/cmd/service/generate/main_config/gen_nexus_conf
 import nexus/cmd/service/generate/models/process_all_models
 import nexus/cmd/service/generate/modules/gen_module_procs
 import nexus/cmd/service/generate/packages/import_packages
-import nexus/cmd/service/generate/templates/gen_app_template
+import nexus/cmd/service/generate/templates/gen_project_template
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
 import nexus/cmd/service/generate/web_artifacts/gen_web_artifact
 import nexus/cmd/service/generate/web_artifacts/read_web_artifacts
@@ -42,7 +42,7 @@ proc generate*(artifact: string,
            "conf/nexus.yaml already exists"
 
     # Generate app template (if specified)
-    generateAppTemplate(
+    generateProjectTemplate(
       artifact,
       generatorInfo)
 

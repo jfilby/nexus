@@ -114,6 +114,10 @@ proc readRoutesFile(
        webArtifact: var WebArtifact,
        generatorInfo: GeneratorInfo) =
 
+  # Clear routes (may have been set by project generator) to read the YAML from
+  # a fresh start.
+  webArtifact.routes.routes = @[]
+
   # Parse env vars
   debug "readRoutesFile()",
     routesFilename = routesFilename

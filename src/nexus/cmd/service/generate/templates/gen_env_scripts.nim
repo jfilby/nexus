@@ -4,21 +4,21 @@ import nexus/cmd/types/types
 
 
 # Forward declarations
-proc getPlatformVars*(appTemplate: AppTemplate): PlatformVars
+proc getPlatformVars*(projectTemplate: ProjectTemplate): PlatformVars
 
 
 # Code
-proc genAppNexusScript(appTemplate: AppTemplate) =
+proc genAppNexusScript(projectTemplate: ProjectTemplate) =
 
   # Vars
-  let dbPrefix = appTemplate.appNameInUpperSnakeCase
+  let dbPrefix = projectTemplate.projectNameInUpperSnakeCase
 
   # OS-specific vars
   var
-    scriptFilename = &"{appTemplate.basePath}{DirSep}env{DirSep}" &
+    scriptFilename = &"{projectTemplate.basePath}{DirSep}env{DirSep}" &
       "nexus_app."
 
-  let p = getPlatformVars(appTemplate)
+  let p = getPlatformVars(projectTemplate)
 
   # Add scriptFileExtension to scriptFilename
   scriptFilename &= p.scriptFileExtension
@@ -32,21 +32,21 @@ proc genAppNexusScript(appTemplate: AppTemplate) =
      "\n" &
      "\n" &
     &"{p.set} DEFAULT_DB_PREFIX={dbPrefix}\n" &
-    &"{p.set} {dbPrefix}_DB_HOST={appTemplate.dbServer}\n" &
-    &"{p.set} {dbPrefix}_DB_PORT={appTemplate.dbPort}\n" &
-    &"{p.set} {dbPrefix}_DB_NAME={appTemplate.dbName}\n" &
-    &"{p.set} {dbPrefix}_USERNAME={appTemplate.dbUsername}\n" &
-    &"{p.set} {dbPrefix}_PASSWORD={appTemplate.dbPassword}\n" &
+    &"{p.set} {dbPrefix}_DB_HOST={projectTemplate.dbServer}\n" &
+    &"{p.set} {dbPrefix}_DB_PORT={projectTemplate.dbPort}\n" &
+    &"{p.set} {dbPrefix}_DB_NAME={projectTemplate.dbName}\n" &
+    &"{p.set} {dbPrefix}_USERNAME={projectTemplate.dbUsername}\n" &
+    &"{p.set} {dbPrefix}_PASSWORD={projectTemplate.dbPassword}\n" &
      "\n" &
      "\n" &
-    &"{p.set} {appTemplate.appNameInUpperSnakeCase}_BASE_PATH=" &
-      &"{appTemplate.basePath}\n" &
-    &"{p.set} {appTemplate.nimSrcPathEnvVar}=" &
-      &"{appTemplate.nimPath}\n" &
+    &"{p.set} {projectTemplate.projectNameInUpperSnakeCase}_BASE_PATH=" &
+      &"{projectTemplate.basePath}\n" &
+    &"{p.set} {projectTemplate.nimSrcPathEnvVar}=" &
+      &"{projectTemplate.nimPath}\n" &
      "\n" &
      "\n"
 
-  if appTemplate.docUi == true:
+  if projectTemplate.docUi == true:
     scriptContent &=
       &"{p.comment} DocUI path\n" &
       &"{p.set} DOCUI_SRC_PATH=\n" &
@@ -97,23 +97,23 @@ proc genAppNexusScript(appTemplate: AppTemplate) =
     scriptContent)
 
 
-proc genEnvScripts*(appTemplate: AppTemplate) =
+proc genEnvScripts*(projectTemplate: ProjectTemplate) =
 
-  genAppNexusScript(appTemplate)
-  # genAppNexusWebScript(appTemplate)
+  genAppNexusScript(projectTemplate)
+  # genAppNexusWebScript(projectTemplate)
 
 
-proc getPlatformVars*(appTemplate: AppTemplate): PlatformVars =
+proc getPlatformVars*(projectTemplate: ProjectTemplate): PlatformVars =
 
   var p = PlatformVars()
 
-  if appTemplate.isUnix == true:
+  if projectTemplate.isUnix == true:
     p.scriptFileExtension = "sh"
     p.comment = "#"
     p.set = "export"
     p.envStart = "$"
 
-    if appTemplate.docUi == true:
+    if projectTemplate.docUi == true:
       p.docUiPath = "--path:$DOCUI_SRC_PATH "
 
   else:
@@ -123,7 +123,7 @@ proc getPlatformVars*(appTemplate: AppTemplate): PlatformVars =
     p.envStart = "%"
     p.envEnd = "%"
 
-    if appTemplate.docUi == true:
+    if projectTemplate.docUi == true:
       p.docUiPath = "--path:\"%DOCUI_SRC_PATH%\" "
 
   # Return

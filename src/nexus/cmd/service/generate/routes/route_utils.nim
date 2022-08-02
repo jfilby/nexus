@@ -22,6 +22,9 @@ proc enrichRouteNamesAndPaths*(
     &"{moduleSnakeCaseName}/view/" &
     &"{route.groupInSnakeCase}/{route.nameInSnakeCase}"
 
+  debug "enrichRouteNamesAndPaths()",
+    routePagesImport = route.pagesImport
+
 
 proc routeParametersYAMLtoRouteParameters(
        routeParametersYAML: RouteParametersYAML): RouteParameters =
