@@ -1,5 +1,4 @@
-About Nexus
-===
+# About Nexus
 
 Nexus provides a high-level web framework for [Nim](https://nim-lang.org),
 with batteries included. The goal is to create a similar framework for Nim as
@@ -38,8 +37,7 @@ source files. There's an option to generate cached data access files in
 addition to the regular data access files.
 
 
-Modules
-====
+## Modules
 
 - Nexus CMD creates Nim source and SQL DDL files.
 - Nexus Core provides the core web application framework.

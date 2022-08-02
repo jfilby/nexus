@@ -1,14 +1,11 @@
-Installing Nexus
-===
+# Installing Nexus
 
-Pre-requisites
-====
+## Pre-requisites
 
 Nexus requires Nim v1.6.0 or later.
 
 
-Install the Nimble Package
-====
+### Install the Nimble Package
 
 Install Nexus Nimble package with:
 
@@ -24,8 +21,7 @@ nexus.nimble file for a list of required packages.
 Next you need to setup Nexus.
 
 
-Linux/MacOS Setup
-====
+### Linux/MacOS Setup
 
 Copy nexus_env.template.sh to nexus_env.sh. Set the NEXUS_BASE_PATH and
 NEXUS_BIN_PATH in the script appropriately according to where you have deployed
@@ -55,8 +51,7 @@ compile.sh nexus
 ```
 
 
-Windows Setup
-====
+### Windows Setup
 
 Copy nexus_env.template.bat to nexus_env.bat. Set the NEXUS_BASE_PATH and
 NEXUS_BIN_PATH in the script appropriately according to where you have deployed

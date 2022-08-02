@@ -1,5 +1,4 @@
-Setup a New Application
-====
+# Setup a New Application
 
 Use the nexus command, which is in Nexus' bin directory and should be in your
 PATH. First go to the directory that will contain the application.
@@ -23,8 +22,7 @@ and use spaces, e.g.: My Test
 You can edit the environment scripts created for your application at any time.
 
 
-Compiling your Application
-====
+## Compiling your Application
 
 For console applications run compile.bat or compile.sh in your src directory.
 The program you compile will expect to be found in the programs subdirectory
@@ -35,8 +33,7 @@ directory. The script expects a single Nim source file in the view/web_app
 directory. The compiled binary will be placed under the bin subdirectory.
 
 
-Updating a Module by Configuration
-====
+## Updating a Module by Configuration
 
 Most modules contain a conf directory which contains configuration YAML files
 which are utilized by Nexus Gen to create additional source files for your

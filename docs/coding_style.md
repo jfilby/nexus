@@ -1,5 +1,4 @@
-Coding Style
-===
+# Coding Style
 
 - Camel case for variable and proc names. This is strict camel case, so nexusYaml instead of nexusYAML. While the latter looks better for acronyms, you can get confusing cases, especially when acronyms are next to each other. E.g. nexusYamlDir is more readable than nexusYAMLDIR.
 - Pascal case for complex types such as objects, with the same strict rule as for camel case. E.g. NexusYaml instead of NexusYAML.

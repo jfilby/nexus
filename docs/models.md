@@ -1,8 +1,6 @@
-Models
-===
+# Models
 
-Defining Models
-====
+## Defining Models
 
 Models are defined by YAML and generate:
 - SQL create object DDL files
@@ -88,8 +86,7 @@ This command must be run from your base directory (where the conf directory is
 located).
 
 
-Additional Notes on Defining Models
-=====
+### Additional Notes on Defining Models
 
 Models can have object or ref specified in the modelOptions array. This allow
 you to define an object or ref type for the model's Nim object type.

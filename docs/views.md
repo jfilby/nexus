@@ -1,8 +1,6 @@
-Views
-===
+# Views
 
-Defining Web Routes
-====
+## Defining Web Routes
 
 Web routes are defined by YAML and generate:
 - The web-app or web-service routing source file

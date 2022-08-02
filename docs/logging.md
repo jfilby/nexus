@@ -1,5 +1,4 @@
-Logging
-====
+# Logging
 
 Nexus uses [Chronicles](https://github.com/status-im/nim-chronicles) for
 logging. The environment scripts are setup to create log files in the current
