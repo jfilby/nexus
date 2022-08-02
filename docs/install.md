@@ -5,7 +5,7 @@
 Nexus requires Nim v1.6.0 or later.
 
 
-### Install the Nimble Package
+## Install the Nimble Package
 
 Install Nexus Nimble package with:
 
