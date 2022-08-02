@@ -8,30 +8,41 @@ Nexus requires some minimal setup to:
 
 # Nexus env script and bin directory
 
-- Copy env.template.sh to env.sh.
-- Set the NEXUS_BASE_PATH and NEXUS_BIN_PATH in the script appropriately
-  according to where you have deployed the Nexus codebase.
+Copy env.template.sh to env.sh.
+
+Edit env.sh:
+- Set NEXUS_BASE_PATH to where the Nexus code is deployed.
+- Set NEXUS_BIN_PATH to where the bin scripts will be installed, e.g. a bin
+  directory within NEXUS_BASE_PATH.
 
 
-## Nexus Bin
+## Add bin directory to PATH
 
 Add Nexus' bin directory to your PATH environment variable. This should be in
 PATH before you proceed to the next step, but should also be in PATH whenever
 you log in with your development user.
 
 
-## Setup Nexus
+## Copy the compile scripts
 
-Install the compile scripts:
+Install the compile scripts, which will be copied to NEXUS_BIN_PATH:
 
 ```
 cd src/nexus/cmd
 scripts/dist.sh
 ```
 
-Now compile the Nexus CLI:
+## Compile the CLI
+
+In the same directory run:
 
 ```
 compile.sh nexus
+```
+
+Install to NEXUS_BIN_PATH:
+
+```
+scripts\dist
 ```
 
