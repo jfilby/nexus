@@ -23,11 +23,6 @@ Next you need to setup Nexus.
 
 ## Setup
 
-Nexus requires some minimal setup to:
-- Install compile scripts to a bin directory
-- Compile the nexus CLI
-
-For:
 - [Linux or MacOS](setup_for_linux_and_macos.md)
 - [Windows](setup_for_windows.md)
 

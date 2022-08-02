@@ -1,8 +1,16 @@
 # Nexus Linux/MacOS Setup
 
-Copy nexus_env.template.sh to nexus_env.sh. Set the NEXUS_BASE_PATH and
-NEXUS_BIN_PATH in the script appropriately according to where you have deployed
-the Nexus codebase.
+Nexus requires some minimal setup to:
+- Setup the env script for Nexus
+- Install compile scripts to a bin directory
+- Compile the nexus CLI
+
+
+# Nexus env script and bin directory
+
+- Copy env.template.sh to env.sh.
+- Set the NEXUS_BASE_PATH and NEXUS_BIN_PATH in the script appropriately
+  according to where you have deployed the Nexus codebase.
 
 
 ## Nexus Bin
