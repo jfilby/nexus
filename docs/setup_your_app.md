@@ -1,3 +1,28 @@
+Setup a New Application
+====
+
+Use the nexus command, which is in Nexus' bin directory and should be in your
+PATH. First go to the directory that will contain the application.
+
+To generate a web-app:
+
+```
+nexus gen web-app
+```
+
+To generate a console application:
+
+```
+nexus gen console
+```
+
+The name of your application will be prompted for. This name is critical as it
+defines naming for directories, files and environment variables. Keep it short
+and use spaces, e.g.: My Test
+
+You can edit the environment scripts created for your application at any time.
+
+
 Compiling your Application
 ====
 
