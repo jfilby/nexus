@@ -92,10 +92,11 @@ proc getListItemsByListItemId*(
 
   # Filter list items
   let listItems =
-    filterListItem(nexusCoreExtrasModule,
-                   whereFields = @[ "list_item_id" ],
-                   whereValues = @[ $listItemId ],
-                   orderByFields = @[ "list_item_id" ])
+        filterListItem(
+          nexusCoreExtrasModule,
+          whereFields = @[ "list_item_id" ],
+          whereValues = @[ $listItemId ],
+          orderByFields = @[ "list_item_id" ])
 
   return listItems
 
