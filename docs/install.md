@@ -19,11 +19,10 @@ nimble install nexus
 
 Advanced: [More ways to install Nexus](install_options.md)
 
-Next you need to setup Nexus.
-
 
 ## Setup
 
+Next you need to setup Nexus:
 - [Linux or MacOS](setup_for_linux_and_macos.md)
 - [Windows](setup_for_windows.md)
 

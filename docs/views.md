@@ -2,6 +2,9 @@
 
 ## Defining Web Routes
 
+Web routes are defined at the application level, but may be referenced across
+applications in a project, or in other projects.
+
 Web routes are defined by YAML and generate:
 - The web-app or web-service routing source file
 - Starter page files

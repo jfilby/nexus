@@ -2,12 +2,17 @@
 
 ## Defining Models
 
+Models are defined at the application level, but may be referenced across
+applications in a project, or in other projects.
+
 Models are defined by YAML and generate:
 - SQL create object DDL files
 - Nim cached and non-cached data access files
 - Nim object types
 
-Create a file called conf/*module*/models/models.yaml.
+Create a file called conf/*application*/models/models.yaml.
+
+The module specified in model.yaml is the name of the application.
 
 Here's an example of a models.yaml file:
 
