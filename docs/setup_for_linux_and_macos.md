@@ -43,6 +43,6 @@ compile.sh nexus
 Install to NEXUS_BIN_PATH:
 
 ```
-scripts\dist
+scripts/dist
 ```
 
