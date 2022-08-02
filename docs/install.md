@@ -2,7 +2,9 @@
 
 ## Pre-requisites
 
-Nexus requires Nim v1.6.0 or later.
+Nexus requires Nim v1.6.0 or later. See the
+[install instructions](https://nim-lang.org/install.html) and preferably
+use the choosenim install tool to install Nim.
 
 
 ## Install the Nimble Package
