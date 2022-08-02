@@ -9,7 +9,9 @@ use the choosenim install tool to install Nim.
 
 ## Install the Nimble Package
 
-Install Nexus Nimble package with:
+Nim comes with the Nimble package manager.
+
+Install the Nexus package with:
 
 ```
 nimble install nexus
