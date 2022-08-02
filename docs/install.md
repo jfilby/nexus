@@ -17,10 +17,7 @@ Install the Nexus package with:
 nimble install nexus
 ```
 
-If you prefer to install Nexus via source, you can still use the above Nimble
-command to install dependencies and then uninstall the nexus package. If you
-wish to install those depedencies manually, then please refer to the
-nexus.nimble file for a list of required packages.
+Advanced: [More ways to install Nexus](install_options.md)
 
 Next you need to setup Nexus.
 
