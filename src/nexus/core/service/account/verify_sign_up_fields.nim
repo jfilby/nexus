@@ -47,7 +47,7 @@ proc verifyPasswordFields*(
 
 
 proc verifySignUpFields*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        name: string,
        email: string,
        password1: string,
@@ -84,7 +84,7 @@ proc verifySignUpFields*(
   # Verify that the email is not already signed up
   let emailExists =
         existsAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if email_exists == true:
@@ -102,7 +102,7 @@ proc verifySignUpFields*(
   # Verify email address
   var docuiReturn =
         verifyEmailAddress(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if docuiReturn.isVerified == false:

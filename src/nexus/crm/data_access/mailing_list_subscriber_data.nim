@@ -12,7 +12,7 @@ proc rowToMailingListSubscriber*(row: seq[string]):
 
 # Code
 proc countMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countMailingListSubscriber*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCRMModule.db,
+  let row = getRow(nexusCRMDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countMailingListSubscriber*(
 
 
 proc countMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,15 +52,15 @@ proc countMailingListSubscriber*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCRMModule.db,
+  let row = getRow(nexusCRMDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createMailingListSubscriberReturnsPK*(
-       nexusCRMModule: NexusCRMModule,
+proc createMailingListSubscriberReturnsPk*(
+       nexusCRMDbContext: NexusCRMDbContext,
        accountUserId: Option[int64] = none(int64),
        mailingListId: int64,
        uniqueHash: string,
@@ -70,7 +70,8 @@ proc createMailingListSubscriberReturnsPK*(
        verificationCode: Option[string] = none(string),
        isVerified: bool,
        created: DateTime,
-       deleted: Option[DateTime] = none(DateTime)): int64 {.gcsafe.} =
+       deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -79,45 +80,47 @@ proc createMailingListSubscriberReturnsPK*(
     valuesClause = ""
 
   # Field: Account User Id
-  if account_user_id != none(int64):
+  if accountUserId != none(int64):
     insertStatement &= "account_user_id, "
     valuesClause &= "?, "
-    insertValues.add($account_user_id.get)
+    insertValues.add($accountUserId.get)
 
   # Field: Mailing List Id
   insertStatement &= "mailing_list_id, "
   valuesClause &= "?, "
-  insertValues.add($mailing_list_id)
+  insertValues.add($mailingListId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?, "
-  insertValues.add(unique_hash)
+  valuesClause &= "?" & ", "
+  insertValues.add(uniqueHash)
 
   # Field: Is Active
   insertStatement &= "is_active, "
-  valuesClause &= pgToBool(is_active) & ", "
+  valuesClause &= "?, "
+  insertValues.add($isActive)
 
   # Field: Email
   insertStatement &= "email, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(email)
 
   # Field: Name
   if name != none(string):
     insertStatement &= "name, "
-    valuesClause &= "?, "
+    valuesClause &= "?" & ", "
     insertValues.add(name.get)
 
   # Field: Verification Code
-  if verification_code != none(string):
+  if verificationCode != none(string):
     insertStatement &= "verification_code, "
-    valuesClause &= "?, "
-    insertValues.add(verification_code.get)
+    valuesClause &= "?" & ", "
+    insertValues.add(verificationCode.get)
 
   # Field: Is Verified
   insertStatement &= "is_verified, "
-  valuesClause &= pgToBool(is_verified) & ", "
+  valuesClause &= "?, "
+  insertValues.add($isVerified)
 
   # Field: Created
   insertStatement &= "created, "
@@ -136,18 +139,22 @@ proc createMailingListSubscriberReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (mailing_list_subscriber_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCRMModule.db,
+    nexusCRMDbContext.dbConn,
     sql(insertStatement),
     "mailing_list_subscriber_id",
     insertValues)
 
 
 proc createMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        accountUserId: Option[int64] = none(int64),
        mailingListId: int64,
        uniqueHash: string,
@@ -158,14 +165,15 @@ proc createMailingListSubscriber*(
        isVerified: bool,
        created: DateTime,
        deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): MailingListSubscriber {.gcsafe.} =
 
   var mailingListSubscriber = MailingListSubscriber()
 
   mailingListSubscriber.mailingListSubscriberId =
-    createMailingListSubscriberReturnsPK(
-      nexusCRMModule,
+    createMailingListSubscriberReturnsPk(
+      nexusCRMDbContext,
       accountUserId,
       mailingListId,
       uniqueHash,
@@ -175,7 +183,8 @@ proc createMailingListSubscriber*(
       verificationCode,
       isVerified,
       created,
-      deleted)
+      deleted,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   mailingListSubscriber.accountUserId = accountUserId
@@ -193,7 +202,7 @@ proc createMailingListSubscriber*(
 
 
 proc deleteMailingListSubscriberByPk*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriberId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -202,13 +211,13 @@ proc deleteMailingListSubscriberByPk*(
     " where mailing_list_subscriber_id = ?"
 
   return execAffectedRows(
-           nexusCRMModule.db,
+           nexusCRMDbContext.dbConn,
            sql(deleteStatement),
            mailingListSubscriberId)
 
 
 proc deleteMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -218,13 +227,42 @@ proc deleteMailingListSubscriber*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCRMModule.db,
+           nexusCRMDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteMailingListSubscriber*(
+       nexusCRMDbContext: NexusCRMDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from mailing_list_subscriber"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCRMDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsMailingListSubscriberByPk*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriberId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -233,9 +271,9 @@ proc existsMailingListSubscriberByPk*(
     " where mailing_list_subscriber_id = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
-              mailingListSubscriberId)
+              $mailingListSubscriberId)
 
   if row[0] == "":
     return false
@@ -244,7 +282,7 @@ proc existsMailingListSubscriberByPk*(
 
 
 proc existsMailingListSubscriberByUniqueHash*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        uniqueHash: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -253,7 +291,7 @@ proc existsMailingListSubscriberByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -264,7 +302,7 @@ proc existsMailingListSubscriberByUniqueHash*(
 
 
 proc existsMailingListSubscriberByMailingListIdAndAccountUserId*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListId: int64,
        accountUserId: Option[int64]): bool {.gcsafe.} =
 
@@ -275,10 +313,10 @@ proc existsMailingListSubscriberByMailingListIdAndAccountUserId*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
-              mailingListId,
-              accountUserId)
+              $mailingListId,
+              $accountUserId)
 
   if row[0] == "":
     return false
@@ -287,7 +325,7 @@ proc existsMailingListSubscriberByMailingListIdAndAccountUserId*(
 
 
 proc existsMailingListSubscriberByMailingListIdAndEmail*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListId: int64,
        email: string): bool {.gcsafe.} =
 
@@ -298,9 +336,9 @@ proc existsMailingListSubscriberByMailingListIdAndEmail*(
     "   and email = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
-              mailingListId,
+              $mailingListId,
               email)
 
   if row[0] == "":
@@ -310,10 +348,11 @@ proc existsMailingListSubscriberByMailingListIdAndEmail*(
 
 
 proc filterMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): MailingListSubscribers {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): MailingListSubscribers {.gcsafe.} =
 
   var selectStatement =
     "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
@@ -326,9 +365,12 @@ proc filterMailingListSubscriber*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var mailingListSubscribers: MailingListSubscribers
 
-  for row in fastRows(nexusCRMModule.db,
+  for row in fastRows(nexusCRMDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -338,10 +380,11 @@ proc filterMailingListSubscriber*(
 
 
 proc filterMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): MailingListSubscribers {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): MailingListSubscribers {.gcsafe.} =
 
   var selectStatement =
     "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
@@ -365,9 +408,12 @@ proc filterMailingListSubscriber*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var mailingListSubscribers: MailingListSubscribers
 
-  for row in fastRows(nexusCRMModule.db,
+  for row in fastRows(nexusCRMDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -377,7 +423,7 @@ proc filterMailingListSubscriber*(
 
 
 proc getMailingListSubscriberByPk*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriberId: int64): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
@@ -387,7 +433,7 @@ proc getMailingListSubscriberByPk*(
     " where mailing_list_subscriber_id = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               mailingListSubscriberId)
 
@@ -398,7 +444,7 @@ proc getMailingListSubscriberByPk*(
 
 
 proc getMailingListSubscriberByPk*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriberId: string): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
@@ -408,7 +454,7 @@ proc getMailingListSubscriberByPk*(
     " where mailing_list_subscriber_id = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               mailingListSubscriberId)
 
@@ -419,7 +465,7 @@ proc getMailingListSubscriberByPk*(
 
 
 proc getMailingListSubscriberByUniqueHash*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        uniqueHash: string): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
@@ -429,7 +475,7 @@ proc getMailingListSubscriberByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -440,7 +486,7 @@ proc getMailingListSubscriberByUniqueHash*(
 
 
 proc getMailingListSubscriberByMailingListIdAndAccountUserId*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListId: int64,
        accountUserId: int64): Option[MailingListSubscriber] {.gcsafe.} =
 
@@ -452,7 +498,7 @@ proc getMailingListSubscriberByMailingListIdAndAccountUserId*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               mailingListId,
               accountUserId)
@@ -464,7 +510,7 @@ proc getMailingListSubscriberByMailingListIdAndAccountUserId*(
 
 
 proc getMailingListSubscriberByMailingListIdAndEmail*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListId: int64,
        email: string): Option[MailingListSubscriber] {.gcsafe.} =
 
@@ -476,7 +522,7 @@ proc getMailingListSubscriberByMailingListIdAndEmail*(
     "   and email = ?"
 
   let row = getRow(
-              nexusCRMModule.db,
+              nexusCRMDbContext.dbConn,
               sql(selectStatement),
               mailingListId,
               email)
@@ -488,7 +534,7 @@ proc getMailingListSubscriberByMailingListIdAndEmail*(
 
 
 proc getOrCreateMailingListSubscriberByUniqueHash*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        accountUserId: Option[int64],
        mailingListId: int64,
        uniqueHash: string,
@@ -502,14 +548,14 @@ proc getOrCreateMailingListSubscriberByUniqueHash*(
 
   let mailingListSubscriber =
         getMailingListSubscriberByUniqueHash(
-          nexusCRMModule,
+          nexusCRMDbContext,
           uniqueHash)
 
   if mailingListSubscriber != none(MailingListSubscriber):
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           nexusCRMModule,
+           nexusCRMDbContext,
            accountUserId,
            mailingListId,
            uniqueHash,
@@ -523,7 +569,7 @@ proc getOrCreateMailingListSubscriberByUniqueHash*(
 
 
 proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        accountUserId: int64,
        mailingListId: int64,
        uniqueHash: string,
@@ -537,7 +583,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
 
   let mailingListSubscriber =
         getMailingListSubscriberByMailingListIdAndAccountUserId(
-          nexusCRMModule,
+          nexusCRMDbContext,
           mailingListId,
           accountUserId)
 
@@ -545,7 +591,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           nexusCRMModule,
+           nexusCRMDbContext,
            some(accountUserId),
            mailingListId,
            uniqueHash,
@@ -559,7 +605,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
 
 
 proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        accountUserId: Option[int64],
        mailingListId: int64,
        uniqueHash: string,
@@ -573,7 +619,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
 
   let mailingListSubscriber =
         getMailingListSubscriberByMailingListIdAndEmail(
-          nexusCRMModule,
+          nexusCRMDbContext,
           mailingListId,
           email)
 
@@ -581,7 +627,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           nexusCRMModule,
+           nexusCRMDbContext,
            accountUserId,
            mailingListId,
            uniqueHash,
@@ -634,15 +680,15 @@ proc rowToMailingListSubscriber*(row: seq[string]):
 
 
 proc truncateMailingListSubscriber*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCRMModule.db,
+    exec(nexusCRMDbContext.dbConn,
          sql("truncate table mailing_list_subscriber restart identity;"))
 
   else:
-    exec(nexusCRMModule.db,
+    exec(nexusCRMDbContext.dbConn,
          sql("truncate table mailing_list_subscriber restart identity cascade;"))
 
 
@@ -675,42 +721,38 @@ proc updateMailingListSubscriberSetClause*(
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"
-      updateValues.add($mailingListSubscriber.uniqueHash)
+      updateValues.add(mailingListSubscriber.uniqueHash)
 
     elif field == "is_active":
-      updateStatement &= "       is_active = ?,"
-      updateValues.add($mailingListSubscriber.isActive)
+        updateStatement &= "       is_active = " & pgToBool(mailingListSubscriber.isActive) & ","
 
     elif field == "email":
       updateStatement &= "       email = ?,"
-      updateValues.add($mailingListSubscriber.email)
+      updateValues.add(mailingListSubscriber.email)
 
     elif field == "name":
       if mailingListSubscriber.name != none(string):
         updateStatement &= "       name = ?,"
-        updateValues.add($mailingListSubscriber.name.get)
+        updateValues.add(mailingListSubscriber.name.get)
       else:
         updateStatement &= "       name = null,"
 
     elif field == "verification_code":
       if mailingListSubscriber.verificationCode != none(string):
         updateStatement &= "       verification_code = ?,"
-        updateValues.add($mailingListSubscriber.verificationCode.get)
+        updateValues.add(mailingListSubscriber.verificationCode.get)
       else:
         updateStatement &= "       verification_code = null,"
 
     elif field == "is_verified":
-      updateStatement &= "       is_verified = ?,"
-      updateValues.add($mailingListSubscriber.isVerified)
+        updateStatement &= "       is_verified = " & pgToBool(mailingListSubscriber.isVerified) & ","
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($mailingListSubscriber.created)
+        updateStatement &= "       created = " & pgToDateTimeString(mailingListSubscriber.created) & ","
 
     elif field == "deleted":
       if mailingListSubscriber.deleted != none(DateTime):
-        updateStatement &= "       deleted = ?,"
-        updateValues.add($mailingListSubscriber.deleted.get)
+        updateStatement &= "       deleted = " & pgToDateTimeString(mailingListSubscriber.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"
 
@@ -719,7 +761,7 @@ proc updateMailingListSubscriberSetClause*(
 
 
 proc updateMailingListSubscriberByPk*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriber: MailingListSubscriber,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -740,7 +782,7 @@ proc updateMailingListSubscriberByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCRMModule.db,
+          nexusCRMDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -756,7 +798,7 @@ proc updateMailingListSubscriberByPk*(
 
 
 proc updateMailingListSubscriberByWhereClause*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriber: MailingListSubscriber,
        setFields: seq[string],
        whereClause: string,
@@ -776,14 +818,14 @@ proc updateMailingListSubscriberByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCRMModule.db,
+           nexusCRMDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateMailingListSubscriberByWhereEqOnly*(
-       nexusCRMModule: NexusCRMModule,
+       nexusCRMDbContext: NexusCRMDbContext,
        mailingListSubscriber: MailingListSubscriber,
        setFields: seq[string],
        whereFields: seq[string],
@@ -814,7 +856,7 @@ proc updateMailingListSubscriberByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCRMModule.db,
+           nexusCRMDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

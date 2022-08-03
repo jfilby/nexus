@@ -77,8 +77,8 @@ proc getCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   let withStringTypes = false
 
@@ -108,7 +108,7 @@ proc getCustomProc*(
 
   # Get the record
   str &= &"  let row = getRow(\n" &
-         &"              {model.module.nameInCamelCase}Module.db,\n" &
+         &"              {model.module.nameInCamelCase}DbContext.dbConn,\n" &
          &"              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -190,8 +190,8 @@ proc updateCustomProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   let withStringTypes = false
 
@@ -247,7 +247,7 @@ proc updateCustomProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}Module.db,\n" &
+         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
           "           sql(updateStatement),\n"
 
   # List set fields

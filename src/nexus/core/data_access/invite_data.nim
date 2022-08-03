@@ -12,7 +12,7 @@ proc rowToInvite*(row: seq[string]):
 
 # Code
 proc countInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countInvite*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countInvite*(
 
 
 proc countInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,22 +52,23 @@ proc countInvite*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createInviteReturnsPK*(
-       nexusCoreModule: NexusCoreModule,
+proc createInviteReturnsPk*(
+       nexusCoreDbContext: NexusCoreDbContext,
        fromAccountUserId: int64,
        fromEmail: string,
        fromName: string,
        toEmail: string,
        toName: string,
        sent: Option[DateTime] = none(DateTime),
-       created: DateTime): int64 {.gcsafe.} =
+       created: DateTime,
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -78,27 +79,27 @@ proc createInviteReturnsPK*(
   # Field: From Account User Id
   insertStatement &= "from_account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($from_account_user_id)
+  insertValues.add($fromAccountUserId)
 
   # Field: From Email
   insertStatement &= "from_email, "
-  valuesClause &= "?, "
-  insertValues.add(from_email)
+  valuesClause &= "?" & ", "
+  insertValues.add(fromEmail)
 
   # Field: From Name
   insertStatement &= "from_name, "
-  valuesClause &= "?, "
-  insertValues.add(from_name)
+  valuesClause &= "?" & ", "
+  insertValues.add(fromName)
 
   # Field: To Email
   insertStatement &= "to_email, "
-  valuesClause &= "?, "
-  insertValues.add(to_email)
+  valuesClause &= "?" & ", "
+  insertValues.add(toEmail)
 
   # Field: To Name
   insertStatement &= "to_name, "
-  valuesClause &= "?, "
-  insertValues.add(to_name)
+  valuesClause &= "?" & ", "
+  insertValues.add(toName)
 
   # Field: Sent
   if sent != none(DateTime):
@@ -117,18 +118,22 @@ proc createInviteReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (invite_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreModule.db,
+    nexusCoreDbContext.dbConn,
     sql(insertStatement),
     "invite_id",
     insertValues)
 
 
 proc createInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        fromAccountUserId: int64,
        fromEmail: string,
        fromName: string,
@@ -136,21 +141,23 @@ proc createInvite*(
        toName: string,
        sent: Option[DateTime] = none(DateTime),
        created: DateTime,
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): Invite {.gcsafe.} =
 
   var invite = Invite()
 
   invite.inviteId =
-    createInviteReturnsPK(
-      nexusCoreModule,
+    createInviteReturnsPk(
+      nexusCoreDbContext,
       fromAccountUserId,
       fromEmail,
       fromName,
       toEmail,
       toName,
       sent,
-      created)
+      created,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   invite.fromAccountUserId = fromAccountUserId
@@ -165,7 +172,7 @@ proc createInvite*(
 
 
 proc deleteInviteByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        inviteId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -174,13 +181,13 @@ proc deleteInviteByPk*(
     " where invite_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            inviteId)
 
 
 proc deleteInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -190,13 +197,42 @@ proc deleteInvite*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteInvite*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from invite"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsInviteByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        inviteId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -205,9 +241,9 @@ proc existsInviteByPk*(
     " where invite_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
-              inviteId)
+              $inviteId)
 
   if row[0] == "":
     return false
@@ -216,7 +252,7 @@ proc existsInviteByPk*(
 
 
 proc existsInviteByToEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        toEmail: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -225,7 +261,7 @@ proc existsInviteByToEmail*(
     " where to_email = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               toEmail)
 
@@ -236,10 +272,11 @@ proc existsInviteByToEmail*(
 
 
 proc filterInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): Invites {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): Invites {.gcsafe.} =
 
   var selectStatement =
     "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
@@ -251,9 +288,12 @@ proc filterInvite*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var invites: Invites
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -263,10 +303,11 @@ proc filterInvite*(
 
 
 proc filterInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): Invites {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): Invites {.gcsafe.} =
 
   var selectStatement =
     "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
@@ -289,9 +330,12 @@ proc filterInvite*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var invites: Invites
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -301,7 +345,7 @@ proc filterInvite*(
 
 
 proc getInviteByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        inviteId: int64): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
@@ -310,7 +354,7 @@ proc getInviteByPk*(
     " where invite_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               inviteId)
 
@@ -321,7 +365,7 @@ proc getInviteByPk*(
 
 
 proc getInviteByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        inviteId: string): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
@@ -330,7 +374,7 @@ proc getInviteByPk*(
     " where invite_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               inviteId)
 
@@ -341,7 +385,7 @@ proc getInviteByPk*(
 
 
 proc getInviteByToEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        toEmail: string): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
@@ -350,7 +394,7 @@ proc getInviteByToEmail*(
     " where to_email = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               toEmail)
 
@@ -361,7 +405,7 @@ proc getInviteByToEmail*(
 
 
 proc getOrCreateInviteByToEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        fromAccountUserId: int64,
        fromEmail: string,
        fromName: string,
@@ -372,14 +416,14 @@ proc getOrCreateInviteByToEmail*(
 
   let invite =
         getInviteByToEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           toEmail)
 
   if invite != none(Invite):
     return invite.get
 
   return createInvite(
-           nexusCoreModule,
+           nexusCoreDbContext,
            fromAccountUserId,
            fromEmail,
            fromName,
@@ -412,15 +456,15 @@ proc rowToInvite*(row: seq[string]):
 
 
 proc truncateInvite*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table invite restart identity;"))
 
   else:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table invite restart identity cascade;"))
 
 
@@ -446,37 +490,35 @@ proc updateInviteSetClause*(
 
     elif field == "from_email":
       updateStatement &= "       from_email = ?,"
-      updateValues.add($invite.fromEmail)
+      updateValues.add(invite.fromEmail)
 
     elif field == "from_name":
       updateStatement &= "       from_name = ?,"
-      updateValues.add($invite.fromName)
+      updateValues.add(invite.fromName)
 
     elif field == "to_email":
       updateStatement &= "       to_email = ?,"
-      updateValues.add($invite.toEmail)
+      updateValues.add(invite.toEmail)
 
     elif field == "to_name":
       updateStatement &= "       to_name = ?,"
-      updateValues.add($invite.toName)
+      updateValues.add(invite.toName)
 
     elif field == "sent":
       if invite.sent != none(DateTime):
-        updateStatement &= "       sent = ?,"
-        updateValues.add($invite.sent.get)
+        updateStatement &= "       sent = " & pgToDateTimeString(invite.sent.get) & ","
       else:
         updateStatement &= "       sent = null,"
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($invite.created)
+        updateStatement &= "       created = " & pgToDateTimeString(invite.created) & ","
 
   updateStatement[len(updateStatement) - 1] = ' '
 
 
 
 proc updateInviteByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        invite: Invite,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -497,7 +539,7 @@ proc updateInviteByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreModule.db,
+          nexusCoreDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -513,7 +555,7 @@ proc updateInviteByPk*(
 
 
 proc updateInviteByWhereClause*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        invite: Invite,
        setFields: seq[string],
        whereClause: string,
@@ -533,14 +575,14 @@ proc updateInviteByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateInviteByWhereEqOnly*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        invite: Invite,
        setFields: seq[string],
        whereFields: seq[string],
@@ -571,7 +613,7 @@ proc updateInviteByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

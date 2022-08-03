@@ -1,3 +1,4 @@
+import chronicles, jester, os, strutils
 import nexus/social/view/pages/blog_create_page
 import nexus/social/view/pages/blog_read_page
 import nexus/social/view/pages/blog_update_page
@@ -15,8 +16,6 @@ import nexus/social/view/pages/comment_update_page
 import nexus/social/view/pages/comment_delete_page
 import nexus/social/view/pages/comment_archive_page
 import nexus/social/view/pages/comment_list_page
-import chronicles, jester, os, strutils
-import nexus/core/service/common/globals
 import new_web_context
 
 

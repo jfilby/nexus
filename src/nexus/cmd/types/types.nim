@@ -43,11 +43,11 @@ type
 
     basePath*: string
     confPath*: string
-    applConfPath*: string
+    appConfPath*: string
     srcPath*: string
     nimPath*: string
     nimPathExpanded*: string
-    applPath*: string
+    appPath*: string
     confWebApp*: string
     confWebAppYaml*: string
 
@@ -173,6 +173,8 @@ type
     confPath*: string
     srcPath*: string
     srcRelativePath*: string
+
+    isWeb*: bool
 
     imported*: bool
     generate*: seq[string]
@@ -478,6 +480,12 @@ type
   WorkflowsYAML* = seq[WorkflowYAML]
 
 
+  TypeInfo* = object
+    str*: string
+    path*: string
+    written*: bool
+
+
   TmpDictYAML* = Table[string, string]
 
 
@@ -503,4 +511,7 @@ type
     moduleSettings*: ModuleSettings
 
     models*: Models
+
+    # Module name -> TypeInfo
+    modelTypesTable*: Table[string, TypeInfo]
 

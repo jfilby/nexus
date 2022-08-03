@@ -20,7 +20,7 @@ proc addIfNotExistModelRowToCache*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
@@ -60,7 +60,7 @@ proc addModelRowToCache*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = withModel,
@@ -89,7 +89,7 @@ proc clearFilterCache*(
 
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
   str &= "  # Clear filter cache\n" &
          &"  {moduleVar}.{cachedFilter}.clear()\n" &
@@ -103,7 +103,7 @@ proc existsModelRowInCacheByPk*(
   let
     # cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)
@@ -121,7 +121,7 @@ proc existsModelRowInCacheByUniqueFields*(
 
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
     uniqueFieldsStr = join(uniqueFields, "|")
     uniqueValuesStr = getUniqueFieldValuesStringStr(uniqueFields,
                                                       model)
@@ -157,7 +157,7 @@ proc filterModelGetRowsInCacheWithWhereClause*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
   str &= &"  # Get rows in the model row cache via the filter cache\n" &
          &"  let filterKey = \"0|\" & whereClause &\n" &
@@ -183,7 +183,7 @@ proc filterModelGetRowsInCacheWithWhereFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
   str &= "  # Get rows in the model row cache via the filter cache\n" &
          &"  let filterKey = \"0|\" & join(whereFields, \"|\") &\n" &
@@ -209,7 +209,7 @@ proc filterModelSetRowsInCacheWithWhereClause*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
@@ -240,7 +240,7 @@ proc filterModelSetRowsInCacheWithWhereFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
@@ -271,7 +271,7 @@ proc getModelRowInCacheByPk*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)
@@ -299,7 +299,7 @@ proc getModelRowInCacheByUniqueFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
     uniqueFieldsStr = join(uniqueFields, " ")
 
     uniqueValuesStr =
@@ -399,7 +399,7 @@ proc removeModelRowFromCache*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "Module"
+    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)

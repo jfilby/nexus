@@ -1,18 +1,17 @@
 import options, strformat
 import nexus/core/data_access/nexus_setting_data
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 
 
 proc getNexusSettingValue*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string,
        failOnNotExists: bool = true): Option[string] =
 
   let nexusSetting =
         getNexusSettingByModuleAndKey(
-          nexusCoreModule,
+          nexusCoreDbContext,
           module,
           key)
 

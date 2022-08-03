@@ -1,5 +1,5 @@
-import chronicles, strformat, strutils
-import nexus/core/service/format/type_utils
+import chronicles, strformat
+import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/types/types
 
 
@@ -12,6 +12,7 @@ proc responseCall(
        `method`: string,
        procName: string,
        route: Route,
+       module: Module,
        webArtifact: WebArtifact)
 
 
@@ -20,26 +21,23 @@ proc appendLoginPostPageRouteTemplate(str: var string) =
 
   str &= "  # Login\n" &
          "  get \"/account/login\":\n" &
-         "    let webContext = newWebContext(request,\n" &
-         "                                   nexusCoreModule)\n" &
+         "    let nexusContext = newNextContext(request)\n" &
          "\n" &
          "    # Set cookie (useful to store detected mobile setting)\n" &
-         "    if webContext.token != \"\":\n" &
+         "    if nexusContext.web.token != \"\":\n" &
          "      setCookie(\"token\",\n" &
-         "                webContext.token,\n" &
+         "                nexusContext.web.token,\n" &
          "                daysForward(5),\n" &
          "                path = \"/\")\n" &
          "\n" &
          "    # Render page\n" &
-         "    resp loginPage(webContext)\n" &
+         "    resp loginPage(nexusContext)\n" &
          "\n" &
          "\n" &
          "  post \"/account/login\":\n" &
-         "    let webContext = newWebContext(request,\n" &
-         "                                   nexusCoreModule)\n" &
+         "    let nexusContext = newNextContext(request)\n" &
          "\n" &
-         "    postLoginAction(request,\n" &
-         "                    webContext)\n" &
+         "    postLoginAction(nexusContext)\n" &
          "\n" &
          "\n"
 
@@ -47,7 +45,9 @@ proc appendLoginPostPageRouteTemplate(str: var string) =
 proc generateRoute(
        str: var string,
        route: Route,
-       webArtifact: WebArtifact) =
+       module: Module,
+       webArtifact: WebArtifact,
+       generatorInfo: GeneratorInfo) =
 
   debug "generateRoute(): route:",
     methods = route.methods,
@@ -66,6 +66,13 @@ proc generateRoute(
   # Generate given methods
   for `method` in route.methods:
 
+    # Get module
+    let module =
+          getModuleByWebArtifact(
+            webArtifact,
+            generatorInfo)
+
+    # Define procName
     var procName = route.nameInCamelCase
 
     if `method` == "post":
@@ -77,16 +84,9 @@ proc generateRoute(
     debug "generateRoute()",
       lenRouteParamInfos = len(route.paramInfos)
 
-    # Start route string
-    var webContextAssign = "let"
-
-    if `method` == "post":
-      webContextAssign = "var"
-
     # Route and proc call
     str &= &"  {`method`} \"{route.jesterRoute}\":\n" &
-           &"    {webContextAssign} webContext = newWebContext(request,\n" &
-            "                                   nexusCoreModule)\n" &
+           &"    var {module.nameInCamelCase}Context = new{module.nameInPascalCase}Context(request)\n" &
             "\n"
 
     responseCall(
@@ -94,6 +94,7 @@ proc generateRoute(
       `method`,
       procName,
       route,
+      module,
       webArtifact)
 
 
@@ -123,13 +124,14 @@ proc responseCall(
        `method`: string,
        procName: string,
        route: Route,
+       module: Module,
        webArtifact: WebArtifact) =
 
   var procCallLine: string
 
   # Non-resp calls (e.g. some templates)
   if procName == "logoutAction":
-    procCallLine = &"    {procName}(request,\n"
+    procCallLine = &"    {procName}({module.nameInCamelCase}Context)\n"
 
   # Resp calls (the default)
   elif webArtifact.artifact == WebServiceArtifact:
@@ -137,29 +139,22 @@ proc responseCall(
     str &= &"    resp Http200,\n" &
            &"         {{\"Access-Control-Allow-Origin\": \"*\"}},\n"
 
-    procCallLine = &"         {procName}(request,\n"
-
+    procCallLine = &"         {procName}({module.nameInCamelCase}Context)\n"
 
   elif webArtifact.artifact == WebAppArtifact:
-    procCallLine = &"    resp {procName}(request,\n"
-
-  let
-    indentStart = find(procCallLine,
-                        "(") + 1
-    indent = getIndentByLen(indentStart)
+    procCallLine = &"    resp {procName}({module.nameInCamelCase}Context)\n"
 
   str &= procCallLine &
-         &"{indent}webContext"
-
-  str &= ")\n" &
-         "\n" &
-         "\n"
+        "\n" &
+        "\n"
 
 
 proc generateRouteMethods*(
        str: var string,
        route: Route,
-       webArtifact: WebArtifact) =
+       module: Module,
+       webArtifact: WebArtifact,
+       generatorInfo: GeneratorInfo) =
 
   # Handle login routes with the built-in template
   if route.route == "/account/login" and
@@ -171,5 +166,7 @@ proc generateRouteMethods*(
     # Get route
     generateRoute(str,
                   route,
-                  webArtifact)
+                  module,
+                  webArtifact,
+                  generatorInfo)
 

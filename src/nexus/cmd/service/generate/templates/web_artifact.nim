@@ -78,12 +78,12 @@ proc generateWebArtifactTemplate*(
           '_')
 
   # Get paths
-  var srcPath = &"{projectTemplate.applPath}{DirSep}view{DirSep}{pathName}"
+  var srcPath = &"{projectTemplate.appPath}{DirSep}view{DirSep}{pathName}"
 
   discard parseFilenameExpandEnvVars(srcPath)
 
   projectTemplate.confWebApp =
-    &"{projectTemplate.applConfPath}{DirSep}{pathName}s{DirSep}" &
+    &"{projectTemplate.appConfPath}{DirSep}{pathName}s{DirSep}" &
     projectTemplate.projectNameInSnakeCase
 
   projectTemplate.confWebAppYaml =

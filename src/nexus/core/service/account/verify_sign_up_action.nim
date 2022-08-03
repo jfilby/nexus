@@ -8,7 +8,6 @@ import nexus/core/service/account/send_user_emails
 import nexus/core/service/account/utils
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/nexus_settings/get
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core_extras/service/format/hash
 import nexus/crm/data_access/mailing_list_data
@@ -64,13 +63,13 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
   # Get accountUser record
   var accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   # Verify fields
   let docuiReturn =
         verifySignUpCodeFields(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email,
           signUpCode,
           accountUser)
@@ -85,7 +84,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
 
       var rowsUpdated =
             updateAccountUserByPk(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUser.get,
               setFields = @[ "is_active",
                              "is_verified" ])
@@ -102,23 +101,23 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
       # Get mailing list
       let
         nexusCRMModule =
-          NexusCRMModule(db: nexusCoreModule.db)
+          NexusCRMModule(db: nexusCoreDbContext.db)
 
         mailingListName =
           getNexusSettingValue(
-            nexusCoreModule,
+            nexusCoreDbContext,
             module = "Nexus CRM",
             key = "Announcements Mailing List")
 
         mailingListOwnerEmail =
           getNexusSettingValue(
-            nexusCoreModule,
+            nexusCoreDbContext,
             module = "Nexus CRM",
             key = "Announcements Mailing List Owner Email")
 
         ownerAccountUser =
           getAccountUserByEmail(
-            nexusCoreModule,
+            nexusCoreDbContext,
             mailingListOwnerEmail.get)
 
         mailingList =

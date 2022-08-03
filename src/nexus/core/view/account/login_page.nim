@@ -7,7 +7,6 @@ import nexus/core/service/account/jwt_utils
 import nexus/core/service/account/login_action
 import nexus/core/service/account/verify_login_fields
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/types as nexus_core_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -255,7 +254,7 @@ proc loginPagePost*(request: Request,
       # Get AccountUser record
       let accountUser =
             getAccountUserByEmail(
-              nexusCoreModule,
+              nexusCoreDbContext,
               email)
 
       if accountUser != none(AccountUser):

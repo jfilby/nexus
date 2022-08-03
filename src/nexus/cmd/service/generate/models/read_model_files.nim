@@ -4,7 +4,7 @@ import nexus/cmd/service/generate/generator_info/generator_info_utils
 import nexus/cmd/service/generate/migrations/gen_migration_utils
 import nexus/cmd/service/generate/models/cached/gen_cached_data_access
 import nexus/cmd/service/generate/models/uncached/gen_data_access
-import nexus/cmd/service/generate/modules/gen_module_type
+import nexus/cmd/service/generate/modules/gen_db_context_type
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
 import nexus/cmd/types/types
@@ -13,52 +13,29 @@ import gen_model_utils
 import model_utils
 
 
-# Types
-type
-  TypeInfo = object
-    str*: string
-    path*: string
-
-
 # Forward declarations
 proc writeModelTypes(
        fileModuleName: string,
        modelFiles: var seq[string],
        moduleMinimumImports: seq[string],
        modelImportsTable: Table[string, OrderedSet[string]],
-       modelTypesTable: Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: GeneratorInfo)
 
 
 # Code
-proc createBasicModuleFile(
-       modelFiles: seq[string],
+proc createBasicModelTypesFile*(
+       typesPath: string,
+       typesFilename: string,
        module: Module) =
 
-  let
-    typesPath = &"{module.srcPath}{DirSep}types"
-    typesFilename = &"{typesPath}{DirSep}model_types.nim"
-
-  # Don't overwrite any valid file
-  if modelFiles.contains(typesFilename):
-    return
-
-  debug "createBasicModuleFile()",
-    typesFilename = typesFilename,
-    modelFiles = modelFiles
-
-  # Write a basic model_types.nim file
-  echo ".. creating path: " & typesPath
-  echo ".. writing: " & typesFilename
-
   var typeStr =
-        "# Basic model_types file (no models defined) with only a basic module definition\n" &
+        "# Basic model_types file (no models defined) with only a basic DbContext definition\n" &
         "import db_postgres\n" &
         "\n" &
         "type\n" &
-       &"  {module.nameInPascalCase}Module* = object\n" &
-        "    db*: DbConn\n" &
+       &"  {module.nameInPascalCase}DbContext* = object\n" &
+        "    dbConn*: DbConn\n" &
         "\n"
 
   createDir(typesPath)
@@ -67,9 +44,44 @@ proc createBasicModuleFile(
             typeStr)
 
 
-proc createBasicModuleFiles(
+proc createBasicDbContextFile(
        modelFiles: seq[string],
-       generatorInfo: GeneratorInfo) =
+       module: Module,
+       generatorInfo: var GeneratorInfo) =
+
+  # Skip if already written
+  if generatorInfo.modelTypesTable.hasKey(module.name):
+    if generatorInfo.modelTypesTable[module.name].written == true:
+      return
+
+  echo "!! module.name: " & module.name
+
+  # Vars
+  let
+    typesPath = &"{module.srcPath}{DirSep}types"
+    typesFilename = &"{typesPath}{DirSep}model_types.nim"
+
+  # Don't overwrite any valid file, or if created by this program instance
+  if modelFiles.contains(typesFilename):
+    return
+
+  debug "createBasicDbContextFile()",
+    typesFilename = typesFilename,
+    modelFiles = modelFiles
+
+  # Write a basic model_types.nim file
+  echo ".. creating path: " & typesPath
+  echo ".. writing: " & typesFilename
+
+  createBasicModelTypesFile(
+    typesPath,
+    typesFilename,
+    module)
+
+
+proc createBasicDbContextFiles(
+       modelFiles: seq[string],
+       generatorInfo: var GeneratorInfo) =
 
   for webArtifact in generatorInfo.webArtifacts:
 
@@ -78,9 +90,10 @@ proc createBasicModuleFiles(
             webArtifact,
             generatorInfo)
 
-    createBasicModuleFile(
+    createBasicDbContextFile(
       modelFiles,
-      module)
+      module,
+      generatorInfo)
 
   for library in generatorInfo.libraries:
 
@@ -89,9 +102,10 @@ proc createBasicModuleFiles(
             library,
             generatorInfo)
 
-    createBasicModuleFile(
+    createBasicDbContextFile(
       modelFiles,
-      module)
+      module,
+      generatorInfo)
 
 
 proc expandModelTypesImports(
@@ -131,7 +145,6 @@ proc processModel(
        srcPath: string,
        moduleMinimumImports: OrderedSet[string],
        modelImportsTable: var Table[string, OrderedSet[string]],
-       modelTypesTable: var Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: var GeneratorInfo) =
 
@@ -161,9 +174,9 @@ proc processModel(
     modelTypesStr = ""
     keyExists = false
 
-  if modelTypesTable.hasKey(model.module.name):
+  if generatorInfo.modelTypesTable.hasKey(model.module.name):
     keyExists = true
-    modelTypesStr = modelTypesTable[model.module.name].str
+    modelTypesStr = generatorInfo.modelTypesTable[model.module.name].str
 
   # Append model type definition to model types file
   generateModelTypes(modelTypesStr,
@@ -172,22 +185,24 @@ proc processModel(
   # Set modelTypesStr in modelTypesTable
   if keyExists == false:
 
-    modelTypesTable[model.module.name] = TypeInfo()
-    modelTypesTable[model.module.name].path = &"{srcPath}{DirSep}types"
+    generatorInfo.modelTypesTable[model.module.name] =
+      TypeInfo(path: &"{srcPath}{DirSep}types",
+               written: false)
+
     modelImportsTable[model.module.name] = moduleMinimumImports
 
-  modelTypesTable[model.module.name].str = modelTypesStr
+  generatorInfo.modelTypesTable[model.module.name].str = modelTypesStr
 
   # Get/create module type
   var moduleType = ""
 
   if not modelModuleTypeTable.hasKey(model.module.name):
-    moduleType = generateModuleTypeHeader(model.module)
+    moduleType = generateDbContextTypeHeader(model.module)
 
   else:
     moduleType = modelModuleTypeTable[model.module.name]
 
-  generateModuleTypeModel(
+  generateDbContextTypeModel(
     moduleType,
     model)
 
@@ -209,7 +224,6 @@ proc readModelFile(modelFiles: var seq[string],
   var
     modelCollection: ModelsYAML
     modelImportsTable: Table[string, OrderedSet[string]]  # [ model.module, imports ]
-    modelTypesTable: Table[string, TypeInfo]              # [ model.module, typeInfo ]
     modelModuleTypeTable: Table[string, string]           # [ model.module, moduleType definition ]
     fileModuleName = ""
     moduleMinimumImports =
@@ -313,24 +327,23 @@ proc readModelFile(modelFiles: var seq[string],
     createMigrationsFile(baseModel,
                          migrationsPath)
 
+    # Process object models
     if modelObject != none(Model):
 
       processModel(modelObject.get,
                    srcPath,
                    toOrderedSet(moduleMinimumImports),
                    modelImportsTable,
-                   modelTypesTable,
                    modelModuleTypeTable,
                    generatorInfo)
 
-    # Create data access file for ref model
+    # Process ref models
     if modelRef != none(Model):
 
       processModel(modelRef.get,
                    srcPath,
                    toOrderedSet(moduleMinimumImports),
                    modelImportsTable,
-                   modelTypesTable,
                    modelModuleTypeTable,
                    generatorInfo)
 
@@ -339,7 +352,6 @@ proc readModelFile(modelFiles: var seq[string],
                   modelFiles,
                   moduleMinimumImports,
                   modelImportsTable,
-                  modelTypesTable,
                   modelModuleTypeTable,
                   generatorInfo)
 
@@ -402,8 +414,9 @@ proc readModelFilesPaths*(
       modelsPath,
       generatorInfo)
 
-  # Create a basic model file (module def only) if no model files read (this proc doesn't overwrite valid files)
-  createBasicModuleFiles(
+  # Create a basic model file (module def only) if no model files read (this
+  # proc doesn't overwrite valid files).
+  createBasicDbContextFiles(
     modelFiles,
     generatorInfo)
 
@@ -413,7 +426,6 @@ proc writeModelTypes(
        modelFiles: var seq[string],
        moduleMinimumImports: seq[string],
        modelImportsTable: Table[string, OrderedSet[string]],
-       modelTypesTable: Table[string, TypeInfo],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: GeneratorInfo) =
 
@@ -425,10 +437,14 @@ proc writeModelTypes(
     if fileModuleName != module.shortName:
       continue
 
-    if module.imported == true and
-       not module.generate.contains("models"):
-
+    if module.imported == true: # and
+       # not module.generate.contains("models"):
       continue
+
+    if generatorInfo.modelTypesTable.hasKey(module.name):
+
+      if generatorInfo.modelTypesTable[module.name].written == true:
+        continue
 
     # Debug
     let
@@ -454,19 +470,19 @@ proc writeModelTypes(
 
     var typeStr = ""
 
-    for moduleName, typeInfo in modelTypesTable:
+    # for moduleName, typeInfo in generatorInfo.modelTypesTable:
 
-      if modelImportsTable.hasKey(module.name):
-        typeStr &= initModelTypesStr(modelImportsTable[module.name])
+    if modelImportsTable.hasKey(module.name):
+      typeStr &= initModelTypesStr(modelImportsTable[module.name])
 
-      else:
-        typeStr &= &"import " & moduleMinimumImports.join(", ") & "\n" &
-                    "\n" &
-                    "\n"
+    else:
+      typeStr &= &"import " & moduleMinimumImports.join(", ") & "\n" &
+                  "\n" &
+                  "\n"
 
-      typeStr &= &"type\n" &
-                  typeInfo.str &
-                  modelModuleTypeTable[moduleName] & &"\n"
+    typeStr &= &"type\n" &
+                generatorInfo.modelTypesTable[module.name].str &
+                modelModuleTypeTable[module.name] & &"\n"
 
     echo ".. creating path: " & typesPath
 
@@ -477,6 +493,9 @@ proc writeModelTypes(
 
     else:
       fileContents[typesFilename] = typeStr
+
+    # Set as written (ahead of time, but when module is known)
+    generatorInfo.modelTypesTable[module.name].written = true
 
   # Write files
   for filename, contents in fileContents.pairs:

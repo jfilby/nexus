@@ -1,4 +1,5 @@
 import chronicles, os, sets, strformat
+import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/service/generate/routes/gen_routes
 import nexus/cmd/service/generate/routes/route_utils
 import nexus/cmd/types/types
@@ -8,19 +9,19 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
 
   var str = ""
 
-  str &= "import db_postgres, jester, os\n" &
-         "import nexus/core/service/common/globals\n" &
+  str &= "import jester\n" &
          "import nexus/core/types/model_types\n" &
          "import nexus/core/types/view_types\n" &
-         "import nexus/core/view/nexus/new_web_context\n" &
+         "\n" &
          "\n" &
          "proc newWebContext*(\n" &
          "       request: Request,\n" &
-         "       nexusCoreModule: NexusCoreModule): WebContext {.gcsafe.} =\n" &
+         "       nexusCoreDbContext: NexusCoreDbContext): WebContext {.gcsafe.} =\n" &
          "\n" &
          "  # New WebContext\n" &
-         "  var webContext = newBaseWebContext(request,\n" &
-         "                                     nexusCoreModule)\n" &
+         "  var webContext =\n" &
+         "        newBaseWebContext(request,\n" &
+         "                          nexusCoreDbContext)\n" &
          "\n" &
          "  # Site-specific settings\n" &
          "  webContext.bulmaPathName = \"bulma_0.9.3/bulma\"\n" &
@@ -28,8 +29,9 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
          "  webContext.cssFilenames.add(\"nexus_bulma.css\")\n" &
          "\n" &
          "  # Left menu\n" &
-         "  webContext.leftMenuEntries.add(LinkMenuEntry(url: \"/\",\n" &
-         "                                               text: \"Home\"))\n" &
+         "  webContext.leftMenuEntries.add(\n" &
+         "    LinkMenuEntry(url: \"/\",\n" &
+         "    text: \"Home\"))\n" &
          "\n" &
          "  # Return\n" &
          "  return webContext\n" &
@@ -37,7 +39,7 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
 
   # Write new_web_context.nim routes file
   let
-    path = &"{webArtifact.srcPath}{DirSep}view{DirSep}web_app"
+    path = &"{webArtifact.srcPath}{DirSep}service{DirSep}module"
     filename = &"{path}{DirSep}new_web_context.nim"
 
   if not dirExists(path):
@@ -51,7 +53,15 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
             str)
 
 
-proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
+proc generateWebArtifactRoutesFile(
+       webArtifact: WebArtifact,
+       generatorInfo: GeneratorInfo) =
+
+  # Get module
+  let module =
+        getModuleByWebArtifact(
+          webArtifact,
+          generatorInfo)
 
   # Imports
   var imports: OrderedSet[string]
@@ -60,9 +70,9 @@ proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
   var str = &"  # Routes for: {webArtifact.routes.name}\n"
 
   # Initial imports
-  imports.incl("chronicles, jester, os, strutils, uri")
-  imports.incl("nexus/core/service/common/globals")
-  imports.incl("nexus/core/types/module_globals as nexus_core_module_globals")
+  imports.incl("jester, os, strutils")
+  # imports.incl("nexus/core/service/common/globals")
+  # imports.incl("nexus/core/types/module_globals as nexus_core_module_globals")
 
   # Process routes generated for the web app
   for route in webArtifact.routes.routes.mitems:
@@ -80,12 +90,12 @@ proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
     generateRouteMethods(
       str,
       route,
-      webArtifact)
+      module,
+      webArtifact,
+      generatorInfo)
 
   # Final imports
-  # imports.incl(&"{webArtifact.srcRelativePath}/types/module_globals as " &
-  #              &"{webArtifact.nameInSnakeCase}_module_globals")
-  imports.incl("new_web_context")
+  imports.incl(&"{webArtifact.srcRelativePath}/service/module/context")
 
   # Prepend imports and routes block start
   var startStr = ""
@@ -118,7 +128,9 @@ proc generateWebArtifactRoutesFile(webArtifact: WebArtifact) =
             str)
 
 
-proc generateWebArtifactFiles*(webArtifact: WebArtifact) =
+proc generateWebArtifactFiles*(
+       webArtifact: WebArtifact,
+       generatorInfo: GeneratorInfo) =
 
   debug "generateWebAppFiles()"
 
@@ -131,7 +143,10 @@ proc generateWebArtifactFiles*(webArtifact: WebArtifact) =
 
   # Generate WebArtifact
   if len(webArtifact.routes.routes) > 0:
-    generateWebArtifactRoutesFile(webArtifact)
+
+    generateWebArtifactRoutesFile(
+      webArtifact,
+      generatorInfo)
 
   # Generate newWebContext.nim
   generateNewWebContext(webArtifact)

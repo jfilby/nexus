@@ -20,8 +20,8 @@ proc cachedCreateWithTypeProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   listModelFieldNames(
     str,
@@ -94,8 +94,8 @@ proc cachedDeleteProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   listFieldNames(str,
                  model,
@@ -165,8 +165,8 @@ proc cachedExistsProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -228,8 +228,8 @@ proc cachedFilterProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
@@ -279,8 +279,8 @@ proc cachedFilterWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
@@ -347,8 +347,8 @@ proc cachedGetProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -439,8 +439,8 @@ proc cachedGetOrCreateProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n"
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n"
 
   listModelFieldNames(
     str,
@@ -513,8 +513,8 @@ proc cachedUpdateByPkProc*(
           pragmas)
 
   str &= &"proc {procName}ByPk*(\n" &
-         &"       {model.module.nameInCamelCase}Module: var " &
-           &"{model.module.nameInPascalCase}Module,\n" &
+         &"       {model.module.nameInCamelCase}DbContext: var " &
+           &"{model.module.nameInPascalCase}DbContext,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
          &"       setFields: seq[string]){returnDetails} =\n" &
           "\n"

@@ -9,7 +9,7 @@ proc generateConsoleProjectTemplate*(projectTemplate: ProjectTemplate) =
   debug "generateConsoleProjectTemplate"
 
   var
-    programs = &"{projectTemplate.applPath}{DirSep}programs"
+    programs = &"{projectTemplate.appPath}{DirSep}programs"
     consoleNim = &"{programs}{DirSep}{projectTemplate.appNameInSnakeCase}.nim"
 
   discard parseFilenameExpandEnvVars(programs)

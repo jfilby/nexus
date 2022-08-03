@@ -16,10 +16,10 @@ const renewMinutes = 15        # Renew tokens every 15 minutes
 proc readJWT*(token: string):
        (bool, string, string) {.gcsafe.}
 proc setJWTDeleted*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        token: string) {.gcsafe.}
 proc verifyJWTByAPIKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: string,
        token: string): (bool, string) {.gcsafe.}
 
@@ -27,7 +27,7 @@ proc verifyJWTByAPIKey*(
 # Code
 proc connectWithJWT*(
        request: Request,
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        inToken: string = "",
        useCookie: bool = true,
        verifyUserIsActive: bool = false):
@@ -104,7 +104,7 @@ proc connectWithJWT*(
     # Get accountUser
     let accountUser =
           getAccountUserByPk(
-            nexusCoreModule,
+            nexusCoreDbContext,
             accountUserId)
 
     if accountUser == none(AccountUser):
@@ -130,7 +130,7 @@ proc connectWithJWT*(
     # Verify the token against the API key (expected secret for a logged in user)
     (verified,
      errorMessage) = verifyJWTByAPIKey(
-                       nexusCoreModule,
+                       nexusCoreDbContext,
                        accountUserId,
                        token)
 
@@ -149,7 +149,7 @@ proc connectWithJWT*(
           mobile)
 
 
-proc createJWT*(nexusCoreModule: NexusCoreModule,
+proc createJWT*(nexusCoreDbContext: NexusCoreDbContext,
                 accountUserId: string,
                 inSecret: string = "",
                 mobile: string = ""): string =
@@ -195,7 +195,7 @@ proc createJWT*(nexusCoreModule: NexusCoreModule,
       errorMessage: string
 
     (verified,
-     errorMessage) = verifyJWTByAPIKey(nexusCoreModule,
+     errorMessage) = verifyJWTByAPIKey(nexusCoreDbContext,
                                         accountUserId,
                                         token)
 
@@ -211,7 +211,7 @@ proc createJWT*(nexusCoreModule: NexusCoreModule,
 
 
 # getJWT(): returns (sub: accountUserId, newJwtToken (if any))
-proc getJWT*(nexusCoreModule: NexusCoreModule,
+proc getJWT*(nexusCoreDbContext: NexusCoreDbContext,
              token: string,
              secret: string): (string, string) =
 
@@ -243,7 +243,7 @@ proc getJWT*(nexusCoreModule: NexusCoreModule,
     if unixTime < expiredTime:
 
       # Expired, but within the time to renew
-      let token = createJWT(nexusCoreModule,
+      let token = createJWT(nexusCoreDbContext,
                             accountUserId,
                             secret)
 
@@ -261,7 +261,7 @@ proc getJWT*(nexusCoreModule: NexusCoreModule,
 
 proc logoutJWT*(
        request: Request,
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        useCookie: bool) {.gcsafe.} =
 
   let contentType = getContentType(request)
@@ -300,22 +300,22 @@ proc logoutJWT*(
     token = token
 
   # Set the token as deleted
-  setJWTDeleted(nexusCoreModule,
+  setJWTDeleted(nexusCoreDbContext,
                 token)
 
 
-proc purgeDeletedJWTs*(nexusCoreModule: NexusCoreModule) {.gcsafe.} =
+proc purgeDeletedJWTs*(nexusCoreDbContext: NexusCoreDbContext) {.gcsafe.} =
 
   # Delete tokens after 1 day
   let accountUserTokens =
         filterAccountUserToken(
-          nexusCoreModule,
+          nexusCoreDbContext,
           whereClause = "created < NOW() - INTERVAL '1 day'")
 
   for accountUserToken in accountUserTokens:
 
     discard deleteAccountUserTokenByPk(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUserToken.accountUserId)
 
 
@@ -350,7 +350,7 @@ proc readJWT*(token: string):
 
 
 proc setJWTDeleted*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        token: string) {.gcsafe.} =
 
   debug "setJWTDeleted()",
@@ -358,7 +358,7 @@ proc setJWTDeleted*(
 
   var accountUserToken =
         getAccountUserTokenByToken(
-          nexusCoreModule,
+          nexusCoreDbContext,
           token)
 
   if accountUserToken == none(AccountUserToken):
@@ -368,7 +368,7 @@ proc setJWTDeleted*(
   accountUserToken.get.deleted = some(now())
 
   discard updateAccountUserTokenByPk(
-            nexusCoreModule,
+            nexusCoreDbContext,
             accountUserToken.get,
             setFields = @[ "deleted" ])
 
@@ -376,7 +376,7 @@ proc setJWTDeleted*(
 
 
 proc verifyJWTByAPIKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: string,
        token: string): (bool, string) {.gcsafe.} =
 
@@ -385,7 +385,7 @@ proc verifyJWTByAPIKey*(
 
   # Get API key for the specified user
   let apiKey = getAPIKeyFromAccountUserByPk(
-                 nexusCoreModule,
+                 nexusCoreDbContext,
                  parseBiggestInt(accountUserId))
 
   if apiKey == none(string):

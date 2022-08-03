@@ -50,19 +50,19 @@ proc getSeqNonStringAsPgArrayString*[T](seqNonString: seq[T]): string {.gcsafe.}
 
 proc getPgArrayStringAsSeqChar*(pgArrayStr: string): seq[char] {.gcsafe.} =
 
-  debug "getPgArrayStringAsSeqChar(): start",
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqChar(): start",
+  #   pgArrayStr = pgArrayStr
 
   let seqString: seq[string] = pgArrayStr[1 .. pgArrayStr.len() - 2].split(",")
   var seqChar: seq[char]
 
-  debug "getPgArrayStringAsSeqChar()",
-    seqString = seqString
+  # debug "getPgArrayStringAsSeqChar()",
+  #   seqString = seqString
 
   for str in seqString:
 
-    debug "getPgArrayStringAsSeqChar()",
-      str = str
+    # debug "getPgArrayStringAsSeqChar()",
+    #   str = str
 
     if len(str) > 0:
       seqChar.add(str[0])
@@ -71,10 +71,10 @@ proc getPgArrayStringAsSeqChar*(pgArrayStr: string): seq[char] {.gcsafe.} =
     # else:
     #   seqChar.add(char(0))
 
-  debug "getPgArrayStringAsSeqChar(): return",
-    seqChar = seqChar,
-    lenseqChar = len(seqChar),
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqChar(): return",
+  #   seqChar = seqChar,
+  #   lenseqChar = len(seqChar),
+  #   pgArrayStr = pgArrayStr
 
   return seqChar
 
@@ -90,18 +90,18 @@ proc getPgArrayStringAsSeqInt64*(pgArrayStr: string): seq[int64] {.gcsafe.} =
   for str in seqString:
     seqInt64.add(parseBiggestInt(str))
 
-  debug "getPgArrayStringAsSeqInt64()",
-    seqInt64 = seqInt64,
-    lenSeqInt64 = len(seqInt64),
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqInt64()",
+  #   seqInt64 = seqInt64,
+  #   lenSeqInt64 = len(seqInt64),
+  #   pgArrayStr = pgArrayStr
 
   return seqInt64
 
 
 proc getPgArrayStringAsSeqFloat*(pgArrayStr: string): seq[float] {.gcsafe.} =
 
-  debug "getPgArrayStringAsSeqFloat(): start",
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqFloat(): start",
+  #   pgArrayStr = pgArrayStr
 
   if pgArrayStr == "{}":
     return @[]
@@ -111,23 +111,23 @@ proc getPgArrayStringAsSeqFloat*(pgArrayStr: string): seq[float] {.gcsafe.} =
 
   for str in seqString:
 
-    debug "getPgArrayStringAsSeqFloat()",
-      str = str
+    # debug "getPgArrayStringAsSeqFloat()",
+    #   str = str
 
     seqFloat.add(parseFloat(str))
 
-  debug "getPgArrayStringAsSeqFloat(): return",
-    seqFloat = seqFloat,
-    lenSeqFloat = len(seqFloat),
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqFloat(): return",
+  #   seqFloat = seqFloat,
+  #   lenSeqFloat = len(seqFloat),
+  #   pgArrayStr = pgArrayStr
 
   return seqFloat
 
 
 proc getPgArrayStringAsSeqString*(pgArrayStr: string): seq[string] {.gcsafe.} =
 
-  debug "getPgArrayStringAsSeqString(): start",
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqString(): start",
+  #   pgArrayStr = pgArrayStr
 
   if pgArrayStr == "{}":
     return @[]
@@ -142,8 +142,8 @@ proc getPgArrayStringAsSeqString*(pgArrayStr: string): seq[string] {.gcsafe.} =
   # Unquote if present
   for i in (0 .. len(seqString) - 1):
 
-    debug "getPgArrayStringAsSeqString()",
-      seqStringI = seqString[i]
+    # debug "getPgArrayStringAsSeqString()",
+    #   seqStringI = seqString[i]
 
     if seqString[i][0 .. 0] == "\"":
 
@@ -151,10 +151,10 @@ proc getPgArrayStringAsSeqString*(pgArrayStr: string): seq[string] {.gcsafe.} =
 
       seqString[i] = seqString[i][1 .. len(seqString[i]) - 2]
 
-  debug "getPgArrayStringAsSeqString()",
-    seqString = seqString,
-    lenSeqString = len(seqString),
-    pgArrayStr = pgArrayStr
+  # debug "getPgArrayStringAsSeqString()",
+  #   seqString = seqString,
+  #   lenSeqString = len(seqString),
+  #   pgArrayStr = pgArrayStr
 
   return seqString
 

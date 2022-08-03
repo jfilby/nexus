@@ -48,13 +48,13 @@ proc verifyMenuItemRole(nexusCoreExtrasModule: NexusCoreExtrasModule,
                         roleId: int64,
                         accountUserId: int64): bool =
 
-  # Get NexusCoreModule
-  let nexusCoreModule = NexusCoreModule(
+  # Get NexusCoreDbContext
+  let nexusCoreDbContext = NexusCoreDbContext(
                           db: nexusCoreExtrasModule.db)
 
   # Check for AccountUserRole record
   let accountUserRole = getAccountUserRoleByAccountUserIdAndRoleId(
-                          nexusCoreModule,
+                          nexusCoreDbContext,
                           accountUserId,
                           roleId)
 

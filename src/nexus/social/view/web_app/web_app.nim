@@ -7,9 +7,6 @@ import nexus/core/view/account/sign_up_verify_page
 import nexus/core/view/account/sign_up_resend_signUpCode_page
 import nexus/core/view/invite/invite_page
 import chronicles, jester, os, strutils, uri
-import nexus/core/service/common/globals
-import nexus/core/types/module_globals as nexusCoreModule_globals
-import nexus/social/types/module_globals as nexus_social_module_globals
 import new_web_context
 
 
@@ -23,7 +20,7 @@ routes:
   # Login
   get "/account/login":
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     # Set cookie (useful to store detected mobile setting)
     if webContext.token != "":
@@ -38,7 +35,7 @@ routes:
 
   post "/account/login":
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     postLoginAction(request,
                     webContext)
@@ -47,7 +44,7 @@ routes:
   get "/account/logout":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     logoutAction(request,
                  webContext)
@@ -56,7 +53,7 @@ routes:
   get "/account/profile":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp profilePage(request,
                      webContext)
@@ -65,7 +62,7 @@ routes:
   post "/account/profile":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp profilePagePost(request,
                          webContext)
@@ -74,7 +71,7 @@ routes:
   get "/account/profile/success":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp profileSuccessPage(request,
                             webContext,
@@ -86,7 +83,7 @@ routes:
   get "/account/reset-password":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp resetPasswordPage(request,
                            webContext)
@@ -95,7 +92,7 @@ routes:
   post "/account/reset-password":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp resetPasswordPagePost(request,
                                webContext)
@@ -104,7 +101,7 @@ routes:
   get "/account/reset-password/verify":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp resetPasswordVerifyPage(request,
                                  webContext)
@@ -113,7 +110,7 @@ routes:
   post "/account/reset-password/verify":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp resetPasswordVerifyPagePost(request,
                                      webContext)
@@ -130,7 +127,7 @@ routes:
   get "/account/sign-up":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupPage(request,
                     webContext,
@@ -140,7 +137,7 @@ routes:
   post "/account/sign-up":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupPagePost(request,
                         webContext)
@@ -149,7 +146,7 @@ routes:
   get "/account/sign-up/success":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupSuccessPage(request,
                            webContext,
@@ -159,7 +156,7 @@ routes:
   get "/account/sign-up/verify":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupVerifyPage(request,
                           webContext)
@@ -168,7 +165,7 @@ routes:
   post "/account/sign-up/verify":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     postSignUpVerifyAction(request,
                            webContext)
@@ -177,7 +174,7 @@ routes:
   get "/account/sign-up/resend-code":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupResendSignupCodePage(request,
                                     webContext)
@@ -186,7 +183,7 @@ routes:
   post "/account/sign-up/resend-code":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupResendSignupCodePagePost(request,
                                         webContext)
@@ -195,7 +192,7 @@ routes:
   get "/account/sign-up/resend-code/verify":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp signupResendCodeVerifyPage(request,
                                     webContext)
@@ -205,7 +202,7 @@ routes:
   get "/invite/send":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp inviteSendPage(request,
                         webContext)
@@ -214,7 +211,7 @@ routes:
   post "/invite/send":
 
     var webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp inviteSendPagePost(request,
                             webContext)
@@ -223,7 +220,7 @@ routes:
   get "/invite/send/success":
 
     let webContext = newWebContext(request,
-                                    nexusCoreModule)
+                                    nexusCoreDbContext)
 
     resp inviteSendSuccessfulPage(request,
                                   webContext,

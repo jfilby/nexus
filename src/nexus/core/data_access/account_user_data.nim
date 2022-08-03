@@ -12,7 +12,7 @@ proc rowToAccountUser*(row: seq[string]):
 
 # Code
 proc countAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countAccountUser*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countAccountUser*(
 
 
 proc countAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,149 +52,15 @@ proc countAccountUser*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createAccountUserReturnsPK*(
-       nexusCoreModule: NexusCoreModule,
-       accountId: Option[int64] = none(int64),
-       name: string,
-       email: string,
-       passwordHash: string,
-       passwordSalt: string,
-       apiKey: string,
-       lastToken: Option[string] = none(string),
-       signUpCode: string,
-       signUpDate: DateTime,
-       passwordResetCode: Option[string] = none(string),
-       passwordResetDate: Option[DateTime] = none(DateTime),
-       isActive: bool,
-       isAdmin: bool,
-       isVerified: bool,
-       subscriptionStatus: Option[char] = none(char),
-       lastLogin: Option[DateTime] = none(DateTime),
-       lastUpdate: Option[DateTime] = none(DateTime),
-       created: DateTime): int64 {.gcsafe.} =
-
-  # Formulate insertStatement and insertValues
-  var
-    insertValues: seq[string]
-    insertStatement = "insert into account_user ("
-    valuesClause = ""
-
-  # Field: Account Id
-  if account_id != none(int64):
-    insertStatement &= "account_id, "
-    valuesClause &= "?, "
-    insertValues.add($account_id.get)
-
-  # Field: Name
-  insertStatement &= "name, "
-  valuesClause &= "?, "
-  insertValues.add(name)
-
-  # Field: Email
-  insertStatement &= "email, "
-  valuesClause &= "?, "
-  insertValues.add(email)
-
-  # Field: Password Hash
-  insertStatement &= "password_hash, "
-  valuesClause &= "?, "
-  insertValues.add(password_hash)
-
-  # Field: Password Salt
-  insertStatement &= "password_salt, "
-  valuesClause &= "?, "
-  insertValues.add(password_salt)
-
-  # Field: API Key
-  insertStatement &= "api_key, "
-  valuesClause &= "?, "
-  insertValues.add(api_key)
-
-  # Field: Last Token
-  if last_token != none(string):
-    insertStatement &= "last_token, "
-    valuesClause &= "?, "
-    insertValues.add(last_token.get)
-
-  # Field: Sign up Code
-  insertStatement &= "sign_up_code, "
-  valuesClause &= "?, "
-  insertValues.add(sign_up_code)
-
-  # Field: Sign up Date
-  insertStatement &= "sign_up_date, "
-  valuesClause &= pgToDateTimeString(sign_up_date) & ", "
-
-  # Field: Password Reset Code
-  if password_reset_code != none(string):
-    insertStatement &= "password_reset_code, "
-    valuesClause &= "?, "
-    insertValues.add(password_reset_code.get)
-
-  # Field: Password Reset Date
-  if password_reset_date != none(DateTime):
-    insertStatement &= "password_reset_date, "
-    valuesClause &= pgToDateTimeString(password_reset_date.get) & ", "
-
-  # Field: Is Active
-  insertStatement &= "is_active, "
-  valuesClause &= pgToBool(is_active) & ", "
-
-  # Field: Is Admin
-  insertStatement &= "is_admin, "
-  valuesClause &= pgToBool(is_admin) & ", "
-
-  # Field: Is Verified
-  insertStatement &= "is_verified, "
-  valuesClause &= pgToBool(is_verified) & ", "
-
-  # Field: Subscription Status
-  if subscription_status != none(char):
-    insertStatement &= "subscription_status, "
-    valuesClause &= "?, "
-    insertValues.add($subscription_status.get)
-
-  # Field: Last Login
-  if last_login != none(DateTime):
-    insertStatement &= "last_login, "
-    valuesClause &= pgToDateTimeString(last_login.get) & ", "
-
-  # Field: Last Update
-  if last_update != none(DateTime):
-    insertStatement &= "last_update, "
-    valuesClause &= pgToDateTimeString(last_update.get) & ", "
-
-  # Field: Created
-  insertStatement &= "created, "
-  valuesClause &= pgToDateTimeString(created) & ", "
-
-  # Remove trailing commas and finalize insertStatement
-  if insertStatement[len(insertStatement) - 2 .. len(insertStatement) - 1] == ", ":
-    insertStatement = insertStatement[0 .. len(insertStatement) - 3]
-
-  if valuesClause[len(valuesClause) - 2 .. len(valuesClause) - 1] == ", ":
-    valuesClause = valuesClause[0 .. len(valuesClause) - 3]
-
-  # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
-
-  # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
-    nexusCoreModule.db,
-    sql(insertStatement),
-    "account_user_id",
-    insertValues)
-
-
-proc createAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+proc createAccountUserReturnsPk*(
+       nexusCoreDbContext: NexusCoreDbContext,
        accountId: Option[int64] = none(int64),
        name: string,
        email: string,
@@ -213,14 +79,156 @@ proc createAccountUser*(
        lastLogin: Option[DateTime] = none(DateTime),
        lastUpdate: Option[DateTime] = none(DateTime),
        created: DateTime,
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+
+  # Formulate insertStatement and insertValues
+  var
+    insertValues: seq[string]
+    insertStatement = "insert into account_user ("
+    valuesClause = ""
+
+  # Field: Account Id
+  if accountId != none(int64):
+    insertStatement &= "account_id, "
+    valuesClause &= "?, "
+    insertValues.add($accountId.get)
+
+  # Field: Name
+  insertStatement &= "name, "
+  valuesClause &= "?" & ", "
+  insertValues.add(name)
+
+  # Field: Email
+  insertStatement &= "email, "
+  valuesClause &= "?" & ", "
+  insertValues.add(email)
+
+  # Field: Password Hash
+  insertStatement &= "password_hash, "
+  valuesClause &= "?" & ", "
+  insertValues.add(passwordHash)
+
+  # Field: Password Salt
+  insertStatement &= "password_salt, "
+  valuesClause &= "?" & ", "
+  insertValues.add(passwordSalt)
+
+  # Field: API Key
+  insertStatement &= "api_key, "
+  valuesClause &= "?" & ", "
+  insertValues.add(apiKey)
+
+  # Field: Last Token
+  if lastToken != none(string):
+    insertStatement &= "last_token, "
+    valuesClause &= "?" & ", "
+    insertValues.add(lastToken.get)
+
+  # Field: Sign up Code
+  insertStatement &= "sign_up_code, "
+  valuesClause &= "?" & ", "
+  insertValues.add(signUpCode)
+
+  # Field: Sign up Date
+  insertStatement &= "sign_up_date, "
+  valuesClause &= pgToDateTimeString(signUpDate) & ", "
+
+  # Field: Password Reset Code
+  if passwordResetCode != none(string):
+    insertStatement &= "password_reset_code, "
+    valuesClause &= "?" & ", "
+    insertValues.add(passwordResetCode.get)
+
+  # Field: Password Reset Date
+  if passwordResetDate != none(DateTime):
+    insertStatement &= "password_reset_date, "
+    valuesClause &= pgToDateTimeString(passwordResetDate.get) & ", "
+
+  # Field: Is Active
+  insertStatement &= "is_active, "
+  valuesClause &= "?, "
+  insertValues.add($isActive)
+
+  # Field: Is Admin
+  insertStatement &= "is_admin, "
+  valuesClause &= "?, "
+  insertValues.add($isAdmin)
+
+  # Field: Is Verified
+  insertStatement &= "is_verified, "
+  valuesClause &= "?, "
+  insertValues.add($isVerified)
+
+  # Field: Subscription Status
+  if subscriptionStatus != none(char):
+    insertStatement &= "subscription_status, "
+    valuesClause &= "'" & $subscriptionStatus.get & "'" & ", "
+
+  # Field: Last Login
+  if lastLogin != none(DateTime):
+    insertStatement &= "last_login, "
+    valuesClause &= pgToDateTimeString(lastLogin.get) & ", "
+
+  # Field: Last Update
+  if lastUpdate != none(DateTime):
+    insertStatement &= "last_update, "
+    valuesClause &= pgToDateTimeString(lastUpdate.get) & ", "
+
+  # Field: Created
+  insertStatement &= "created, "
+  valuesClause &= pgToDateTimeString(created) & ", "
+
+  # Remove trailing commas and finalize insertStatement
+  if insertStatement[len(insertStatement) - 2 .. len(insertStatement) - 1] == ", ":
+    insertStatement = insertStatement[0 .. len(insertStatement) - 3]
+
+  if valuesClause[len(valuesClause) - 2 .. len(valuesClause) - 1] == ", ":
+    valuesClause = valuesClause[0 .. len(valuesClause) - 3]
+
+  # Finalize insertStatement
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (account_user_id) do nothing"
+
+  # Execute the insert statement and return the sequence values
+  return tryInsertNamedID(
+    nexusCoreDbContext.dbConn,
+    sql(insertStatement),
+    "account_user_id",
+    insertValues)
+
+
+proc createAccountUser*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       accountId: Option[int64] = none(int64),
+       name: string,
+       email: string,
+       passwordHash: string,
+       passwordSalt: string,
+       apiKey: string,
+       lastToken: Option[string] = none(string),
+       signUpCode: string,
+       signUpDate: DateTime,
+       passwordResetCode: Option[string] = none(string),
+       passwordResetDate: Option[DateTime] = none(DateTime),
+       isActive: bool,
+       isAdmin: bool,
+       isVerified: bool,
+       subscriptionStatus: Option[char] = none(char),
+       lastLogin: Option[DateTime] = none(DateTime),
+       lastUpdate: Option[DateTime] = none(DateTime),
+       created: DateTime,
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): AccountUser {.gcsafe.} =
 
   var accountUser = AccountUser()
 
   accountUser.accountUserId =
-    createAccountUserReturnsPK(
-      nexusCoreModule,
+    createAccountUserReturnsPk(
+      nexusCoreDbContext,
       accountId,
       name,
       email,
@@ -238,7 +246,8 @@ proc createAccountUser*(
       subscriptionStatus,
       lastLogin,
       lastUpdate,
-      created)
+      created,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   accountUser.accountId = accountId
@@ -264,7 +273,7 @@ proc createAccountUser*(
 
 
 proc deleteAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -273,13 +282,13 @@ proc deleteAccountUserByPk*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            accountUserId)
 
 
 proc deleteAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -289,13 +298,42 @@ proc deleteAccountUser*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteAccountUser*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from account_user"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -304,9 +342,9 @@ proc existsAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
-              accountUserId)
+              $accountUserId)
 
   if row[0] == "":
     return false
@@ -315,7 +353,7 @@ proc existsAccountUserByPk*(
 
 
 proc existsAccountUserByEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        email: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -324,7 +362,7 @@ proc existsAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               email)
 
@@ -335,7 +373,7 @@ proc existsAccountUserByEmail*(
 
 
 proc existsAccountUserByAPIKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        apiKey: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -344,7 +382,7 @@ proc existsAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               apiKey)
 
@@ -355,7 +393,7 @@ proc existsAccountUserByAPIKey*(
 
 
 proc existsAccountUserByLastToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        lastToken: Option[string]): bool {.gcsafe.} =
 
   var selectStatement =
@@ -364,7 +402,7 @@ proc existsAccountUserByLastToken*(
     " where last_token = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               lastToken)
 
@@ -375,10 +413,11 @@ proc existsAccountUserByLastToken*(
 
 
 proc filterAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): AccountUsers {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): AccountUsers {.gcsafe.} =
 
   var selectStatement =
     "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
@@ -392,9 +431,12 @@ proc filterAccountUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var accountUsers: AccountUsers
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -404,10 +446,11 @@ proc filterAccountUser*(
 
 
 proc filterAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): AccountUsers {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): AccountUsers {.gcsafe.} =
 
   var selectStatement =
     "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
@@ -432,9 +475,12 @@ proc filterAccountUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var accountUsers: AccountUsers
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -444,7 +490,7 @@ proc filterAccountUser*(
 
 
 proc getAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -455,7 +501,7 @@ proc getAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -466,7 +512,7 @@ proc getAccountUserByPk*(
 
 
 proc getAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -477,7 +523,7 @@ proc getAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -488,7 +534,7 @@ proc getAccountUserByPk*(
 
 
 proc getAccountUserByEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        email: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -499,7 +545,7 @@ proc getAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               email)
 
@@ -510,7 +556,7 @@ proc getAccountUserByEmail*(
 
 
 proc getAccountUserByAPIKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        apiKey: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -521,7 +567,7 @@ proc getAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               apiKey)
 
@@ -532,7 +578,7 @@ proc getAccountUserByAPIKey*(
 
 
 proc getAccountUserByLastToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        lastToken: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -543,7 +589,7 @@ proc getAccountUserByLastToken*(
     " where last_token = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               lastToken)
 
@@ -553,8 +599,8 @@ proc getAccountUserByLastToken*(
   return some(rowToAccountUser(row))
 
 
-proc getAPIKeyFromAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+proc getAPIKeyFromAccountUserByPK*(
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): Option[string] =
 
   var selectStatement =
@@ -563,7 +609,7 @@ proc getAPIKeyFromAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -573,7 +619,7 @@ proc getAPIKeyFromAccountUserByPk*(
   return some(row[0])
 
 proc getOrCreateAccountUserByEmail*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -595,14 +641,14 @@ proc getOrCreateAccountUserByEmail*(
 
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountId,
            name,
            email,
@@ -624,7 +670,7 @@ proc getOrCreateAccountUserByEmail*(
 
 
 proc getOrCreateAccountUserByAPIKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -646,14 +692,14 @@ proc getOrCreateAccountUserByAPIKey*(
 
   let accountUser =
         getAccountUserByAPIKey(
-          nexusCoreModule,
+          nexusCoreDbContext,
           apiKey)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountId,
            name,
            email,
@@ -675,7 +721,7 @@ proc getOrCreateAccountUserByAPIKey*(
 
 
 proc getOrCreateAccountUserByLastToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -697,14 +743,14 @@ proc getOrCreateAccountUserByLastToken*(
 
   let accountUser =
         getAccountUserByLastToken(
-          nexusCoreModule,
+          nexusCoreDbContext,
           lastToken)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountId,
            name,
            email,
@@ -786,15 +832,15 @@ proc rowToAccountUser*(row: seq[string]):
 
 
 proc truncateAccountUser*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table account_user restart identity;"))
 
   else:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table account_user restart identity cascade;"))
 
 
@@ -823,64 +869,59 @@ proc updateAccountUserSetClause*(
 
     elif field == "name":
       updateStatement &= "       name = ?,"
-      updateValues.add($accountUser.name)
+      updateValues.add(accountUser.name)
 
     elif field == "email":
       updateStatement &= "       email = ?,"
-      updateValues.add($accountUser.email)
+      updateValues.add(accountUser.email)
 
     elif field == "password_hash":
       updateStatement &= "       password_hash = ?,"
-      updateValues.add($accountUser.passwordHash)
+      updateValues.add(accountUser.passwordHash)
 
     elif field == "password_salt":
       updateStatement &= "       password_salt = ?,"
-      updateValues.add($accountUser.passwordSalt)
+      updateValues.add(accountUser.passwordSalt)
 
     elif field == "api_key":
       updateStatement &= "       api_key = ?,"
-      updateValues.add($accountUser.apiKey)
+      updateValues.add(accountUser.apiKey)
 
     elif field == "last_token":
       if accountUser.lastToken != none(string):
         updateStatement &= "       last_token = ?,"
-        updateValues.add($accountUser.lastToken.get)
+        updateValues.add(accountUser.lastToken.get)
       else:
         updateStatement &= "       last_token = null,"
 
     elif field == "sign_up_code":
       updateStatement &= "       sign_up_code = ?,"
-      updateValues.add($accountUser.signUpCode)
+      updateValues.add(accountUser.signUpCode)
 
     elif field == "sign_up_date":
-      updateStatement &= "       sign_up_date = ?,"
-      updateValues.add($accountUser.signUpDate)
+        updateStatement &= "       sign_up_date = " & pgToDateTimeString(accountUser.signUpDate) & ","
 
     elif field == "password_reset_code":
       if accountUser.passwordResetCode != none(string):
         updateStatement &= "       password_reset_code = ?,"
-        updateValues.add($accountUser.passwordResetCode.get)
+        updateValues.add(accountUser.passwordResetCode.get)
       else:
         updateStatement &= "       password_reset_code = null,"
 
     elif field == "password_reset_date":
       if accountUser.passwordResetDate != none(DateTime):
-        updateStatement &= "       password_reset_date = ?,"
-        updateValues.add($accountUser.passwordResetDate.get)
+        updateStatement &= "       password_reset_date = " & pgToDateTimeString(accountUser.passwordResetDate.get) & ","
       else:
         updateStatement &= "       password_reset_date = null,"
 
     elif field == "is_active":
-      updateStatement &= "       is_active = ?,"
-      updateValues.add($accountUser.isActive)
+        updateStatement &= "       is_active = " & pgToBool(accountUser.isActive) & ","
 
     elif field == "is_admin":
-      updateStatement &= "       is_admin = ?,"
-      updateValues.add($accountUser.isAdmin)
+        updateStatement &= "       is_admin = " & pgToBool(accountUser.isAdmin) & ","
 
     elif field == "is_verified":
-      updateStatement &= "       is_verified = ?,"
-      updateValues.add($accountUser.isVerified)
+        updateStatement &= "       is_verified = " & pgToBool(accountUser.isVerified) & ","
 
     elif field == "subscription_status":
       if accountUser.subscriptionStatus != none(char):
@@ -891,28 +932,25 @@ proc updateAccountUserSetClause*(
 
     elif field == "last_login":
       if accountUser.lastLogin != none(DateTime):
-        updateStatement &= "       last_login = ?,"
-        updateValues.add($accountUser.lastLogin.get)
+        updateStatement &= "       last_login = " & pgToDateTimeString(accountUser.lastLogin.get) & ","
       else:
         updateStatement &= "       last_login = null,"
 
     elif field == "last_update":
       if accountUser.lastUpdate != none(DateTime):
-        updateStatement &= "       last_update = ?,"
-        updateValues.add($accountUser.lastUpdate.get)
+        updateStatement &= "       last_update = " & pgToDateTimeString(accountUser.lastUpdate.get) & ","
       else:
         updateStatement &= "       last_update = null,"
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($accountUser.created)
+        updateStatement &= "       created = " & pgToDateTimeString(accountUser.created) & ","
 
   updateStatement[len(updateStatement) - 1] = ' '
 
 
 
 proc updateAccountUserByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -933,7 +971,7 @@ proc updateAccountUserByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreModule.db,
+          nexusCoreDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -949,7 +987,7 @@ proc updateAccountUserByPk*(
 
 
 proc updateAccountUserByWhereClause*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        whereClause: string,
@@ -969,14 +1007,14 @@ proc updateAccountUserByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateAccountUserByWhereEqOnly*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        whereFields: seq[string],
@@ -1007,14 +1045,14 @@ proc updateAccountUserByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
-proc updateAccountUserSetLastLoginByPk*(
-       nexusCoreModule: NexusCoreModule,
+proc updateAccountUserSetLastLoginByPK*(
+       nexusCoreDbContext: NexusCoreDbContext,
        lastLogin: Option[DateTime],
        accountUserId: int64): int64 =
 
@@ -1024,7 +1062,7 @@ proc updateAccountUserSetLastLoginByPk*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            last_login.get,
            account_user_id)

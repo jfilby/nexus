@@ -8,7 +8,6 @@ import nexus/core/service/account/roles
 import nexus/core/service/email/send_email
 import nexus/core/service/invite/verify_invite_fields
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -19,7 +18,7 @@ import invite_fields
 proc inviteSendPageMain*(
        request: Request,
        webContext: WebContext,
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        errorMessage: string = "",
        fromName: var string,
        fromEmail: var string,
@@ -31,7 +30,7 @@ proc inviteSendPageMain*(
 proc inviteSendPage*(
        request: Request,
        webContext: WebContext,
-       nexusCoreModule: NexusCoreModule): string =
+       nexusCoreDbContext: NexusCoreDbContext): string =
 
   var
     fromName = ""
@@ -42,7 +41,7 @@ proc inviteSendPage*(
   inviteSendPageMain(
     request,
     webContext,
-    nexusCoreModule,
+    nexusCoreDbContext,
     errorMessage = "",
     fromName,
     fromEmail,
@@ -53,7 +52,7 @@ proc inviteSendPage*(
 proc inviteSendPageMain*(
        request: Request,
        webContext: WebContext,
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        errorMessage: string = "",
        fromName: var string,
        fromEmail: var string,
@@ -67,7 +66,7 @@ proc inviteSendPageMain*(
   # Get accountUser row
   let accountUser =
         getAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           webContext.accountUserId)
 
   # Set form fields, if not already set from a previous form post
@@ -115,7 +114,7 @@ proc inviteSendPageMain*(
 proc inviteSendPagePost*(
        request: Request,
        webContext: WebContext,
-       nexusCoreModule: NexusCoreModule): string =
+       nexusCoreDbContext: NexusCoreDbContext): string =
 
   # Redirect to login if the user isn't logged in
   if webContext.loggedIn == false:
@@ -149,7 +148,7 @@ proc inviteSendPagePost*(
 
   (verified,
    errorMessage) = verifyInviteFields(
-                     nexusCoreModule,
+                     nexusCoreDbContext,
                      fromName,
                      fromEmail,
                      toName,
@@ -158,7 +157,7 @@ proc inviteSendPagePost*(
   # Check user roles
   (verifiedRole,
    errorMessageRole) = checkModifyDataRole(
-                         nexusCoreModule,
+                         nexusCoreDbContext,
                          webContext.accountUserId,
                          modify_data_role = "Modify user data")
 
@@ -170,7 +169,7 @@ proc inviteSendPagePost*(
 
     # Insert into invite
     let invite = createInvite(
-                   nexusCoreModule,
+                   nexusCoreDbContext,
                    fromAccountUserId = webContext.accountUserId,
                    fromEmail,
                    fromName,
@@ -194,7 +193,7 @@ proc inviteSendPagePost*(
     return inviteSendPageMain(
              request,
              webContext,
-             nexusCoreModule,
+             nexusCoreDbContext,
              errorMessage,
              fromName,
              fromEmail,

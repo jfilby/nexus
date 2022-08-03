@@ -10,7 +10,6 @@ import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/account/verify_sign_up_code_fields
 import nexus/core/service/email/send_email
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -125,7 +124,7 @@ proc signUpVerifyPagePost*(
 
   # Login action
   docUIReturn = loginActionByEmailVerified(
-                  nexusCoreModule,
+                  nexusCoreDbContext,
                   webContext,
                   email)
 
@@ -136,7 +135,7 @@ proc signUpVerifyPagePost*(
 
     nexusSetting =
       getNexusSettingByModuleAndKey(
-        nexusCoreModule,
+        nexusCoreDbContext,
         module,
         key)
 

@@ -1,5 +1,5 @@
 # Nexus generated file
-import db_postgres, options, json, tables, times
+import db_postgres, tables, times, options
 
 
 type
@@ -63,8 +63,8 @@ type
   TempQueueDatas* = seq[TempQueueData]
 
 
-  NexusCoreExtrasModule* = object
-    db*: DbConn
+  NexusCoreExtrasDbContext* = object
+    dbConn*: DbConn
     modelToIntSeqTable*: Table[string, int]
     intSeqToModelTable*: Table[int, string]
     fieldToIntSeqTable*: Table[string, int]

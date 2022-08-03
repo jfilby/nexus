@@ -1,9 +1,10 @@
 import chronicles, db_postgres, os, strformat, strutils
-import nexus/core/types/module_globals
 
 
-proc bootstrapMigrationTables*(migrationsPath: string,
-                               refresh: bool) =
+proc bootstrapMigrationTables*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       migrationsPath: string,
+       refresh: bool) =
 
   debug "bootstrapMigrationTables",
     migrationsPath = migrationsPath
@@ -28,6 +29,6 @@ proc bootstrapMigrationTables*(migrationsPath: string,
       debug "bootstrapMigrationTables",
         str = str
 
-      exec(nexusCoreModule.db,
+      exec(nexusCoreDbContext.dbConn,
            sql(str))
 

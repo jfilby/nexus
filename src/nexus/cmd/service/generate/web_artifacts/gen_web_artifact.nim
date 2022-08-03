@@ -1,5 +1,4 @@
 import os, strformat, strutils
-import nexus/cmd/service/generate/modules/gen_module_type
 import nexus/cmd/service/generate/modules/module_utils
 import nexus/cmd/service/generate/routes/read_route_files
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
@@ -13,6 +12,12 @@ proc generateWebArtifact*(
        basePath: string,
        webArtifact: var WebArtifact,
        generatorInfo: var GeneratorInfo) =
+
+  # Get module
+  let module =
+        getModuleByWebArtifact(
+          webArtifact,
+          generatorInfo)
 
   # echo &"Web artifact: name: {webArtifact.shortName}"
   # echo &"confPath: {webArtifact.confPath}"
@@ -49,14 +54,15 @@ proc generateWebArtifact*(
       webArtifact = webArtifact,
       generatorInfo = generatorInfo)
 
-  # Generate module global vars file
-  generateModuleGlobalVarsFile(webArtifact)
-
   # Generate web artifact nim file
-  generateWebArtifactFiles(webArtifact)
+  generateWebArtifactFiles(
+    webArtifact,
+    generatorInfo)
 
   # Generate initial views
-  generateInitialViews(webArtifact)
+  generateInitialViews(
+    module,
+    webArtifact)
 
   # Deploy media list
   deployMediaList(webArtifact)
@@ -69,8 +75,9 @@ proc generateWebArtifacts*(
   for webArtifact in generatorInfo.webArtifacts.mitems:
 
     # Get module to skip unwanted routes
-    let module = getModuleByName(webArtifact.shortName,
-                                 generatorInfo)
+    let module =
+          getModuleByName(webArtifact.shortName,
+                          generatorInfo)
 
     if module.imported == true and
        not module.generate.contains("routes"):

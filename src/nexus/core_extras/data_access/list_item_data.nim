@@ -12,7 +12,7 @@ proc rowToListItem*(row: seq[string]):
 
 # Code
 proc countListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countListItem*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreExtrasModule.db,
+  let row = getRow(nexusCoreExtrasDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countListItem*(
 
 
 proc countListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,21 +52,22 @@ proc countListItem*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreExtrasModule.db,
+  let row = getRow(nexusCoreExtrasDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createListItemReturnsPK*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+proc createListItemReturnsPk*(
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
        displayName: string,
        description: Option[string] = none(string),
-       created: DateTime): int64 {.gcsafe.} =
+       created: DateTime,
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -75,30 +76,30 @@ proc createListItemReturnsPK*(
     valuesClause = ""
 
   # Field: Parent List Item Id
-  if parent_list_item_id != none(int64):
+  if parentListItemId != none(int64):
     insertStatement &= "parent_list_item_id, "
     valuesClause &= "?, "
-    insertValues.add($parent_list_item_id.get)
+    insertValues.add($parentListItemId.get)
 
   # Field: Seq No
   insertStatement &= "seq_no, "
   valuesClause &= "?, "
-  insertValues.add($seq_no)
+  insertValues.add($seqNo)
 
   # Field: Name
   insertStatement &= "name, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(name)
 
   # Field: Display Name
   insertStatement &= "display_name, "
-  valuesClause &= "?, "
-  insertValues.add(display_name)
+  valuesClause &= "?" & ", "
+  insertValues.add(displayName)
 
   # Field: Description
   if description != none(string):
     insertStatement &= "description, "
-    valuesClause &= "?, "
+    valuesClause &= "?" & ", "
     insertValues.add(description.get)
 
   # Field: Created
@@ -113,38 +114,44 @@ proc createListItemReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (list_item_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreExtrasModule.db,
+    nexusCoreExtrasDbContext.dbConn,
     sql(insertStatement),
     "list_item_id",
     insertValues)
 
 
 proc createListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
        displayName: string,
        description: Option[string] = none(string),
        created: DateTime,
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): ListItem {.gcsafe.} =
 
   var listItem = ListItem()
 
   listItem.listItemId =
-    createListItemReturnsPK(
-      nexusCoreExtrasModule,
+    createListItemReturnsPk(
+      nexusCoreExtrasDbContext,
       parentListItemId,
       seqNo,
       name,
       displayName,
       description,
-      created)
+      created,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   listItem.parentListItemId = parentListItemId
@@ -158,7 +165,7 @@ proc createListItem*(
 
 
 proc deleteListItemByPk*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItemId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -167,13 +174,13 @@ proc deleteListItemByPk*(
     " where list_item_id = ?"
 
   return execAffectedRows(
-           nexusCoreExtrasModule.db,
+           nexusCoreExtrasDbContext.dbConn,
            sql(deleteStatement),
            listItemId)
 
 
 proc deleteListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -183,13 +190,42 @@ proc deleteListItem*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasModule.db,
+           nexusCoreExtrasDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteListItem*(
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from list_item"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCoreExtrasDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsListItemByPk*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItemId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -198,9 +234,9 @@ proc existsListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasModule.db,
+              nexusCoreExtrasDbContext.dbConn,
               sql(selectStatement),
-              listItemId)
+              $listItemId)
 
   if row[0] == "":
     return false
@@ -209,7 +245,7 @@ proc existsListItemByPk*(
 
 
 proc existsListItemByName*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        name: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -218,7 +254,7 @@ proc existsListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              nexusCoreExtrasModule.db,
+              nexusCoreExtrasDbContext.dbConn,
               sql(selectStatement),
               name)
 
@@ -229,10 +265,11 @@ proc existsListItemByName*(
 
 
 proc filterListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): ListItems {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): ListItems {.gcsafe.} =
 
   var selectStatement =
     "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
@@ -244,9 +281,12 @@ proc filterListItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var listItems: ListItems
 
-  for row in fastRows(nexusCoreExtrasModule.db,
+  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -256,10 +296,11 @@ proc filterListItem*(
 
 
 proc filterListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): ListItems {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): ListItems {.gcsafe.} =
 
   var selectStatement =
     "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
@@ -282,9 +323,12 @@ proc filterListItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var listItems: ListItems
 
-  for row in fastRows(nexusCoreExtrasModule.db,
+  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -294,7 +338,7 @@ proc filterListItem*(
 
 
 proc getListItemByPk*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItemId: int64): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -303,7 +347,7 @@ proc getListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasModule.db,
+              nexusCoreExtrasDbContext.dbConn,
               sql(selectStatement),
               listItemId)
 
@@ -314,7 +358,7 @@ proc getListItemByPk*(
 
 
 proc getListItemByPk*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItemId: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -323,7 +367,7 @@ proc getListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasModule.db,
+              nexusCoreExtrasDbContext.dbConn,
               sql(selectStatement),
               listItemId)
 
@@ -334,7 +378,7 @@ proc getListItemByPk*(
 
 
 proc getListItemByName*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        name: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -343,7 +387,7 @@ proc getListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              nexusCoreExtrasModule.db,
+              nexusCoreExtrasDbContext.dbConn,
               sql(selectStatement),
               name)
 
@@ -354,7 +398,7 @@ proc getListItemByName*(
 
 
 proc getOrCreateListItemByName*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64],
        seqNo: int,
        name: string,
@@ -364,14 +408,14 @@ proc getOrCreateListItemByName*(
 
   let listItem =
         getListItemByName(
-          nexusCoreExtrasModule,
+          nexusCoreExtrasDbContext,
           name)
 
   if listItem != none(ListItem):
     return listItem.get
 
   return createListItem(
-           nexusCoreExtrasModule,
+           nexusCoreExtrasDbContext,
            parentListItemId,
            seqNo,
            name,
@@ -407,15 +451,15 @@ proc rowToListItem*(row: seq[string]):
 
 
 proc truncateListItem*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreExtrasModule.db,
+    exec(nexusCoreExtrasDbContext.dbConn,
          sql("truncate table list_item restart identity;"))
 
   else:
-    exec(nexusCoreExtrasModule.db,
+    exec(nexusCoreExtrasDbContext.dbConn,
          sql("truncate table list_item restart identity cascade;"))
 
 
@@ -448,29 +492,28 @@ proc updateListItemSetClause*(
 
     elif field == "name":
       updateStatement &= "       name = ?,"
-      updateValues.add($listItem.name)
+      updateValues.add(listItem.name)
 
     elif field == "display_name":
       updateStatement &= "       display_name = ?,"
-      updateValues.add($listItem.displayName)
+      updateValues.add(listItem.displayName)
 
     elif field == "description":
       if listItem.description != none(string):
         updateStatement &= "       description = ?,"
-        updateValues.add($listItem.description.get)
+        updateValues.add(listItem.description.get)
       else:
         updateStatement &= "       description = null,"
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($listItem.created)
+        updateStatement &= "       created = " & pgToDateTimeString(listItem.created) & ","
 
   updateStatement[len(updateStatement) - 1] = ' '
 
 
 
 proc updateListItemByPk*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -491,7 +534,7 @@ proc updateListItemByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreExtrasModule.db,
+          nexusCoreExtrasDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -507,7 +550,7 @@ proc updateListItemByPk*(
 
 
 proc updateListItemByWhereClause*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        whereClause: string,
@@ -527,14 +570,14 @@ proc updateListItemByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasModule.db,
+           nexusCoreExtrasDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateListItemByWhereEqOnly*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        whereFields: seq[string],
@@ -565,7 +608,7 @@ proc updateListItemByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasModule.db,
+           nexusCoreExtrasDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

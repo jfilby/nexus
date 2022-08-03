@@ -1,6 +1,5 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
-import nexus/core/data_access/data_utils
+import db_postgres, options, sequtils, strutils
 import nexus/social/types/model_types
 
 
@@ -11,7 +10,7 @@ proc rowToSMPostVote*(row: seq[string]):
 
 # Code
 proc countSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -32,7 +31,7 @@ proc countSMPostVote*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusSocialModule.db,
+  let row = getRow(nexusSocialDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -40,7 +39,7 @@ proc countSMPostVote*(
 
 
 proc countSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -51,18 +50,19 @@ proc countSMPostVote*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusSocialModule.db,
+  let row = getRow(nexusSocialDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createSMPostVoteReturnsPK*(
-       nexusSocialModule: NexusSocialModule,
+proc createSMPostVoteReturnsPk*(
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64,
        votesUpCount: int,
-       votesDownCount: int): int64 {.gcsafe.} =
+       votesDownCount: int,
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -73,17 +73,17 @@ proc createSMPostVoteReturnsPK*(
   # Field: SM Post Id
   insertStatement &= "sm_post_id, "
   valuesClause &= "?, "
-  insertValues.add($sm_post_id)
+  insertValues.add($smPostId)
 
   # Field: Votes Up Count
   insertStatement &= "votes_up_count, "
   valuesClause &= "?, "
-  insertValues.add($votes_up_count)
+  insertValues.add($votesUpCount)
 
   # Field: Votes Down Count
   insertStatement &= "votes_down_count, "
   valuesClause &= "?, "
-  insertValues.add($votes_down_count)
+  insertValues.add($votesDownCount)
 
   # Remove trailing commas and finalize insertStatement
   if insertStatement[len(insertStatement) - 2 .. len(insertStatement) - 1] == ", ":
@@ -93,11 +93,15 @@ proc createSMPostVoteReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (sm_post_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   exec(
-    nexusSocialModule.db,
+    nexusSocialDbContext.dbConn,
     sql(insertStatement),
     insertValues)
 
@@ -105,21 +109,23 @@ proc createSMPostVoteReturnsPK*(
 
 
 proc createSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64,
        votesUpCount: int,
        votesDownCount: int,
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): SMPostVote {.gcsafe.} =
 
   var smPostVote = SMPostVote()
 
   smPostVote.smPostId =
-    createSMPostVoteReturnsPK(
-      nexusSocialModule,
+    createSMPostVoteReturnsPk(
+      nexusSocialDbContext,
       smPostId,
       votesUpCount,
-      votesDownCount)
+      votesDownCount,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   smPostVote.votesUpCount = votesUpCount
@@ -129,7 +135,7 @@ proc createSMPostVote*(
 
 
 proc deleteSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -138,13 +144,13 @@ proc deleteSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(deleteStatement),
            smPostId)
 
 
 proc deleteSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -154,13 +160,42 @@ proc deleteSMPostVote*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteSMPostVote*(
+       nexusSocialDbContext: NexusSocialDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from sm_post_vote"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusSocialDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -169,9 +204,9 @@ proc existsSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
-              smPostId)
+              $smPostId)
 
   if row[0] == "":
     return false
@@ -180,10 +215,11 @@ proc existsSMPostVoteByPk*(
 
 
 proc filterSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): SMPostVotes {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPostVotes {.gcsafe.} =
 
   var selectStatement =
     "select sm_post_id, votes_up_count, votes_down_count" & 
@@ -195,9 +231,12 @@ proc filterSMPostVote*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var smPostVotes: SMPostVotes
 
-  for row in fastRows(nexusSocialModule.db,
+  for row in fastRows(nexusSocialDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -207,10 +246,11 @@ proc filterSMPostVote*(
 
 
 proc filterSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): SMPostVotes {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPostVotes {.gcsafe.} =
 
   var selectStatement =
     "select sm_post_id, votes_up_count, votes_down_count" & 
@@ -233,9 +273,12 @@ proc filterSMPostVote*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var smPostVotes: SMPostVotes
 
-  for row in fastRows(nexusSocialModule.db,
+  for row in fastRows(nexusSocialDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -245,7 +288,7 @@ proc filterSMPostVote*(
 
 
 proc getSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): Option[SMPostVote] {.gcsafe.} =
 
   var selectStatement =
@@ -254,7 +297,7 @@ proc getSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -265,7 +308,7 @@ proc getSMPostVoteByPk*(
 
 
 proc getSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: string): Option[SMPostVote] {.gcsafe.} =
 
   var selectStatement =
@@ -274,7 +317,7 @@ proc getSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -285,21 +328,21 @@ proc getSMPostVoteByPk*(
 
 
 proc getOrCreateSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64,
        votesUpCount: int,
        votesDownCount: int): SMPostVote {.gcsafe.} =
 
   let smPostVote =
-        getSMPostVoteByPk(
-          nexusSocialModule,
+        getSMPostVoteByPK(
+          nexusSocialDbContext,
           smPostId)
 
   if smPostVote != none(SMPostVote):
     return smPostVote.get
 
   return createSMPostVote(
-           nexusSocialModule,
+           nexusSocialDbContext,
            smPostId,
            votesUpCount,
            votesDownCount)
@@ -318,15 +361,15 @@ proc rowToSMPostVote*(row: seq[string]):
 
 
 proc truncateSMPostVote*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusSocialModule.db,
+    exec(nexusSocialDbContext.dbConn,
          sql("truncate table sm_post_vote restart identity;"))
 
   else:
-    exec(nexusSocialModule.db,
+    exec(nexusSocialDbContext.dbConn,
          sql("truncate table sm_post_vote restart identity cascade;"))
 
 
@@ -359,7 +402,7 @@ proc updateSMPostVoteSetClause*(
 
 
 proc updateSMPostVoteByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostVote: SMPostVote,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -380,7 +423,7 @@ proc updateSMPostVoteByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusSocialModule.db,
+          nexusSocialDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -396,7 +439,7 @@ proc updateSMPostVoteByPk*(
 
 
 proc updateSMPostVoteByWhereClause*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostVote: SMPostVote,
        setFields: seq[string],
        whereClause: string,
@@ -416,14 +459,14 @@ proc updateSMPostVoteByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateSMPostVoteByWhereEqOnly*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostVote: SMPostVote,
        setFields: seq[string],
        whereFields: seq[string],
@@ -454,7 +497,7 @@ proc updateSMPostVoteByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

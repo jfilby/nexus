@@ -6,7 +6,9 @@ import nexus/cmd/service/generate/main_config/gen_nexus_conf
 import nexus/cmd/service/generate/main_config/write_file
 import nexus/cmd/types/types
 import console_app
+import context_code
 import gen_env_scripts
+import module
 import web_artifact
 
 
@@ -49,7 +51,7 @@ proc generateProjectTemplate*(
   # Populate some initial fields for GeneratorInfo
   generatorInfo.package = projectTemplate.projectNameInSnakeCase
 
-  # Setup for all types of basic
+  # Basic setup for all types
   basicProjectTemplate(
     projectTemplate,
     generatorInfo)
@@ -69,6 +71,16 @@ proc generateProjectTemplate*(
       projectTemplate,
       generatorInfo)
 
+  # Create module
+  let module = createModuleFromProjectTemplate(
+                 projectTemplate,
+                 generatorInfo)
+
+  # Context procs & type
+  generateContextCodeProjectTemplate(
+    module,
+    generatorInfo)
+
 
 proc basicProjectTemplate(
        projectTemplate: ProjectTemplate,
@@ -83,7 +95,7 @@ proc basicProjectTemplate(
 
   # Create initial conf directories and files
   var
-    confModels = &"{projectTemplate.applConfPath}{DirSep}models"
+    confModels = &"{projectTemplate.appConfPath}{DirSep}models"
     modelsYaml = &"{confModels}{DirSep}models.yaml"
 
   discard parseFilenameExpandEnvVars(confModels)
@@ -108,8 +120,8 @@ proc basicProjectTemplate(
   var
     tmpPath = &"{projectTemplate.basePath}{DirSep}tmp"
     envScriptsPath = &"{projectTemplate.basePath}{DirSep}env"
-    binPath = &"{projectTemplate.applPath}{DirSep}bin"
-    servicePath = &"{projectTemplate.applPath}{DirSep}service"
+    binPath = &"{projectTemplate.appPath}{DirSep}bin"
+    servicePath = &"{projectTemplate.appPath}{DirSep}service"
 
   discard parseFilenameExpandEnvVars(tmpPath)
   discard parseFilenameExpandEnvVars(envScriptsPath)
@@ -239,7 +251,7 @@ proc promptForInfo(projectTemplate: var ProjectTemplate) =
 
   projectTemplate.confPath = &"{projectTemplate.basePath}{DirSep}conf"
 
-  projectTemplate.applConfPath = &"{projectTemplate.confPath}{DirSep}" &
+  projectTemplate.appConfPath = &"{projectTemplate.confPath}{DirSep}" &
     projectTemplate.appNameLowerInSnakeCase
 
   projectTemplate.nimPath =
@@ -250,7 +262,7 @@ proc promptForInfo(projectTemplate: var ProjectTemplate) =
   projectTemplate.nimPathExpanded =
     &"{projectTemplate.basePath}{DirSep}nim{DirSep}src"
 
-  projectTemplate.applPath =
+  projectTemplate.appPath =
     &"{projectTemplate.nimPathExpanded}{DirSep}" &
     &"{projectTemplate.appNameLowerInSnakeCase}"
 

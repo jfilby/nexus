@@ -23,7 +23,7 @@ proc getAdminRoleId*(nexusCoreExtrasModule: NexusCoreExtrasModule): int64 =
   return adminListItemId.get
 
 
-proc userHasAdminRole*(nexusCoreModule: NexusCoreModule,
+proc userHasAdminRole*(nexusCoreDbContext: NexusCoreDbContext,
                        nexusCoreExtrasModule: NexusCoreExtrasModule,
                        accountUser: AccountUser): bool =
 
@@ -33,7 +33,7 @@ proc userHasAdminRole*(nexusCoreModule: NexusCoreModule,
   # Check for user/role
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountUser.accountUserId,
           adminRoleId)
 

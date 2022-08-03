@@ -4,12 +4,12 @@ import nexus/core_extras/types/model_types
 
 proc beginTransaction*(coreExtrasModule: CoreExtrasModule) =
 
-  coreExtrasModule.db.exec(sql"begin")
+  coreExtrasModule.dbConn.exec(sql"begin")
 
 
 proc commitTransaction*(coreExtrasModule: CoreExtrasModule) =
 
-  coreExtrasModule.db.exec(sql"commit")
+  coreExtrasModule.dbConn.exec(sql"commit")
 
 
 proc isInATransaction*(coreExtrasModule: CoreExtrasModule): bool =
@@ -27,7 +27,7 @@ proc isInATransaction*(coreExtrasModule: CoreExtrasModule): bool =
 
 proc rollbackTransaction*(coreExtrasModule: CoreExtrasModule) =
 
-  coreExtrasModule.db.exec(sql"rollback")
+  coreExtrasModule.dbConn.exec(sql"rollback")
 
 
 proc newCoreExtrasModule*(): CoreExtrasModule =

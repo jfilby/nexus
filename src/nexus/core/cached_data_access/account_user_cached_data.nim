@@ -7,7 +7,7 @@
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            lastLogin.get,
            accountUserId)

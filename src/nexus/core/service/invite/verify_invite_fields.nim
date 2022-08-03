@@ -5,13 +5,13 @@ import nexus/core/service/account/verify_account_fields
 import nexus/core/types/model_types
 
 
-proc verifyInviteFields*(nexusCoreModule: NexusCoreModule,
+proc verifyInviteFields*(nexusCoreDbContext: NexusCoreDbContext,
                          from_name: string,
                          from_email: string,
                          to_name: string,
                          to_email: string): (bool, string) =
 
-  var docuiReturn = verifyEmailAddress(nexusCoreModule,
+  var docuiReturn = verifyEmailAddress(nexusCoreDbContext,
                                        from_email,
                                        "From email",
                                        checkExists = false)
@@ -26,7 +26,7 @@ proc verifyInviteFields*(nexusCoreModule: NexusCoreModule,
             "From name must be specified.")
 
   # Verify the to email
-  docuiReturn = verifyEmailAddress(nexusCoreModule,
+  docuiReturn = verifyEmailAddress(nexusCoreDbContext,
                                    to_email,
                                    "To email",
                                    checkExists = false)
@@ -41,7 +41,7 @@ proc verifyInviteFields*(nexusCoreModule: NexusCoreModule,
             "To name must be specified.")
 
   # Verify that the to email hasn't yet had an invite
-  let to_email_exists = existsInviteByToEmail(nexusCoreModule,
+  let to_email_exists = existsInviteByToEmail(nexusCoreDbContext,
                                               to_email)
 
   if to_email_exists == true:

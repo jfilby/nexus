@@ -9,7 +9,6 @@ import nexus/core/service/account/utils
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/nexus_settings/get
 import nexus/core/types/model_types as nexus_core_model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core_extras/service/format/hash
 import nexus/crm/data_access/mailing_list_data
@@ -81,7 +80,7 @@ proc signUpAction*(request: Request): DocUIReturn =
   # Verify the input
   let docuiReturn =
         verifySignUpFields(
-          nexusCoreModule,
+          nexusCoreDbContext,
           name,
           email,
           password1,
@@ -108,12 +107,12 @@ proc signUpAction*(request: Request): DocUIReturn =
     signUpCode = generateSignUpCode()
 
   # Begin
-  beginTransaction(nexusCoreModule)
+  beginTransaction(nexusCoreDbContext)
 
   # Create AccountUser record
   let accountUser =
         createAccountUser(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountId = none(int64),
           name = name,
           email = email,
@@ -138,22 +137,22 @@ proc signUpAction*(request: Request): DocUIReturn =
     let
       mailingListName =
         getNexusSettingValue(
-          nexusCoreModule,
+          nexusCoreDbContext,
           module = "Nexus CRM",
           key = "Announcements Mailing List")
 
       mailingListOwnerEmail =
         getNexusSettingValue(
-          nexusCoreModule,
+          nexusCoreDbContext,
           module = "Nexus CRM",
           key = "Announcements Mailing List Owner Email")
 
       nexusCRMModule =
-        NexusCRMModule(db: nexusCoreModule.db)
+        NexusCRMModule(db: nexusCoreDbContext.db)
 
       ownerAccountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           mailingListOwnerEmail.get)
 
       # Get MailingList record
@@ -187,7 +186,7 @@ proc signUpAction*(request: Request): DocUIReturn =
               deleted = none(DateTime))
 
   # Commit
-  commitTransaction(nexusCoreModule)
+  commitTransaction(nexusCoreDbContext)
 
   # Send sign-up code email
   sendSignUpCodeEmail(

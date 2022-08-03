@@ -7,7 +7,6 @@ import nexus/core/service/account/send_user_emails
 import nexus/core/service/account/verify_sign_up_code_fields
 import nexus/core/service/email/send_email
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -59,7 +58,7 @@ proc signUpResendSignUpCodePagePost*(
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   # Generate a new sign up code
@@ -71,7 +70,7 @@ proc signUpResendSignUpCodePagePost*(
   # Verify fields
   let docuiReturn =
         verifySignUpCodeFields(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email,
           signUpCode,
           accountUser)
@@ -79,7 +78,7 @@ proc signUpResendSignUpCodePagePost*(
   # Update the user's sign up code
   let rowsAffected =
         updateAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountUser.get,
           setFields = @[ "sign_up_code" ])
 

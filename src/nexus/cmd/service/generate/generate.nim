@@ -2,7 +2,9 @@ import os, strformat
 import nexus/cmd/service/generate/libraries/read_libraries
 import nexus/cmd/service/generate/main_config/gen_nexus_conf
 import nexus/cmd/service/generate/models/process_all_models
-import nexus/cmd/service/generate/modules/gen_module_procs
+import nexus/cmd/service/generate/modules/gen_context_procs
+import nexus/cmd/service/generate/modules/gen_context_type
+import nexus/cmd/service/generate/modules/gen_db_context_procs
 import nexus/cmd/service/generate/packages/import_packages
 import nexus/cmd/service/generate/templates/gen_project_template
 import nexus/cmd/service/generate/tmp_dict/tmp_dict_utils
@@ -107,8 +109,12 @@ proc generateModuleConfig(
       confPath,
       generatorInfo)
 
-    # Generate module code
-    generateModulesProcs(generatorInfo)
+    # Generate DbContext code
+    generateDbContextProcs(generatorInfo)
+
+  # Generate context code
+  generateContextProcs(generatorInfo)
+  generateContextTypes(generatorInfo)
 
   # Read library and web app definitions
   readLibraryDefinitionsPass2(

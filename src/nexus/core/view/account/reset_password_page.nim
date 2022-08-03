@@ -7,7 +7,6 @@ import nexus/core/service/account/reset_password_action
 import nexus/core/service/account/send_user_emails
 import nexus/core/service/account/verify_reset_password_fields
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -166,7 +165,7 @@ proc resetPasswordSuccessPage*(
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   # Success message

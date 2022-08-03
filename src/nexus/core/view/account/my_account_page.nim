@@ -8,7 +8,6 @@ import nexus/core/service/account/roles
 import nexus/core/service/account/verify_my_account_fields
 import nexus/core/service/email/send_email
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -53,7 +52,7 @@ proc myAccountPageMain(request: Request,
     return redirectToLogin()
 
   # Get accountUser record
-  let accountUser = getAccountUserByPk(nexusCoreModule,
+  let accountUser = getAccountUserByPk(nexusCoreDbContext,
                                        webContext.accountUserId)
 
   # Set form fields, if not already set from a previous form post
@@ -97,7 +96,7 @@ proc myAccountPageMain(request: Request,
   baseForContent(webContext,
                  pageContext,
                  vnode,
-                 nexusCoreModule = some(nexusCoreModule))
+                 nexusCoreDbContext = some(nexusCoreDbContext))
 
 
 proc myAccountPagePost*(request: Request,
@@ -133,7 +132,7 @@ proc myAccountPagePost*(request: Request,
     errorMessage: string
     errorMessageRole: string
 
-  let docUIReturn = verifyMyAccountFields(nexusCoreModule,
+  let docUIReturn = verifyMyAccountFields(nexusCoreDbContext,
                                           name,
                                           email,
                                           password1,
@@ -145,7 +144,7 @@ proc myAccountPagePost*(request: Request,
   # Check user roles
   (verifiedRole,
    errorMessageRole) = checkModifyDataRole(
-                         nexusCoreModule,
+                         nexusCoreDbContext,
                          webContext.accountUserId,
                          modifyDataRole = "Modify user data")
 
@@ -157,7 +156,7 @@ proc myAccountPagePost*(request: Request,
   if verified == true:
 
     # Get accountUser row
-    var accountUser = getAccountUserByPk(nexusCoreModule,
+    var accountUser = getAccountUserByPk(nexusCoreDbContext,
                                          webContext.accountUserId)
 
     var
@@ -176,7 +175,7 @@ proc myAccountPagePost*(request: Request,
                                                     "")
 
       let rowsUpdated = updateAccountUserByPk(
-                          nexusCoreModule,
+                          nexusCoreDbContext,
                           accountUser.get,
                           setFields = @[ "password_hash",
                                          "password_salt" ])
@@ -189,7 +188,7 @@ proc myAccountPagePost*(request: Request,
       accountUser.get.name = name
 
       let updated_rows = updateAccountUserByPk(
-                           nexusCoreModule,
+                           nexusCoreDbContext,
                            accountUser.get,
                            setFields = @[ "name" ])
 
@@ -200,7 +199,7 @@ proc myAccountPagePost*(request: Request,
 
       accountUser.get.email = email
 
-      let updatedRows = updateAccountUserByPk(nexusCoreModule,
+      let updatedRows = updateAccountUserByPk(nexusCoreDbContext,
                                               accountUser.get,
                                               setFields = @[ "email" ])
 
@@ -250,5 +249,5 @@ proc myAccountSuccessPage*(request: Request,
   baseForContent(webContext,
                  pageContext,
                  vnode,
-                 nexusCoreModule = some(nexusCoreModule))
+                 nexusCoreDbContext = some(nexusCoreDbContext))
 

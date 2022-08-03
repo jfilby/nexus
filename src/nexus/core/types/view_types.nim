@@ -94,7 +94,7 @@ proc newPageContext*(
 
 proc newBaseWebContext*(
        request: Request,
-       nexusCoreModule: NexusCoreModule): WebContext =
+       nexusCoreDbContext: NexusCoreDbContext): WebContext =
 
   debug "newBaseWebContext()",
     requestParams = $request.params,
@@ -149,7 +149,7 @@ proc newBaseWebContext*(
    accountUserId,
    mobileFromToken) = connectWithJWT(
                         request,
-                        nexusCoreModule,
+                        nexusCoreDbContext,
                         inToken,
                         useCookie = true,
                         verifyUserIsActive = true)
@@ -216,7 +216,7 @@ proc newBaseWebContext*(
 
     # Create a JWT connection (token)
     webContext.token =
-      createJWT(nexusCoreModule,
+      createJWT(nexusCoreDbContext,
                 accountUserId,
                 secret,
                 mobile = mobileInToken)

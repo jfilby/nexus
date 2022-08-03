@@ -1,24 +1,26 @@
 import chronicles, os, strformat
-import cmd/types/types
+import nexus/cmd/types/types
 
 
 # Forward declarations
 proc createGetViewProc(
        str: var string,
+       module: Module,
        route: Route)
 proc createPostViewProc(
        str: var string,
+       module: Module,
        route: Route)
 
 
 # Code
 proc createGetViewProc(
        str: var string,
+       module: Module,
        route: Route) =
 
   str &= &"proc {route.nameInCamelCase}View*(\n" &
-          "       request: Request,\n" &
-          "       webContext: WebContext): string =\n" &
+         &"       {module.nameInCamelCase}Context: {module.nameInPascalCase}Context): string =\n" &
           "\n" &
          &"  return \"Starter GET view for: {route.name}\"\n" &
           "\n"
@@ -27,6 +29,7 @@ proc createGetViewProc(
 proc createInitialViewSourceFile(
        viewFilename: string,
        route: Route,
+       module: Module,
        webArtifact: WebArtifact) =
 
   # Vars
@@ -35,9 +38,9 @@ proc createInitialViewSourceFile(
     str = ""
 
   # Imports
-  str =  "import jester\n" &
-         "import nexus/core/types/view_types\n" &
-        &"import {webArtifact.nameInSnakeCase}/view/web_app/new_web_context\n" &
+  str =  "# import jester\n" &
+         "# import nexus/core/types/view_types\n" &
+        &"import {module.srcRelativePath}/types/context_type\n" &
          "\n" &
          "\n"
 
@@ -46,6 +49,7 @@ proc createInitialViewSourceFile(
 
     createGetViewProc(
       str,
+      module,
       route)
 
   # Post proc
@@ -57,6 +61,7 @@ proc createInitialViewSourceFile(
 
     createPostViewProc(
       str,
+      module,
       route)
 
   # Write file
@@ -67,17 +72,19 @@ proc createInitialViewSourceFile(
 
 proc createPostViewProc(
        str: var string,
+       module: Module,
        route: Route) =
 
   str &= &"proc {route.nameInCamelCase}PostView*(\n" &
-          "       request: Request,\n" &
-          "       webContext: WebContext): string =\n" &
+         &"       {module.nameInSnakeCase}Context: {module.nameInPascalCase}Context): string =\n" &
           "\n" &
          &"  return \"Starter POST view for: {route.name}\"\n" &
           "\n"
 
 
-proc generateInitialViews*(webArtifact: WebArtifact) =
+proc generateInitialViews*(
+       module: Module,
+       webArtifact: WebArtifact) =
 
   debug "generateInitialViews()",
     lenRoutes = len(webArtifact.routes.routes)
@@ -104,5 +111,6 @@ proc generateInitialViews*(webArtifact: WebArtifact) =
       createInitialViewSourceFile(
         viewFilename,
         route,
+        module,
         webArtifact)
 

@@ -8,7 +8,6 @@ import nexus/core/service/account/reset_password_action
 import nexus/core/service/account/sign_up_action
 import nexus/core/service/account/verify_sign_up_action
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 
 
@@ -46,7 +45,7 @@ proc logoutJSON*(
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           webContext.accountUserId)
 
   if accountUser == none(AccountUser):
@@ -60,13 +59,13 @@ proc logoutJSON*(
   accountUser.get.lastToken = none(string)
 
   discard updateAccountUserByPk(
-            nexusCoreModule,
+            nexusCoreDbContext,
             accountUser.get,
             setFields = @[ "last_token" ])
 
   # Log out with JWT
   logoutJWT(request,
-            nexusCoreModule,
+            nexusCoreDbContext,
             useCookie = true)
 
   # Return values as JSON

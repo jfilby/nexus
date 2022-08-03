@@ -70,7 +70,7 @@ proc redirectToURL*(url: string,
 proc topBarMenu*(
        webContext: WebContext,
        pageContext: PageContext,
-       nexusCoreModule: Option[NexusCoreModule] = none(NexusCoreModule)):
+       nexusCoreDbContext: Option[NexusCoreDbContext] = none(NexusCoreDbContext)):
          VNode {.gcsafe.} =
 
   debug "topBarMenu()",
@@ -85,11 +85,11 @@ proc topBarMenu*(
 
   # LoginHash for auto-login of the app
   if webContext.request.cookies.hasKey("token") and
-     nexusCoreModule != none(NexusCoreModule):
+     nexusCoreDbContext != none(NexusCoreDbContext):
 
     let accountUserToken =
           getAccountUserTokenByToken(
-            nexusCoreModule.get,
+            nexusCoreDbContext.get,
             webContext.request.cookies["token"])
 
     if accountUserToken != none(AccountUserToken):
@@ -164,7 +164,7 @@ proc baseForDesktopContent*(
        pageContext: PageContext,
        content: VNode,
        scripts: string = "",
-       nexusCoreModule: Option[NexusCoreModule]): string {.gcsafe.} =
+       nexusCoreDbContext: Option[NexusCoreDbContext]): string {.gcsafe.} =
 
   var
     onloadScript = ""
@@ -242,7 +242,7 @@ proc baseForDesktopContent*(
 
       topBarMenu(webContext,
                  pageContext,
-                 nexusCoreModule)
+                 nexusCoreDbContext)
 
       if pageContext.backgroundImage != none(string):
         pageContentsClass &= " form_div"
@@ -351,7 +351,7 @@ proc baseForContent*(
        content: VNode,
        scripts: string = "",
        mobile: string = "f",
-       nexusCoreModule: Option[NexusCoreModule] = none(NexusCoreModule)):
+       nexusCoreDbContext: Option[NexusCoreDbContext] = none(NexusCoreDbContext)):
          string {.gcsafe.} =
 
   debug "baseForContent()"
@@ -372,7 +372,7 @@ proc baseForContent*(
                           pageContext,
                           content,
                           scripts,
-                          nexusCoreModule)
+                          nexusCoreDbContext)
 
 
 proc templatePage*(
@@ -381,7 +381,7 @@ proc templatePage*(
        htmlStart: string,
        content: string,
        htmlEnd: string,
-       nexusCoreModule: Option[NexusCoreModule] = none(NexusCoreModule)):
+       nexusCoreDbContext: Option[NexusCoreDbContext] = none(NexusCoreDbContext)):
          string =
 
   let nexusLandingUserAccess = getEnv("NEXUS_CONTENT_LAUNCHED")
@@ -391,7 +391,7 @@ proc templatePage*(
 
     str &= $topBarMenu(webContext,
                        pageContext,
-                       nexusCoreModule)
+                       nexusCoreDbContext)
 
   str &= content &
          htmlEnd

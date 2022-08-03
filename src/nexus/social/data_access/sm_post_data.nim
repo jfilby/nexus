@@ -12,7 +12,7 @@ proc rowToSMPost*(row: seq[string]):
 
 # Code
 proc countSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countSMPost*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusSocialModule.db,
+  let row = getRow(nexusSocialDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countSMPost*(
 
 
 proc countSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,15 +52,15 @@ proc countSMPost*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusSocialModule.db,
+  let row = getRow(nexusSocialDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createSMPostReturnsPK*(
-       nexusSocialModule: NexusSocialModule,
+proc createSMPostReturnsPk*(
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostParentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
@@ -73,7 +73,8 @@ proc createSMPostReturnsPK*(
        published: Option[DateTime] = none(DateTime),
        updateCount: int = 0,
        updated: Option[DateTime] = none(DateTime),
-       deleted: Option[DateTime] = none(DateTime)): int64 {.gcsafe.} =
+       deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -82,47 +83,45 @@ proc createSMPostReturnsPK*(
     valuesClause = ""
 
   # Field: SM Post Parent Id
-  if sm_post_parent_id != none(int64):
+  if smPostParentId != none(int64):
     insertStatement &= "sm_post_parent_id, "
     valuesClause &= "?, "
-    insertValues.add($sm_post_parent_id.get)
+    insertValues.add($smPostParentId.get)
 
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($account_user_id)
+  insertValues.add($accountUserId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?, "
-  insertValues.add(unique_hash)
+  valuesClause &= "?" & ", "
+  insertValues.add(uniqueHash)
 
   # Field: Post Type
   insertStatement &= "post_type, "
-  valuesClause &= "?, "
-  insertValues.add($post_type)
+  valuesClause &= "'" & $postType & "'" & ", "
 
   # Field: Status
   insertStatement &= "status, "
-  valuesClause &= "?, "
-  insertValues.add($status)
+  valuesClause &= "'" & $status & "'" & ", "
 
   # Field: Title
   if title != none(string):
     insertStatement &= "title, "
-    valuesClause &= "?, "
+    valuesClause &= "?" & ", "
     insertValues.add(title.get)
 
   # Field: Body
   insertStatement &= "body, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(body)
 
   # Field: Tag Ids
-  if tag_ids != none(int64):
+  if tagIds != none(int64):
     insertStatement &= "tag_ids, "
     valuesClause &= "?, "
-    insertValues.add($tag_ids.get)
+    insertValues.add($tagIds.get)
 
   # Field: Created
   insertStatement &= "created, "
@@ -136,7 +135,7 @@ proc createSMPostReturnsPK*(
   # Field: Update Count
   insertStatement &= "update_count, "
   valuesClause &= "?, "
-  insertValues.add($update_count)
+  insertValues.add($updateCount)
 
   # Field: Updated
   if updated != none(DateTime):
@@ -156,18 +155,22 @@ proc createSMPostReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (sm_post_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusSocialModule.db,
+    nexusSocialDbContext.dbConn,
     sql(insertStatement),
     "sm_post_id",
     insertValues)
 
 
 proc createSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostParentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
@@ -181,14 +184,15 @@ proc createSMPost*(
        updateCount: int = 0,
        updated: Option[DateTime] = none(DateTime),
        deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): SMPost {.gcsafe.} =
 
   var smPost = SMPost()
 
   smPost.smPostId =
-    createSMPostReturnsPK(
-      nexusSocialModule,
+    createSMPostReturnsPk(
+      nexusSocialDbContext,
       smPostParentId,
       accountUserId,
       uniqueHash,
@@ -201,7 +205,8 @@ proc createSMPost*(
       published,
       updateCount,
       updated,
-      deleted)
+      deleted,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   smPost.smPostParentId = smPostParentId
@@ -222,7 +227,7 @@ proc createSMPost*(
 
 
 proc deleteSMPostByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -231,13 +236,13 @@ proc deleteSMPostByPk*(
     " where sm_post_id = ?"
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(deleteStatement),
            smPostId)
 
 
 proc deleteSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -247,13 +252,42 @@ proc deleteSMPost*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteSMPost*(
+       nexusSocialDbContext: NexusSocialDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from sm_post"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusSocialDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsSMPostByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -262,9 +296,9 @@ proc existsSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
-              smPostId)
+              $smPostId)
 
   if row[0] == "":
     return false
@@ -273,7 +307,7 @@ proc existsSMPostByPk*(
 
 
 proc existsSMPostByUniqueHash*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        uniqueHash: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -282,7 +316,7 @@ proc existsSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -293,10 +327,11 @@ proc existsSMPostByUniqueHash*(
 
 
 proc filterSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): SMPosts {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPosts {.gcsafe.} =
 
   var selectStatement =
     "select sm_post_id, sm_post_parent_id, account_user_id, unique_hash, post_type, status, title," & 
@@ -309,9 +344,12 @@ proc filterSMPost*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var smPosts: SMPosts
 
-  for row in fastRows(nexusSocialModule.db,
+  for row in fastRows(nexusSocialDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -321,10 +359,11 @@ proc filterSMPost*(
 
 
 proc filterSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): SMPosts {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPosts {.gcsafe.} =
 
   var selectStatement =
     "select sm_post_id, sm_post_parent_id, account_user_id, unique_hash, post_type, status, title," & 
@@ -348,9 +387,12 @@ proc filterSMPost*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var smPosts: SMPosts
 
-  for row in fastRows(nexusSocialModule.db,
+  for row in fastRows(nexusSocialDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -360,7 +402,7 @@ proc filterSMPost*(
 
 
 proc getSMPostByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: int64): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -370,7 +412,7 @@ proc getSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -381,7 +423,7 @@ proc getSMPostByPk*(
 
 
 proc getSMPostByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostId: string): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -391,7 +433,7 @@ proc getSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -402,7 +444,7 @@ proc getSMPostByPk*(
 
 
 proc getSMPostByUniqueHash*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        uniqueHash: string): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -412,7 +454,7 @@ proc getSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -423,7 +465,7 @@ proc getSMPostByUniqueHash*(
 
 
 proc getOrCreateSMPostByUniqueHash*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPostParentId: Option[int64],
        accountUserId: int64,
        uniqueHash: string,
@@ -440,14 +482,14 @@ proc getOrCreateSMPostByUniqueHash*(
 
   let smPost =
         getSMPostByUniqueHash(
-          nexusSocialModule,
+          nexusSocialDbContext,
           uniqueHash)
 
   if smPost != none(SMPost):
     return smPost.get
 
   return createSMPost(
-           nexusSocialModule,
+           nexusSocialDbContext,
            smPostParentId,
            accountUserId,
            uniqueHash,
@@ -516,15 +558,15 @@ proc rowToSMPost*(row: seq[string]):
 
 
 proc truncateSMPost*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusSocialModule.db,
+    exec(nexusSocialDbContext.dbConn,
          sql("truncate table sm_post restart identity;"))
 
   else:
-    exec(nexusSocialModule.db,
+    exec(nexusSocialDbContext.dbConn,
          sql("truncate table sm_post restart identity cascade;"))
 
 
@@ -557,7 +599,7 @@ proc updateSMPostSetClause*(
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"
-      updateValues.add($smPost.uniqueHash)
+      updateValues.add(smPost.uniqueHash)
 
     elif field == "post_type":
       updateStatement &= "       post_type = ?,"
@@ -570,13 +612,13 @@ proc updateSMPostSetClause*(
     elif field == "title":
       if smPost.title != none(string):
         updateStatement &= "       title = ?,"
-        updateValues.add($smPost.title.get)
+        updateValues.add(smPost.title.get)
       else:
         updateStatement &= "       title = null,"
 
     elif field == "body":
       updateStatement &= "       body = ?,"
-      updateValues.add($smPost.body)
+      updateValues.add(smPost.body)
 
     elif field == "tag_ids":
       if smPost.tagIds != none(int64):
@@ -586,13 +628,11 @@ proc updateSMPostSetClause*(
         updateStatement &= "       tag_ids = null,"
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($smPost.created)
+        updateStatement &= "       created = " & pgToDateTimeString(smPost.created) & ","
 
     elif field == "published":
       if smPost.published != none(DateTime):
-        updateStatement &= "       published = ?,"
-        updateValues.add($smPost.published.get)
+        updateStatement &= "       published = " & pgToDateTimeString(smPost.published.get) & ","
       else:
         updateStatement &= "       published = null,"
 
@@ -602,15 +642,13 @@ proc updateSMPostSetClause*(
 
     elif field == "updated":
       if smPost.updated != none(DateTime):
-        updateStatement &= "       updated = ?,"
-        updateValues.add($smPost.updated.get)
+        updateStatement &= "       updated = " & pgToDateTimeString(smPost.updated.get) & ","
       else:
         updateStatement &= "       updated = null,"
 
     elif field == "deleted":
       if smPost.deleted != none(DateTime):
-        updateStatement &= "       deleted = ?,"
-        updateValues.add($smPost.deleted.get)
+        updateStatement &= "       deleted = " & pgToDateTimeString(smPost.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"
 
@@ -619,7 +657,7 @@ proc updateSMPostSetClause*(
 
 
 proc updateSMPostByPk*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -640,7 +678,7 @@ proc updateSMPostByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusSocialModule.db,
+          nexusSocialDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -656,7 +694,7 @@ proc updateSMPostByPk*(
 
 
 proc updateSMPostByWhereClause*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        whereClause: string,
@@ -676,14 +714,14 @@ proc updateSMPostByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateSMPostByWhereEqOnly*(
-       nexusSocialModule: NexusSocialModule,
+       nexusSocialDbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        whereFields: seq[string],
@@ -714,7 +752,7 @@ proc updateSMPostByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusSocialModule.db,
+           nexusSocialDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

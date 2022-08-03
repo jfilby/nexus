@@ -15,7 +15,7 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
 
 
 proc verifySignUpCodeFields*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        email: string,
        signUpCode: string,
        accountUser: Option[AccountUser]): DocUIReturn =
@@ -33,7 +33,7 @@ proc verifySignUpCodeFields*(
   # Verify email address
   let docuiReturnVerifyEmail =
         verifyEmailAddress(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if docuiReturnVerifyEmail.isVerified == false:

@@ -1,5 +1,5 @@
 # Nexus generated file
-import db_postgres, options, json, tables, times
+import db_postgres, tables
 
 
 type
@@ -57,8 +57,8 @@ type
   SMPostVoteUsers* = seq[SMPostVoteUser]
 
 
-  NexusSocialModule* = object
-    db*: DbConn
+  NexusSocialDbContext* = object
+    dbConn*: DbConn
     modelToIntSeqTable*: Table[string, int]
     intSeqToModelTable*: Table[int, string]
     fieldToIntSeqTable*: Table[string, int]

@@ -37,6 +37,9 @@ proc addLibraryAsModule*(
 
   module.imported = false
 
+  # Set isWeb
+  module.isWeb = false
+
   # Debug
   debug "addLibraryAsModule()",
     moduleName = module.name
@@ -191,6 +194,9 @@ proc getPackageModules*(
                          "Imported library srcPath doesn't exist: " &
                          &"{library.srcPath}")
 
+    # Set isWeb
+    module.isWeb = false
+
     # Add library as module
     addLibraryAsModule(library,
                        generatorInfo,
@@ -252,8 +258,13 @@ proc addWebArtifactAsModule*(
   module.srcPath = resolveCrossPlatformPath(webArtifact.srcPath)
   module.srcRelativePath = getRelativePath(module.srcPath)
 
+  # Set isWeb
+  module.isWeb = true
+
+  # Not imported
   module.imported = false
 
+  # Add module
   addModule(module,
             generatorInfo,
             ignoreDuplicate = true)

@@ -11,7 +11,7 @@ proc rowToAccountUserToken*(row: seq[string]):
 
 # Code
 proc countAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -32,7 +32,7 @@ proc countAccountUserToken*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -40,7 +40,7 @@ proc countAccountUserToken*(
 
 
 proc countAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -51,20 +51,21 @@ proc countAccountUserToken*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createAccountUserTokenReturnsPK*(
-       nexusCoreModule: NexusCoreModule,
+proc createAccountUserTokenReturnsPk*(
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64,
        uniqueHash: string,
        token: string,
        created: DateTime,
-       deleted: Option[DateTime] = none(DateTime)): int64 {.gcsafe.} =
+       deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -75,16 +76,16 @@ proc createAccountUserTokenReturnsPK*(
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($account_user_id)
+  insertValues.add($accountUserId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?, "
-  insertValues.add(unique_hash)
+  valuesClause &= "?" & ", "
+  insertValues.add(uniqueHash)
 
   # Field: Token
   insertStatement &= "token, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(token)
 
   # Field: Created
@@ -104,11 +105,15 @@ proc createAccountUserTokenReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (account_user_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   exec(
-    nexusCoreModule.db,
+    nexusCoreDbContext.dbConn,
     sql(insertStatement),
     insertValues)
 
@@ -116,25 +121,27 @@ proc createAccountUserTokenReturnsPK*(
 
 
 proc createAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64,
        uniqueHash: string,
        token: string,
        created: DateTime,
        deleted: Option[DateTime] = none(DateTime),
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): AccountUserToken {.gcsafe.} =
 
   var accountUserToken = AccountUserToken()
 
   accountUserToken.accountUserId =
-    createAccountUserTokenReturnsPK(
-      nexusCoreModule,
+    createAccountUserTokenReturnsPk(
+      nexusCoreDbContext,
       accountUserId,
       uniqueHash,
       token,
       created,
-      deleted)
+      deleted,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   accountUserToken.uniqueHash = uniqueHash
@@ -146,7 +153,7 @@ proc createAccountUserToken*(
 
 
 proc deleteAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -155,13 +162,13 @@ proc deleteAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            accountUserId)
 
 
 proc deleteAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -171,13 +178,42 @@ proc deleteAccountUserToken*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteAccountUserToken*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from account_user_token"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -186,9 +222,9 @@ proc existsAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
-              accountUserId)
+              $accountUserId)
 
   if row[0] == "":
     return false
@@ -197,7 +233,7 @@ proc existsAccountUserTokenByPk*(
 
 
 proc existsAccountUserTokenByUniqueHash*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        uniqueHash: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -206,7 +242,7 @@ proc existsAccountUserTokenByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -217,7 +253,7 @@ proc existsAccountUserTokenByUniqueHash*(
 
 
 proc existsAccountUserTokenByToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        token: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -226,7 +262,7 @@ proc existsAccountUserTokenByToken*(
     " where token = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               token)
 
@@ -237,10 +273,11 @@ proc existsAccountUserTokenByToken*(
 
 
 proc filterAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): AccountUserTokens {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): AccountUserTokens {.gcsafe.} =
 
   var selectStatement =
     "select account_user_id, unique_hash, token, created, deleted" & 
@@ -252,9 +289,12 @@ proc filterAccountUserToken*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var accountUserTokens: AccountUserTokens
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -264,10 +304,11 @@ proc filterAccountUserToken*(
 
 
 proc filterAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): AccountUserTokens {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): AccountUserTokens {.gcsafe.} =
 
   var selectStatement =
     "select account_user_id, unique_hash, token, created, deleted" & 
@@ -290,9 +331,12 @@ proc filterAccountUserToken*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var accountUserTokens: AccountUserTokens
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -302,7 +346,7 @@ proc filterAccountUserToken*(
 
 
 proc getAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64): Option[AccountUserToken] {.gcsafe.} =
 
   var selectStatement =
@@ -311,7 +355,7 @@ proc getAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -322,7 +366,7 @@ proc getAccountUserTokenByPk*(
 
 
 proc getAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: string): Option[AccountUserToken] {.gcsafe.} =
 
   var selectStatement =
@@ -331,7 +375,7 @@ proc getAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -342,7 +386,7 @@ proc getAccountUserTokenByPk*(
 
 
 proc getAccountUserTokenByUniqueHash*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        uniqueHash: string): Option[AccountUserToken] {.gcsafe.} =
 
   var selectStatement =
@@ -351,7 +395,7 @@ proc getAccountUserTokenByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -362,7 +406,7 @@ proc getAccountUserTokenByUniqueHash*(
 
 
 proc getAccountUserTokenByToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        token: string): Option[AccountUserToken] {.gcsafe.} =
 
   var selectStatement =
@@ -371,7 +415,7 @@ proc getAccountUserTokenByToken*(
     " where token = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               token)
 
@@ -382,7 +426,7 @@ proc getAccountUserTokenByToken*(
 
 
 proc getOrCreateAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64,
        uniqueHash: string,
        token: string,
@@ -390,15 +434,15 @@ proc getOrCreateAccountUserTokenByPk*(
        deleted: Option[DateTime]): AccountUserToken {.gcsafe.} =
 
   let accountUserToken =
-        getAccountUserTokenByPk(
-          nexusCoreModule,
+        getAccountUserTokenByPK(
+          nexusCoreDbContext,
           accountUserId)
 
   if accountUserToken != none(AccountUserToken):
     return accountUserToken.get
 
   return createAccountUserToken(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountUserId,
            uniqueHash,
            token,
@@ -407,7 +451,7 @@ proc getOrCreateAccountUserTokenByPk*(
 
 
 proc getOrCreateAccountUserTokenByUniqueHash*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64,
        uniqueHash: string,
        token: string,
@@ -416,14 +460,14 @@ proc getOrCreateAccountUserTokenByUniqueHash*(
 
   let accountUserToken =
         getAccountUserTokenByUniqueHash(
-          nexusCoreModule,
+          nexusCoreDbContext,
           uniqueHash)
 
   if accountUserToken != none(AccountUserToken):
     return accountUserToken.get
 
   return createAccountUserToken(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountUserId,
            uniqueHash,
            token,
@@ -432,7 +476,7 @@ proc getOrCreateAccountUserTokenByUniqueHash*(
 
 
 proc getOrCreateAccountUserTokenByToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserId: int64,
        uniqueHash: string,
        token: string,
@@ -441,14 +485,14 @@ proc getOrCreateAccountUserTokenByToken*(
 
   let accountUserToken =
         getAccountUserTokenByToken(
-          nexusCoreModule,
+          nexusCoreDbContext,
           token)
 
   if accountUserToken != none(AccountUserToken):
     return accountUserToken.get
 
   return createAccountUserToken(
-           nexusCoreModule,
+           nexusCoreDbContext,
            accountUserId,
            uniqueHash,
            token,
@@ -476,15 +520,15 @@ proc rowToAccountUserToken*(row: seq[string]):
 
 
 proc truncateAccountUserToken*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table account_user_token restart identity;"))
 
   else:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table account_user_token restart identity cascade;"))
 
 
@@ -506,20 +550,18 @@ proc updateAccountUserTokenSetClause*(
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"
-      updateValues.add($accountUserToken.uniqueHash)
+      updateValues.add(accountUserToken.uniqueHash)
 
     elif field == "token":
       updateStatement &= "       token = ?,"
-      updateValues.add($accountUserToken.token)
+      updateValues.add(accountUserToken.token)
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($accountUserToken.created)
+        updateStatement &= "       created = " & pgToDateTimeString(accountUserToken.created) & ","
 
     elif field == "deleted":
       if accountUserToken.deleted != none(DateTime):
-        updateStatement &= "       deleted = ?,"
-        updateValues.add($accountUserToken.deleted.get)
+        updateStatement &= "       deleted = " & pgToDateTimeString(accountUserToken.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"
 
@@ -528,7 +570,7 @@ proc updateAccountUserTokenSetClause*(
 
 
 proc updateAccountUserTokenByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserToken: AccountUserToken,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -549,7 +591,7 @@ proc updateAccountUserTokenByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreModule.db,
+          nexusCoreDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -565,7 +607,7 @@ proc updateAccountUserTokenByPk*(
 
 
 proc updateAccountUserTokenByWhereClause*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserToken: AccountUserToken,
        setFields: seq[string],
        whereClause: string,
@@ -585,14 +627,14 @@ proc updateAccountUserTokenByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateAccountUserTokenByWhereEqOnly*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        accountUserToken: AccountUserToken,
        setFields: seq[string],
        whereFields: seq[string],
@@ -623,7 +665,7 @@ proc updateAccountUserTokenByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

@@ -9,7 +9,6 @@ import nexus/core/service/account/utils
 import nexus/core/service/account/verify_login_fields
 import nexus/core/service/nexus_settings/get
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/types
 import nexus/core/types/view_types
 import nexus/core/view/account/logout_page
@@ -18,7 +17,7 @@ import nexus/core_extras/service/format/hash
 
 # Forward declarations
 proc loginActionVerified*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        webContext: WebContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn
@@ -116,7 +115,7 @@ proc loginAction*(request: Request,
     # Get AccountUserToken record
     let accountUserToken =
           getAccountUserTokenByUniqueHash(
-            nexusCoreModule,
+            nexusCoreDbContext,
             loginHash)
 
     if accountUserToken == none(AccountUserToken):
@@ -132,7 +131,7 @@ proc loginAction*(request: Request,
 
     # Successfully found
     return loginActionVerified(
-             nexusCoreModule,
+             nexusCoreDbContext,
              webContext,
              accountUserToken.get.accountUserId,
              loginHash)
@@ -153,7 +152,7 @@ proc loginAction*(request: Request,
 
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if accountUser == none(AccountUser):
@@ -201,21 +200,21 @@ proc loginAction*(request: Request,
 
   # Login
   return loginActionVerified(
-           nexusCoreModule,
+           nexusCoreDbContext,
            webContext,
            accountUserId,
            loginHash)
 
 
 proc loginActionByEmailVerified*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        webContext: WebContext,
        email: string): DocUIReturn =
 
   # Get Account User by email
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   if accountUser == none(AccountUser):
@@ -225,14 +224,14 @@ proc loginActionByEmailVerified*(
             &"AccountUser record not found for email: {email}")
 
   return loginActionVerified(
-           nexusCoreModule,
+           nexusCoreDbContext,
            webContext,
            accountUser.get.accountUserId,
            "")
 
 
 proc loginActionVerified*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        webContext: WebContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn =
@@ -243,14 +242,14 @@ proc loginActionVerified*(
   # Set lastLogin
   let rowsUpdated =
         updateAccountUserSetLastLoginByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           lastLogin = some(now()),
           accountUserId)
 
   # Get API key
   let apiKey =
         getAPIKeyFromAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountUserId)
 
   # New DocUIReturn
@@ -259,7 +258,7 @@ proc loginActionVerified*(
   # Get AccountUserToken record
   var accountUserToken =
         getAccountUserTokenByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountUserId)
 
   # TODO: if loginHash is specified, then try to use the existing token
@@ -268,7 +267,7 @@ proc loginActionVerified*(
   # Create token
   docUIReturn.token =
     createJWT(
-      nexusCoreModule,
+      nexusCoreDbContext,
       $accountUserId,
       apiKey.get,
       mobile = $webContext.mobileDefault)
@@ -277,7 +276,7 @@ proc loginActionVerified*(
   if accountUserToken == none(AccountUserToken):
 
     discard createAccountUserToken(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUserId,
               getUniqueHash(@[ docUIReturn.token ]),
               docUIReturn.token,
@@ -290,7 +289,7 @@ proc loginActionVerified*(
     accountUserToken.get.deleted = none(DateTime)
 
     discard updateAccountUserTokenByPk(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUserToken.get,
               setFields = @[ "token",
                              "deleted" ])
@@ -298,7 +297,7 @@ proc loginActionVerified*(
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           accountUserId)
 
   if accountUser == none(AccountUser):
@@ -311,7 +310,7 @@ proc loginActionVerified*(
   accountUser.get.lastToken = some(docUIReturn.token)
 
   discard updateAccountUserByPk(
-            nexusCoreModule,
+            nexusCoreDbContext,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -338,7 +337,7 @@ template logoutAction*(request: Request,
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreModule,
+          nexusCoreDbContext,
           webContext.accountUserId)
 
   if accountUser == none(AccountUser):
@@ -352,7 +351,7 @@ template logoutAction*(request: Request,
   accountUser.get.lastToken = none(string)
 
   discard updateAccountUserByPk(
-            nexusCoreModule,
+            nexusCoreDbContext,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -397,7 +396,7 @@ template postLoginAction*(
     # Get 'Nexus Pay subscriptions enabled' setting
     let nexusPaySubscriptionsEnabled =
           getNexusSettingValue(
-            nexusCoreModule,
+            nexusCoreDbContext,
             module = "Nexus Core",
             key = "Nexus Pay subscriptions enabled")
 
@@ -411,7 +410,7 @@ template postLoginAction*(
 
     let accountUser =
           getAccountUserByEmail(
-            nexusCoreModule,
+            nexusCoreDbContext,
             email)
 
     if accountUser != none(AccountUser):

@@ -1,14 +1,12 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, tables, times
-import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
-import nexus_social/data_access/sm_post_data
-import nexus_social/types/model_types
+import options, strutils, tables, times
+import nexus/social/data_access/sm_post_data
+import nexus/social/types/model_types
 
 
 # Code
 proc cachedCreateSMPost*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPostParentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
@@ -26,65 +24,70 @@ proc cachedCreateSMPost*(
        convertToRawTypes: bool = true): SMPost {.gcsafe.} =
 
   # Call the create proc
-  let smPost = createSMPost(nexusSocialModule,
-                            smPostParentId = none(int64),
-                            accountUserId,
-                            uniqueHash,
-                            postType,
-                            status = 'A',
-                            title = none(string),
-                            body,
-                            tagIds = none(int64),
-                            created = now(),
-                            published = none(DateTime),
-                            updateCount = 0,
-                            updated = none(DateTime),
-                            deleted = none(DateTime))
+  let smPost =
+        createSMPost(
+           nexusSocialDbContext,
+           smPostParentId,
+           accountUserId,
+           uniqueHash,
+           postType,
+           status,
+           title,
+           body,
+           tagIds,
+           created,
+           published,
+           updateCount,
+           updated,
+           deleted)
 
   # Add to the model row cache
-  nexusSocialModule.cachedSMPosts[smPost.smPostId] = smPost
+  nexusSocialDbContext.cachedSMPosts[smPost.smPostId] = smPost
 
   # Clear filter cache
-  nexusSocialModule.cachedFilterSMPost.clear()
+  nexusSocialDbContext.cachedFilterSMPost.clear()
 
   return smPost
 
 
 proc cachedDeleteSMPostByPk*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPostId: int64): int64 {.gcsafe.} =
 
   # Call the model's delete proc
-  let rows_deleted = deleteSMPostByPk(nexusSocialModule,
-                                      smPostId)
+  let rowsDeleted = 
+        deleteSMPostByPk(
+          nexusSocialDbContext,
+          smPostId)
 
   # Remove from the model row cache
-  nexusSocialModule.cachedSMPosts.del(smPostId)
+  nexusSocialDbContext.cachedSMPosts.del(smPostId)
 
   # Clear the filter cache
-  nexusSocialModule.cachedFilterSMPost.clear()
+  nexusSocialDbContext.cachedFilterSMPost.clear()
 
   # Clear filter cache
-  nexusSocialModule.cachedFilterSMPost.clear()
+  nexusSocialDbContext.cachedFilterSMPost.clear()
 
   return rowsDeleted
 
 
 proc cachedExistsSMPostByPk*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPostId: int64): bool {.gcsafe.} =
 
   # Check existence in the model row cache
-  if nexusSocialModule.cachedSMPosts.hasKey(smPostId):
+  if nexusSocialDbContext.cachedSMPosts.hasKey(smPostId):
     return true
 
   # Call the model's exists proc
-  return existsSMPostByPk(nexusSocialModule,
-                          smPostId)
+  return existsSMPostByPk(
+           nexusSocialDbContext,
+           smPostId)
 
 
 proc cachedExistsSMPostByUniqueHash*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        uniqueHash: string): bool {.gcsafe.} =
 
   # Define the filter key
@@ -92,19 +95,21 @@ proc cachedExistsSMPostByUniqueHash*(
                   "1|" & uniqueHash
 
   # Check existence in the model row cache
-  if nexusSocialModule.cachedFilterSMPost.hasKey(filterKey):
+  if nexusSocialDbContext.cachedFilterSMPost.hasKey(filterKey):
     return true
 
   # Call the model's exists proc
-  return existsSMPostByUniqueHash(nexusSocialModule,
-                                  uniqueHash)
+  return existsSMPostByUniqueHash(
+           nexusSocialDbContext,
+           uniqueHash)
 
 
 proc cachedFilterSMPost*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): SMPosts {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPosts {.gcsafe.} =
 
   # Get rows in the model row cache via the filter cache
   let filterKey = "0|" & whereClause &
@@ -113,19 +118,22 @@ proc cachedFilterSMPost*(
 
   var cachedSMPosts: SMPosts
 
-  if nexusSocialModule.cachedFilterSMPost.hasKey(filterKey):
+  if nexusSocialDbContext.cachedFilterSMPost.hasKey(filterKey):
 
-    for pk in nexusSocialModule.cachedFilterSMPost[filterKey]:
+    for pk in nexusSocialDbContext.cachedFilterSMPost[filterKey]:
 
-      cachedSMPosts.add(nexusSocialModule.cachedSMPosts[pk])
+      cachedSMPosts.add(nexusSocialDbContext.cachedSMPosts[pk])
 
     return cachedSMPosts
 
   # Call the model's filter proc
-  let smPosts = filterSMPost(nexusSocialModule,
-                             whereClause,
-                             whereValues,
-                             orderByFields)
+  let smPosts =
+        filterSMPost(
+          nexusSocialDbContext,
+          whereClause,
+          whereValues,
+          orderByFields,
+          limit)
 
   # Get PKs from the filter results
   var pks: seq[int64]
@@ -134,21 +142,22 @@ proc cachedFilterSMPost*(
     pks.add(smPost.smPostId)
 
   # Set rows in filter cache
-  nexusSocialModule.cachedFilterSMPost[filterKey] = pks
+  nexusSocialDbContext.cachedFilterSMPost[filterKey] = pks
 
   # Set rows in model row cache
   for smPost in smPosts:
 
-    nexusSocialModule.cachedSMPosts[smPost.smPostId] = smPost
+    nexusSocialDbContext.cachedSMPosts[smPost.smPostId] = smPost
 
   return smPosts
 
 
 proc cachedFilterSMPost*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        whereFields: seq[string],
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): SMPosts {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): SMPosts {.gcsafe.} =
 
   # Get rows in the model row cache via the filter cache
   let filterKey = "0|" & join(whereFields, "|") &
@@ -157,19 +166,22 @@ proc cachedFilterSMPost*(
 
   var cachedSMPosts: SMPosts
 
-  if nexusSocialModule.cachedFilterSMPost.hasKey(filterKey):
+  if nexusSocialDbContext.cachedFilterSMPost.hasKey(filterKey):
 
-    for pk in nexusSocialModule.cachedFilterSMPost[filterKey]:
+    for pk in nexusSocialDbContext.cachedFilterSMPost[filterKey]:
 
-      cachedSMPosts.add(nexusSocialModule.cachedSMPosts[pk])
+      cachedSMPosts.add(nexusSocialDbContext.cachedSMPosts[pk])
 
     return cachedSMPosts
 
   # Call the model's filter proc
-  let sm_posts = filterSMPost(nexus_socialModule,
-                              whereFields,
-                              whereValues,
-                              orderByFields)
+  let sm_posts =
+        filterSMPost(
+          nexus_socialDbContext,
+          whereFields,
+          whereValues,
+          orderByFields,
+          limit)
 
   # Get PKs from the filter results
   var pks: seq[int64]
@@ -178,38 +190,40 @@ proc cachedFilterSMPost*(
     pks.add(smPost.smPostId)
 
   # Set rows in filter cache
-  nexusSocialModule.cachedFilterSMPost[filterKey] = pks
+  nexusSocialDbContext.cachedFilterSMPost[filterKey] = pks
 
   # Set rows in model row cache
   for smPost in smPosts:
 
-    nexusSocialModule.cachedSMPosts[smPost.smPostId] = smPost
+    nexusSocialDbContext.cachedSMPosts[smPost.smPostId] = smPost
 
   return smPosts
 
 
 proc cachedGetSMPostByPk*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPostId: int64): Option[SMPost] {.gcsafe.} =
 
   # Get from the model row cache
-  if nexusSocialModule.cachedSMPosts.hasKey(smPostId):
-    return some(nexusSocialModule.cachedSMPosts[smPostId])
+  if nexusSocialDbContext.cachedSMPosts.hasKey(smPostId):
+    return some(nexusSocialDbContext.cachedSMPosts[smPostId])
 
   # Call the model's get proc
-  let smPost = getSMPostByPk(nexusSocialModule,
-                             smPostId)
+  let smPost =
+        getSMPostByPk(
+          nexusSocialDbContext,
+          smPostId)
 
   if smPost != none(SMPost):
 
     # Add to the model row cache
-    nexusSocialModule.cachedSMPosts[smPost.get.smPostId] = smPost.get
+    nexusSocialDbContext.cachedSMPosts[smPost.get.smPostId] = smPost.get
 
   return smPost
 
 
 proc cachedGetSMPostByUniqueHash*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        uniqueHash: string): Option[SMPost] {.gcsafe.} =
 
   # Define the filter key
@@ -217,23 +231,25 @@ proc cachedGetSMPostByUniqueHash*(
                   "1|" & uniqueHash
 
   # Get from the model row cache
-  if nexusSocialModule.cachedFilterSMPost.hasKey(filterKey):
-    return some(nexusSocialModule.cachedSMPosts[nexusSocialModule.cachedFilterSMPost[filterKey][0]])
+  if nexusSocialDbContext.cachedFilterSMPost.hasKey(filterKey):
+    return some(nexusSocialDbContext.cachedSMPosts[nexusSocialDbContext.cachedFilterSMPost[filterKey][0]])
 
   # Call the model's get proc
-  let smPost = getSMPostByUniqueHash(nexusSocialModule,
-                                     uniqueHash)
+  let smPost =
+        getSMPostByUniqueHash(
+          nexusSocialDbContext,
+          uniqueHash)
 
   if smPost != none(SMPost):
 
     # Add to the model row cache
-    nexusSocialModule.cachedSMPosts[smPost.get.smPostId] = smPost.get
+    nexusSocialDbContext.cachedSMPosts[smPost.get.smPostId] = smPost.get
 
   return smPost
 
 
 proc cachedGetOrCreateSMPostByUniqueHash*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPostParentId: Option[int64],
        accountUserId: int64,
        uniqueHash: string,
@@ -253,46 +269,50 @@ proc cachedGetOrCreateSMPostByUniqueHash*(
                   "1|" & uniqueHash
 
   # Get from the model row cache
-  if nexusSocialModule.cachedFilterSMPost.hasKey(filterKey):
-    return nexusSocialModule.cachedSMPosts[nexusSocialModule.cachedFilterSMPost[filterKey][0]]
+  if nexusSocialDbContext.cachedFilterSMPost.hasKey(filterKey):
+    return nexusSocialDbContext.cachedSMPosts[nexusSocialDbContext.cachedFilterSMPost[filterKey][0]]
 
-  let smPost = getOrCreateSMPostByUniqueHash(nexusSocialModule,
-                                             smPostParentId,
-                                             accountUserId,
-                                             uniqueHash,
-                                             postType,
-                                             status,
-                                             title,
-                                             body,
-                                             tagIds,
-                                             created,
-                                             published,
-                                             updateCount,
-                                             updated,
-                                             deleted)
+  let smPost =
+        getOrCreateSMPostByUniqueHash(
+          nexusSocialDbContext,
+          smPostParentId,
+          accountUserId,
+          uniqueHash,
+          postType,
+          status,
+          title,
+          body,
+          tagIds,
+          created,
+          published,
+          updateCount,
+          updated,
+          deleted)
 
   # Add to the model row cache if it's not there
-  if not nexusSocialModule.cachedSMPosts.hasKey(smPost.smPostId):
-    nexusSocialModule.cachedSMPosts[smPost.smPostId] = smPost
+  if not nexusSocialDbContext.cachedSMPosts.hasKey(smPost.smPostId):
+    nexusSocialDbContext.cachedSMPosts[smPost.smPostId] = smPost
 
   return smPost
 
 
 proc cachedUpdateSMPostByPk*(
-       nexusSocialModule: var NexusSocialModule,
+       nexusSocialDbContext: var NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string]): int64 {.gcsafe.} =
 
   # Call the model's update proc
-  let rowsUpdated = updateSMPostByPk(nexusSocialModule,
-                                     smPost,
-                                     setFields)
+  let rowsUpdated =
+        updateSMPostByPk(
+          nexusSocialDbContext,
+          smPost,
+          setFields)
 
   # Add to the model row cache
-  nexusSocialModule.cachedSMPosts[smPost.smPostId] = smPost
+  nexusSocialDbContext.cachedSMPosts[smPost.smPostId] = smPost
 
   # Clear filter cache
-  nexusSocialModule.cachedFilterSMPost.clear()
+  nexusSocialDbContext.cachedFilterSMPost.clear()
 
   return rowsUpdated
 

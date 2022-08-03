@@ -12,7 +12,7 @@ proc rowToNexusSetting*(row: seq[string]):
 
 # Code
 proc countNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countNexusSetting*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countNexusSetting*(
 
 
 proc countNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,19 +52,20 @@ proc countNexusSetting*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreModule.db,
+  let row = getRow(nexusCoreDbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
   return parseBiggestInt(row[0])
 
 
-proc createNexusSettingReturnsPK*(
-       nexusCoreModule: NexusCoreModule,
+proc createNexusSettingReturnsPk*(
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string,
        value: Option[string] = none(string),
-       created: DateTime): int64 {.gcsafe.} =
+       created: DateTime,
+       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -74,18 +75,18 @@ proc createNexusSettingReturnsPK*(
 
   # Field: Module
   insertStatement &= "module, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(module)
 
   # Field: Key
   insertStatement &= "key, "
-  valuesClause &= "?, "
+  valuesClause &= "?" & ", "
   insertValues.add(key)
 
   # Field: Value
   if value != none(string):
     insertStatement &= "value, "
-    valuesClause &= "?, "
+    valuesClause &= "?" & ", "
     insertValues.add(value.get)
 
   # Field: Created
@@ -100,34 +101,40 @@ proc createNexusSettingReturnsPK*(
     valuesClause = valuesClause[0 .. len(valuesClause) - 3]
 
   # Finalize insertStatement
-  insertStatement &= ") values (" & valuesClause & ")"
+  insertStatement &=
+    ") values (" & valuesClause & ")"
+
+  if ignoreExistingPk == true:
+    insertStatement &= " on conflict (nexus_setting_id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreModule.db,
+    nexusCoreDbContext.dbConn,
     sql(insertStatement),
     "nexus_setting_id",
     insertValues)
 
 
 proc createNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string,
        value: Option[string] = none(string),
        created: DateTime,
+       ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
        convertToRawTypes: bool = true): NexusSetting {.gcsafe.} =
 
   var nexusSetting = NexusSetting()
 
   nexusSetting.nexusSettingId =
-    createNexusSettingReturnsPK(
-      nexusCoreModule,
+    createNexusSettingReturnsPk(
+      nexusCoreDbContext,
       module,
       key,
       value,
-      created)
+      created,
+      ignoreExistingPk)
 
   # Copy all fields as strings
   nexusSetting.module = module
@@ -139,7 +146,7 @@ proc createNexusSetting*(
 
 
 proc deleteNexusSettingByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSettingId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -148,13 +155,13 @@ proc deleteNexusSettingByPk*(
     " where nexus_setting_id = ?"
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            nexusSettingId)
 
 
 proc deleteNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -164,13 +171,42 @@ proc deleteNexusSetting*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
+           sql(deleteStatement),
+           whereValues)
+
+
+proc deleteNexusSetting*(
+       nexusCoreDbContext: NexusCoreDbContext,
+       whereFields: seq[string],
+       whereValues: seq[string]): int64 {.gcsafe.} =
+
+  var deleteStatement =
+    "delete" & 
+    "  from nexus_setting"
+
+  var first = true
+
+  for whereField in whereFields:
+
+    var whereClause: string
+
+    if first == false:
+      whereClause = "   and " & whereField & " = ?"
+    else:
+      first = false
+      whereClause = " where " & whereField & " = ?"
+
+    deleteStatement &= whereClause
+
+  return execAffectedRows(
+           nexusCoreDbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsNexusSettingByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSettingId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -179,9 +215,9 @@ proc existsNexusSettingByPk*(
     " where nexus_setting_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
-              nexusSettingId)
+              $nexusSettingId)
 
   if row[0] == "":
     return false
@@ -190,7 +226,7 @@ proc existsNexusSettingByPk*(
 
 
 proc existsNexusSettingByModuleAndKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string): bool {.gcsafe.} =
 
@@ -201,7 +237,7 @@ proc existsNexusSettingByModuleAndKey*(
     "   and key = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               module,
               key)
@@ -213,10 +249,11 @@ proc existsNexusSettingByModuleAndKey*(
 
 
 proc filterNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
-       orderByFields: seq[string] = @[]): NexusSettings {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): NexusSettings {.gcsafe.} =
 
   var selectStatement =
     "select nexus_setting_id, module, key, value, created" & 
@@ -228,9 +265,12 @@ proc filterNexusSetting*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var nexusSettings: NexusSettings
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -240,10 +280,11 @@ proc filterNexusSetting*(
 
 
 proc filterNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
-       orderByFields: seq[string] = @[]): NexusSettings {.gcsafe.} =
+       orderByFields: seq[string] = @[],
+       limit: Option[int] = none(int)): NexusSettings {.gcsafe.} =
 
   var selectStatement =
     "select nexus_setting_id, module, key, value, created" & 
@@ -266,9 +307,12 @@ proc filterNexusSetting*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
+  if limit != none(int):
+    selectStatement &= " limit " & $limit.get
+
   var nexusSettings: NexusSettings
 
-  for row in fastRows(nexusCoreModule.db,
+  for row in fastRows(nexusCoreDbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -278,7 +322,7 @@ proc filterNexusSetting*(
 
 
 proc getNexusSettingByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSettingId: int64): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
@@ -287,7 +331,7 @@ proc getNexusSettingByPk*(
     " where nexus_setting_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               nexusSettingId)
 
@@ -298,7 +342,7 @@ proc getNexusSettingByPk*(
 
 
 proc getNexusSettingByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSettingId: string): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
@@ -307,7 +351,7 @@ proc getNexusSettingByPk*(
     " where nexus_setting_id = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               nexusSettingId)
 
@@ -318,7 +362,7 @@ proc getNexusSettingByPk*(
 
 
 proc getNexusSettingByModuleAndKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string): Option[NexusSetting] {.gcsafe.} =
 
@@ -329,7 +373,7 @@ proc getNexusSettingByModuleAndKey*(
     "   and key = ?"
 
   let row = getRow(
-              nexusCoreModule.db,
+              nexusCoreDbContext.dbConn,
               sql(selectStatement),
               module,
               key)
@@ -341,7 +385,7 @@ proc getNexusSettingByModuleAndKey*(
 
 
 proc getOrCreateNexusSettingByModuleAndKey*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        module: string,
        key: string,
        value: Option[string],
@@ -349,7 +393,7 @@ proc getOrCreateNexusSettingByModuleAndKey*(
 
   let nexusSetting =
         getNexusSettingByModuleAndKey(
-          nexusCoreModule,
+          nexusCoreDbContext,
           module,
           key)
 
@@ -357,7 +401,7 @@ proc getOrCreateNexusSettingByModuleAndKey*(
     return nexusSetting.get
 
   return createNexusSetting(
-           nexusCoreModule,
+           nexusCoreDbContext,
            module,
            key,
            value,
@@ -384,15 +428,15 @@ proc rowToNexusSetting*(row: seq[string]):
 
 
 proc truncateNexusSetting*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table nexus_setting restart identity;"))
 
   else:
-    exec(nexusCoreModule.db,
+    exec(nexusCoreDbContext.dbConn,
          sql("truncate table nexus_setting restart identity cascade;"))
 
 
@@ -414,29 +458,28 @@ proc updateNexusSettingSetClause*(
 
     elif field == "module":
       updateStatement &= "       module = ?,"
-      updateValues.add($nexusSetting.module)
+      updateValues.add(nexusSetting.module)
 
     elif field == "key":
       updateStatement &= "       key = ?,"
-      updateValues.add($nexusSetting.key)
+      updateValues.add(nexusSetting.key)
 
     elif field == "value":
       if nexusSetting.value != none(string):
         updateStatement &= "       value = ?,"
-        updateValues.add($nexusSetting.value.get)
+        updateValues.add(nexusSetting.value.get)
       else:
         updateStatement &= "       value = null,"
 
     elif field == "created":
-      updateStatement &= "       created = ?,"
-      updateValues.add($nexusSetting.created)
+        updateStatement &= "       created = " & pgToDateTimeString(nexusSetting.created) & ","
 
   updateStatement[len(updateStatement) - 1] = ' '
 
 
 
 proc updateNexusSettingByPk*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSetting: NexusSetting,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -457,7 +500,7 @@ proc updateNexusSettingByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreModule.db,
+          nexusCoreDbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -473,7 +516,7 @@ proc updateNexusSettingByPk*(
 
 
 proc updateNexusSettingByWhereClause*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSetting: NexusSetting,
        setFields: seq[string],
        whereClause: string,
@@ -493,14 +536,14 @@ proc updateNexusSettingByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateNexusSettingByWhereEqOnly*(
-       nexusCoreModule: NexusCoreModule,
+       nexusCoreDbContext: NexusCoreDbContext,
        nexusSetting: NexusSetting,
        setFields: seq[string],
        whereFields: seq[string],
@@ -531,7 +574,7 @@ proc updateNexusSettingByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreModule.db,
+           nexusCoreDbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

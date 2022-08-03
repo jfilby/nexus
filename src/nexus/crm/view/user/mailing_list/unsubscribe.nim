@@ -1,7 +1,6 @@
 import jester, options, strformat
 import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/types/model_types as nexus_core_model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/base_page
 import nexus/crm/data_access/mailing_list_subscriber_data
@@ -11,6 +10,7 @@ import subscriber_card
 
 
 proc mailingListUnsubscribePage*(
+       nexusCoreDbContext: NexusCoreDbContext,
        request: Request,
        webContext: WebContext): string =
 
@@ -32,7 +32,7 @@ proc mailingListUnsubscribePage*(
   # Get NexusCRMModule module
   let nexusCRMModule =
         NexusCRMModule(
-          db: nexusCoreModule.db)
+          db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record
   var
@@ -82,7 +82,7 @@ proc mailingListUnsubscribePage*(
 proc mailingListUnsubscribePagePost*(
        request: Request,
        webContext: WebContext,
-       nexusCoreModule: NexusCoreModule): string =
+       nexusCoreDbContext: NexusCoreDbContext): string =
 
   # Get vars
   var uniqueHash: string
@@ -95,7 +95,7 @@ proc mailingListUnsubscribePagePost*(
   # Get NexusCRMModule module
   let nexusCRMModule =
         NexusCRMModule(
-          db: nexusCoreModule.db)
+          db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record
   var mailingListSubscriber =

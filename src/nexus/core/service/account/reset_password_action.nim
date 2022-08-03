@@ -5,7 +5,6 @@ import nexus/core/data_access/account_user_data
 import nexus/core/data_access/db_conn
 import nexus/core/service/account/utils
 import nexus/core/types/model_types
-import nexus/core/types/module_globals
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
@@ -49,7 +48,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   # Verify the input
@@ -67,7 +66,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreModule,
+            nexusCoreDbContext,
             email)
 
     # Get passwordResetCode
@@ -75,7 +74,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
 
     # Update accountUser with the passwordResetCode
     discard updateAccountUserByPk(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUser.get,
               setFields = @[ "password_reset_code"])
 
@@ -138,7 +137,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreModule,
+          nexusCoreDbContext,
           email)
 
   # Verify the input
@@ -159,7 +158,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreModule,
+            nexusCoreDbContext,
             email)
 
     # Update password
@@ -170,7 +169,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
                    inSalt = "")
 
     discard updateAccountUserByPk(
-              nexusCoreModule,
+              nexusCoreDbContext,
               accountUser.get,
               setFields = @[ "password_hash",
                              "password_salt" ])

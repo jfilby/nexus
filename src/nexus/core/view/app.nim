@@ -1,7 +1,6 @@
 import view/frontpage/homepage
 import view/invite/invite_page
 import jester, strutils
-import nexus/core/service/webApp/globals
 
 
 settings:

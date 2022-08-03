@@ -2,20 +2,20 @@ import db_postgres, tables
 import nexus/social/types/model_types
 
 
-proc beginTransaction*(nexusSocialModule: NexusSocialModule) =
+proc beginTransaction*(nexusSocialDbContext: NexusSocialDbContext) =
 
-  nexusSocialModule.db.exec(sql"begin")
-
-
-proc commitTransaction*(nexusSocialModule: NexusSocialModule) =
-
-  nexusSocialModule.db.exec(sql"commit")
+  nexusSocialDbContext.dbConn.exec(sql"begin")
 
 
-proc isInATransaction*(nexusSocialModule: NexusSocialModule): bool =
+proc commitTransaction*(nexusSocialDbContext: NexusSocialDbContext) =
+
+  nexusSocialDbContext.dbConn.exec(sql"commit")
+
+
+proc isInATransaction*(nexusSocialDbContext: NexusSocialDbContext): bool =
 
   let row = getRow(
-              nexusSocialModule.db,
+              nexusSocialDbContext.dbConn,
               sql"select pg_current_xact_id_if_assigned()")
 
   if row[0] == "":
@@ -25,74 +25,74 @@ proc isInATransaction*(nexusSocialModule: NexusSocialModule): bool =
     return true
 
 
-proc rollbackTransaction*(nexusSocialModule: NexusSocialModule) =
+proc rollbackTransaction*(nexusSocialDbContext: NexusSocialDbContext) =
 
-  nexusSocialModule.db.exec(sql"rollback")
+  nexusSocialDbContext.dbConn.exec(sql"rollback")
 
 
-proc newNexusSocialModule*(): NexusSocialModule =
+proc newNexusSocialDbContext*(): NexusSocialDbContext =
 
-  var nexusSocialModule = NexusSocialModule()
+  var nexusSocialDbContext = NexusSocialDbContext()
 
-  nexusSocialModule.modelToIntSeqTable["SM Post"] = 0
+  nexusSocialDbContext.modelToIntSeqTable["SM Post"] = 0
 
-  nexusSocialModule.intSeqToModelTable[0] = "SM Post"
+  nexusSocialDbContext.intSeqToModelTable[0] = "SM Post"
 
-  nexusSocialModule.fieldToIntSeqTable["SM Post.SM Post Id"] = 0
-  nexusSocialModule.fieldToIntSeqTable["SM Post.SM Post Parent Id"] = 1
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Account User Id"] = 2
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Unique Hash"] = 3
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Post Type"] = 4
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Status"] = 5
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Title"] = 6
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Body"] = 7
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Tag Ids"] = 8
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Created"] = 9
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Published"] = 10
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Update Count"] = 11
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Updated"] = 12
-  nexusSocialModule.fieldToIntSeqTable["SM Post.Deleted"] = 13
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.SM Post Id"] = 0
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.SM Post Parent Id"] = 1
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Account User Id"] = 2
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Unique Hash"] = 3
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Post Type"] = 4
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Status"] = 5
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Title"] = 6
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Body"] = 7
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Tag Ids"] = 8
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Created"] = 9
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Published"] = 10
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Update Count"] = 11
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Updated"] = 12
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post.Deleted"] = 13
 
-  nexusSocialModule.intSeqToFieldTable[0] = "SM Post.SM Post Id"
-  nexusSocialModule.intSeqToFieldTable[1] = "SM Post.SM Post Parent Id"
-  nexusSocialModule.intSeqToFieldTable[2] = "SM Post.Account User Id"
-  nexusSocialModule.intSeqToFieldTable[3] = "SM Post.Unique Hash"
-  nexusSocialModule.intSeqToFieldTable[4] = "SM Post.Post Type"
-  nexusSocialModule.intSeqToFieldTable[5] = "SM Post.Status"
-  nexusSocialModule.intSeqToFieldTable[6] = "SM Post.Title"
-  nexusSocialModule.intSeqToFieldTable[7] = "SM Post.Body"
-  nexusSocialModule.intSeqToFieldTable[8] = "SM Post.Tag Ids"
-  nexusSocialModule.intSeqToFieldTable[9] = "SM Post.Created"
-  nexusSocialModule.intSeqToFieldTable[10] = "SM Post.Published"
-  nexusSocialModule.intSeqToFieldTable[11] = "SM Post.Update Count"
-  nexusSocialModule.intSeqToFieldTable[12] = "SM Post.Updated"
-  nexusSocialModule.intSeqToFieldTable[13] = "SM Post.Deleted"
+  nexusSocialDbContext.intSeqToFieldTable[0] = "SM Post.SM Post Id"
+  nexusSocialDbContext.intSeqToFieldTable[1] = "SM Post.SM Post Parent Id"
+  nexusSocialDbContext.intSeqToFieldTable[2] = "SM Post.Account User Id"
+  nexusSocialDbContext.intSeqToFieldTable[3] = "SM Post.Unique Hash"
+  nexusSocialDbContext.intSeqToFieldTable[4] = "SM Post.Post Type"
+  nexusSocialDbContext.intSeqToFieldTable[5] = "SM Post.Status"
+  nexusSocialDbContext.intSeqToFieldTable[6] = "SM Post.Title"
+  nexusSocialDbContext.intSeqToFieldTable[7] = "SM Post.Body"
+  nexusSocialDbContext.intSeqToFieldTable[8] = "SM Post.Tag Ids"
+  nexusSocialDbContext.intSeqToFieldTable[9] = "SM Post.Created"
+  nexusSocialDbContext.intSeqToFieldTable[10] = "SM Post.Published"
+  nexusSocialDbContext.intSeqToFieldTable[11] = "SM Post.Update Count"
+  nexusSocialDbContext.intSeqToFieldTable[12] = "SM Post.Updated"
+  nexusSocialDbContext.intSeqToFieldTable[13] = "SM Post.Deleted"
 
-  nexusSocialModule.modelToIntSeqTable["SM Post Vote"] = 1
+  nexusSocialDbContext.modelToIntSeqTable["SM Post Vote"] = 1
 
-  nexusSocialModule.intSeqToModelTable[1] = "SM Post Vote"
+  nexusSocialDbContext.intSeqToModelTable[1] = "SM Post Vote"
 
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote.SM Post Id"] = 14
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote.Votes Up Count"] = 15
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote.Votes Down Count"] = 16
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote.SM Post Id"] = 14
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote.Votes Up Count"] = 15
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote.Votes Down Count"] = 16
 
-  nexusSocialModule.intSeqToFieldTable[14] = "SM Post Vote.SM Post Id"
-  nexusSocialModule.intSeqToFieldTable[15] = "SM Post Vote.Votes Up Count"
-  nexusSocialModule.intSeqToFieldTable[16] = "SM Post Vote.Votes Down Count"
+  nexusSocialDbContext.intSeqToFieldTable[14] = "SM Post Vote.SM Post Id"
+  nexusSocialDbContext.intSeqToFieldTable[15] = "SM Post Vote.Votes Up Count"
+  nexusSocialDbContext.intSeqToFieldTable[16] = "SM Post Vote.Votes Down Count"
 
-  nexusSocialModule.modelToIntSeqTable["SM Post Vote User"] = 2
+  nexusSocialDbContext.modelToIntSeqTable["SM Post Vote User"] = 2
 
-  nexusSocialModule.intSeqToModelTable[2] = "SM Post Vote User"
+  nexusSocialDbContext.intSeqToModelTable[2] = "SM Post Vote User"
 
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote User.SM Post Id"] = 17
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote User.Account User Id"] = 18
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote User.Vote Up"] = 19
-  nexusSocialModule.fieldToIntSeqTable["SM Post Vote User.Vote Down"] = 20
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote User.SM Post Id"] = 17
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote User.Account User Id"] = 18
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote User.Vote Up"] = 19
+  nexusSocialDbContext.fieldToIntSeqTable["SM Post Vote User.Vote Down"] = 20
 
-  nexusSocialModule.intSeqToFieldTable[17] = "SM Post Vote User.SM Post Id"
-  nexusSocialModule.intSeqToFieldTable[18] = "SM Post Vote User.Account User Id"
-  nexusSocialModule.intSeqToFieldTable[19] = "SM Post Vote User.Vote Up"
-  nexusSocialModule.intSeqToFieldTable[20] = "SM Post Vote User.Vote Down"
+  nexusSocialDbContext.intSeqToFieldTable[17] = "SM Post Vote User.SM Post Id"
+  nexusSocialDbContext.intSeqToFieldTable[18] = "SM Post Vote User.Account User Id"
+  nexusSocialDbContext.intSeqToFieldTable[19] = "SM Post Vote User.Vote Up"
+  nexusSocialDbContext.intSeqToFieldTable[20] = "SM Post Vote User.Vote Down"
 
-  return nexusSocialModule
+  return nexusSocialDbContext
 
