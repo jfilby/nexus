@@ -145,7 +145,7 @@ proc getDefaultAppName(projectTemplate: var ProjectTemplate) =
 
   case projectTemplate.artifact:
 
-    of "console":
+    of "console-app":
       projectTemplate.appName = "Console app"
 
     of "web-app":
