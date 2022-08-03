@@ -55,6 +55,13 @@ proc readNexusYaml*(confPath: string):
   s.close()
 
   # Validate
+  if nexusYaml.package == "":
+
+    echo &"Error: package in conf{DirSep}nexus.yaml isn't all lowercase: " &
+         nexusYAML.package
+
+    quit(1)
+
   if isLowerAscii(nexusYAML.package) == false:
 
     echo &"Error: package in conf{DirSep}nexus.yaml isn't all lowercase: " &

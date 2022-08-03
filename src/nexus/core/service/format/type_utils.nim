@@ -162,11 +162,17 @@ proc int64sWithOption*(int64s: seq[int64]): Option[seq[int64]] =
   return none(seq[int64])
 
 
-proc isLowerAscii*(str: string): bool =
+proc isLowerAscii*(
+       str: string,
+       underscoreAllowed: bool = true): bool =
 
   for i in 0 .. len(str) - 1:
 
-    if isLowerAscii(str[i]) == false:
+    if str[i] == '_':
+      if underscoreAllowed == false:
+        return false
+
+    elif isLowerAscii(str[i]) == false:
       return false
 
   return true
