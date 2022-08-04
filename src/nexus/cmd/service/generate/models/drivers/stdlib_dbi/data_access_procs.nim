@@ -144,7 +144,7 @@ proc createProc*(str: var string,
     indent = "  ")
 
   # Exec the insert statement
-  if model.fields[0].constraints.contains("auto-value"):
+  if model.fields[0].isAutoValue == true:
     pgTryInsertId = true
 
     str &=  "  # Execute the insert statement and return the sequence values\n" &
@@ -854,9 +854,9 @@ proc getOrCreateProc*(str: var string,
          &"    return {model.nameInCamelCase}.get\n" &
           "\n"
 
-  # Create uniqueFieldsExcludingOptionTypes
-  var uniqueFieldsExcludingOptionTypes =
-        fieldListWithoutOptionalFields(
+  # Create uniqueFieldsWithOnlyOptionalTypes
+  var uniqueFieldsWithOnlyOptionalTypes =
+        fieldListWithOnlyOptionalFields(
           model,
           uniqueFields)
 
@@ -869,7 +869,7 @@ proc getOrCreateProc*(str: var string,
     model,
     indent = "           ",
     skipAutoValue = true,
-    addNimTypeOptionsForFields = uniqueFieldsExcludingOptionTypes)
+    addNimTypeOptionsForFields = uniqueFieldsWithOnlyOptionalTypes)
 
   str &= &")\n" &
          &"\n"

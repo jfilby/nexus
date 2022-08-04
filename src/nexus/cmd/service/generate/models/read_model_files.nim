@@ -18,7 +18,7 @@ proc writeModelTypes(
        fileModuleName: string,
        modelFiles: var seq[string],
        moduleMinimumImports: seq[string],
-       modelImportsTable: Table[string, OrderedSet[string]],
+       modelImportsTable: var Table[string, seq[string]],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: GeneratorInfo)
 
@@ -30,7 +30,7 @@ proc createBasicModelTypesFile*(
        module: Module) =
 
   var typeStr =
-        "# Basic model_types file (no models defined) with only a basic DbContext definition\n" &
+        "# Minimal model_types file (no models defined)with a DbContext definition\n" &
         "import db_postgres\n" &
         "\n" &
         "type\n" &
@@ -53,8 +53,6 @@ proc createBasicDbContextFile(
   if generatorInfo.modelTypesTable.hasKey(module.name):
     if generatorInfo.modelTypesTable[module.name].written == true:
       return
-
-  echo "!! module.name: " & module.name
 
   # Vars
   let
@@ -90,10 +88,12 @@ proc createBasicDbContextFiles(
             webArtifact,
             generatorInfo)
 
-    createBasicDbContextFile(
-      modelFiles,
-      module,
-      generatorInfo)
+    if module.imported == false:
+
+      createBasicDbContextFile(
+        modelFiles,
+        module,
+        generatorInfo)
 
   for library in generatorInfo.libraries:
 
@@ -102,15 +102,17 @@ proc createBasicDbContextFiles(
             library,
             generatorInfo)
 
-    createBasicDbContextFile(
-      modelFiles,
-      module,
-      generatorInfo)
+    if module.imported == false:
+
+      createBasicDbContextFile(
+        modelFiles,
+        module,
+        generatorInfo)
 
 
 proc expandModelTypesImports(
         model: Model,
-        modelImportsTable: var Table[string, OrderedSet[string]]) =
+        modelImportsTable: var Table[string, seq[string]]) =
 
   var
     usesDateTimeTypes = modelUsesDateTimeTypes(model)
@@ -122,29 +124,26 @@ proc expandModelTypesImports(
      usesOptionTypes == true:
 
     if not modelImportsTable.hasKey(model.module.name):
-      modelImportsTable[model.module.name] = initOrderedSet[string]()
+      modelImportsTable[model.module.name] = @[]
 
   if usesDateTimeTypes == true:
-
     if not modelImportsTable[model.module.name].contains("times"):
-      modelImportsTable[model.module.name].incl("times")
+      modelImportsTable[model.module.name].add("times")
 
   if usesJsonTypes == true:
-
     if not modelImportsTable[model.module.name].contains("json"):
-      modelImportsTable[model.module.name].incl("json")
+      modelImportsTable[model.module.name].add("json")
 
   if usesOptionTypes == true:
-
     if not modelImportsTable[model.module.name].contains("options"):
-      modelImportsTable[model.module.name].incl("options")
+      modelImportsTable[model.module.name].add("options")
 
 
 proc processModel(
        model: var Model,
        srcPath: string,
-       moduleMinimumImports: OrderedSet[string],
-       modelImportsTable: var Table[string, OrderedSet[string]],
+       moduleMinimumImports: seq[string],
+       modelImportsTable: var Table[string, seq[string]],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: var GeneratorInfo) =
 
@@ -189,7 +188,14 @@ proc processModel(
       TypeInfo(path: &"{srcPath}{DirSep}types",
                written: false)
 
+  if not modelImportsTable.hasKey(model.module.name):
     modelImportsTable[model.module.name] = moduleMinimumImports
+
+  else:
+    for `import` in moduleMinimumImports:
+
+      if not modelImportsTable[model.module.name].contains(`import`):
+        modelImportsTable[model.module.name].add(`import`)
 
   generatorInfo.modelTypesTable[model.module.name].str = modelTypesStr
 
@@ -223,8 +229,8 @@ proc readModelFile(modelFiles: var seq[string],
   # Import model YAML
   var
     modelCollection: ModelsYAML
-    modelImportsTable: Table[string, OrderedSet[string]]  # [ model.module, imports ]
-    modelModuleTypeTable: Table[string, string]           # [ model.module, moduleType definition ]
+    modelImportsTable: Table[string, seq[string]]  # [ model.module, imports ]
+    modelModuleTypeTable: Table[string, string]    # [ model.module, moduleType definition ]
     fileModuleName = ""
     moduleMinimumImports =
       @[ "db_postgres",
@@ -332,7 +338,7 @@ proc readModelFile(modelFiles: var seq[string],
 
       processModel(modelObject.get,
                    srcPath,
-                   toOrderedSet(moduleMinimumImports),
+                   moduleMinimumImports,
                    modelImportsTable,
                    modelModuleTypeTable,
                    generatorInfo)
@@ -342,7 +348,7 @@ proc readModelFile(modelFiles: var seq[string],
 
       processModel(modelRef.get,
                    srcPath,
-                   toOrderedSet(moduleMinimumImports),
+                   moduleMinimumImports,
                    modelImportsTable,
                    modelModuleTypeTable,
                    generatorInfo)
@@ -425,7 +431,7 @@ proc writeModelTypes(
        fileModuleName: string,
        modelFiles: var seq[string],
        moduleMinimumImports: seq[string],
-       modelImportsTable: Table[string, OrderedSet[string]],
+       modelImportsTable: var Table[string, seq[string]],
        modelModuleTypeTable: var Table[string, string],
        generatorInfo: GeneratorInfo) =
 
@@ -437,8 +443,7 @@ proc writeModelTypes(
     if fileModuleName != module.shortName:
       continue
 
-    if module.imported == true: # and
-       # not module.generate.contains("models"):
+    if module.imported == true:
       continue
 
     if generatorInfo.modelTypesTable.hasKey(module.name):
@@ -472,7 +477,7 @@ proc writeModelTypes(
 
     # for moduleName, typeInfo in generatorInfo.modelTypesTable:
 
-    if modelImportsTable.hasKey(module.name):
+    if modelImportsTable.contains(module.name):
       typeStr &= initModelTypesStr(modelImportsTable[module.name])
 
     else:

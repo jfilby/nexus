@@ -56,10 +56,10 @@ proc createPgTable*(
 
     dmlStr &= &"  {field.nameInSnakeCase} {pgFieldType}"
 
-    if field.constraints.contains("not null"):
+    if field.isRequired == true:
       dmlStr &= " NOT NULL"
 
-    if field.constraints.contains("auto-value"):
+    if field.isAutoValue == true:
       dmlStr &= " GENERATED ALWAYS AS IDENTITY"
 
   # PK

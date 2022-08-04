@@ -8,6 +8,7 @@ import nexus/core/service/account/send_user_emails
 import nexus/core/service/account/utils
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/nexus_settings/get
+import nexus/core/types/context_type
 import nexus/core/types/model_types as nexus_core_model_types
 import nexus/core/types/view_types
 import nexus/core_extras/service/format/hash
@@ -16,7 +17,17 @@ import nexus/crm/data_access/mailing_list_subscriber_data
 import nexus/crm/types/model_types as nexus_crm_model_types
 
 
-proc signUpAction*(request: Request): DocUIReturn =
+proc signUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
+
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Initial vars
+  template request: untyped = nexusCoreContext.web.get.request
 
   let contentType = getContentType(request)
 
@@ -80,7 +91,7 @@ proc signUpAction*(request: Request): DocUIReturn =
   # Verify the input
   let docuiReturn =
         verifySignUpFields(
-          nexusCoreDbContext,
+          nexusCoreContext,
           name,
           email,
           password1,
@@ -107,12 +118,12 @@ proc signUpAction*(request: Request): DocUIReturn =
     signUpCode = generateSignUpCode()
 
   # Begin
-  beginTransaction(nexusCoreDbContext)
+  beginTransaction(nexusCoreContext.db)
 
   # Create AccountUser record
   let accountUser =
         createAccountUser(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           accountId = none(int64),
           name = name,
           email = email,
@@ -137,28 +148,28 @@ proc signUpAction*(request: Request): DocUIReturn =
     let
       mailingListName =
         getNexusSettingValue(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           module = "Nexus CRM",
           key = "Announcements Mailing List")
 
       mailingListOwnerEmail =
         getNexusSettingValue(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           module = "Nexus CRM",
           key = "Announcements Mailing List Owner Email")
 
-      nexusCRMModule =
-        NexusCRMModule(db: nexusCoreDbContext.db)
+      nexusCrmDbContext =
+        NexusCrmDbContext(dbConn: nexusCoreContext.db.dbConn)
 
       ownerAccountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           mailingListOwnerEmail.get)
 
       # Get MailingList record
       mailingList =
         getMailingListByAccountUserIdAndName(
-          nexusCRMModule,
+          nexusCrmDbContext,
           ownerAccountUser.get.accountUserId,
           mailingListName.get)
 
@@ -172,7 +183,7 @@ proc signUpAction*(request: Request): DocUIReturn =
 
     # Get/create MailingListSubscriber record
     discard getOrCreateMailingListSubscriberByMailingListIdAndEmail(
-              nexusCRMModule,
+              nexusCrmDbContext,
               accountUserId = some(accountUser.accountUserId),
               mailingList.get.mailingListId,
               getUniqueHash(@[ mailingListName.get,
@@ -186,7 +197,7 @@ proc signUpAction*(request: Request): DocUIReturn =
               deleted = none(DateTime))
 
   # Commit
-  commitTransaction(nexusCoreDbContext)
+  commitTransaction(nexusCoreContext.db)
 
   # Send sign-up code email
   sendSignUpCodeEmail(

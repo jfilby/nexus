@@ -1,5 +1,5 @@
 # Nexus generated file
-import db_postgres, tables, times, options
+import db_postgres, options, tables, times
 
 
 type

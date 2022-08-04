@@ -102,7 +102,7 @@ proc readLibraryDefinitionsPass1*(
 
       let libraryFile = filename
 
-      echo &"!  libraryFile: {libraryFile}"
+      # echo &"!  libraryFile: {libraryFile}"
 
       libraryFiles.add(libraryFile)
 

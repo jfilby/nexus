@@ -27,10 +27,15 @@ proc generateContextType*(
   # Content
   var str = ""
 
+  if module.nameInPascalCase == "NexusCore" or
+     module.isWeb == true:
+    str &= "import options\n"
+
   if module.nameInPascalCase != "NexusCore":
     str &= "import nexus/core/types/model_types as nexus_core_model_types\n"
 
-  if module.isWeb == true:
+  if module.isWeb == true or
+     module.nameInPascalCase == "NexusCore":
     str &= "import nexus/core/types/view_types\n"
 
   str &=  "import model_types\n" &
@@ -40,8 +45,9 @@ proc generateContextType*(
          &"  {module.nameInPascalCase}Context* = object\n" &
          &"    db*: {module.nameInPascalCase}DbContext\n"
 
-  if module.isWeb == true:
-    str &= "    web*: WebContext\n" &
+  if module.isWeb == true or
+     module.nameInPascalCase == "NexusCore":
+    str &= "    web*: Option[WebContext]\n" &
            "\n"
 
   if module.nameInPascalCase != "NexusCore":

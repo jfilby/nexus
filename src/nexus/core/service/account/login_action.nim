@@ -8,6 +8,7 @@ import nexus/core/service/account/jwt_utils
 import nexus/core/service/account/utils
 import nexus/core/service/account/verify_login_fields
 import nexus/core/service/nexus_settings/get
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import nexus/core/types/types
 import nexus/core/types/view_types
@@ -17,8 +18,7 @@ import nexus/core_extras/service/format/hash
 
 # Forward declarations
 proc loginActionVerified*(
-       nexusCoreDbContext: NexusCoreDbContext,
-       webContext: WebContext,
+       nexusCoreContext: NexusCoreContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn
 
@@ -62,11 +62,18 @@ template myRedirect*(url: string): typed =
 
 
 # Used by the Nexus Admin web-service
-proc loginAction*(request: Request,
-                  webContext: WebContext,
+proc loginAction*(nexusCoreContext: NexusCoreContext,
                   json: Option[JsonNode]): DocUIReturn =
 
-  let contentType = getContentType(request)
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Initial vars
+  let contentType = getContentType(nexusCoreContext.web.get.request)
 
   debug "loginAction()",
     contentType = contentType
@@ -76,6 +83,8 @@ proc loginAction*(request: Request,
     password = ""
     loginHash = ""
     formValues: JsonNode
+
+  template request: untyped = nexusCoreContext.web.get.request
 
   # Handle form post
   if contentType == ContentType.Form:
@@ -115,7 +124,7 @@ proc loginAction*(request: Request,
     # Get AccountUserToken record
     let accountUserToken =
           getAccountUserTokenByUniqueHash(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             loginHash)
 
     if accountUserToken == none(AccountUserToken):
@@ -131,8 +140,7 @@ proc loginAction*(request: Request,
 
     # Successfully found
     return loginActionVerified(
-             nexusCoreDbContext,
-             webContext,
+             nexusCoreContext,
              accountUserToken.get.accountUserId,
              loginHash)
 
@@ -152,7 +160,7 @@ proc loginAction*(request: Request,
 
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   if accountUser == none(AccountUser):
@@ -200,21 +208,19 @@ proc loginAction*(request: Request,
 
   # Login
   return loginActionVerified(
-           nexusCoreDbContext,
-           webContext,
+           nexusCoreContext,
            accountUserId,
            loginHash)
 
 
 proc loginActionByEmailVerified*(
-       nexusCoreDbContext: NexusCoreDbContext,
-       webContext: WebContext,
+       nexusCoreContext: NexusCoreContext,
        email: string): DocUIReturn =
 
   # Get Account User by email
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   if accountUser == none(AccountUser):
@@ -224,17 +230,22 @@ proc loginActionByEmailVerified*(
             &"AccountUser record not found for email: {email}")
 
   return loginActionVerified(
-           nexusCoreDbContext,
-           webContext,
+           nexusCoreContext,
            accountUser.get.accountUserId,
            "")
 
 
 proc loginActionVerified*(
-       nexusCoreDbContext: NexusCoreDbContext,
-       webContext: WebContext,
+       nexusCoreContext: NexusCoreContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn =
+
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
 
   # Login OK
   debug "loginAction(): login verified OK"
@@ -242,14 +253,14 @@ proc loginActionVerified*(
   # Set lastLogin
   let rowsUpdated =
         updateAccountUserSetLastLoginByPk(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           lastLogin = some(now()),
           accountUserId)
 
   # Get API key
   let apiKey =
         getAPIKeyFromAccountUserByPk(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           accountUserId)
 
   # New DocUIReturn
@@ -258,7 +269,7 @@ proc loginActionVerified*(
   # Get AccountUserToken record
   var accountUserToken =
         getAccountUserTokenByPk(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           accountUserId)
 
   # TODO: if loginHash is specified, then try to use the existing token
@@ -267,16 +278,16 @@ proc loginActionVerified*(
   # Create token
   docUIReturn.token =
     createJWT(
-      nexusCoreDbContext,
+      nexusCoreContext.db,
       $accountUserId,
       apiKey.get,
-      mobile = $webContext.mobileDefault)
+      mobile = $nexusCoreContext.web.get.mobileDefault)
 
   # New AccountUserToken record required
   if accountUserToken == none(AccountUserToken):
 
     discard createAccountUserToken(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               accountUserId,
               getUniqueHash(@[ docUIReturn.token ]),
               docUIReturn.token,
@@ -289,7 +300,7 @@ proc loginActionVerified*(
     accountUserToken.get.deleted = none(DateTime)
 
     discard updateAccountUserTokenByPk(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               accountUserToken.get,
               setFields = @[ "token",
                              "deleted" ])
@@ -297,7 +308,7 @@ proc loginActionVerified*(
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           accountUserId)
 
   if accountUser == none(AccountUser):
@@ -310,7 +321,7 @@ proc loginActionVerified*(
   accountUser.get.lastToken = some(docUIReturn.token)
 
   discard updateAccountUserByPk(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -327,18 +338,24 @@ proc loginActionVerified*(
   return docuiReturn
 
 
-template logoutAction*(request: Request,
-                       webContext: WebContext,
+template logoutAction*(nexusCoreContext: NexusCoreContext,
                        redirect: string = "") =
 
-  logoutPage(request,
-             webContext)
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Logout page
+  logoutPage(nexusCoreContext)
 
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreDbContext,
-          webContext.accountUserId)
+          nexusCoreContext.db,
+          nexusCoreContext.web.get.webContext.accountUserId)
 
   if accountUser == none(AccountUser):
 
@@ -351,7 +368,7 @@ template logoutAction*(request: Request,
   accountUser.get.lastToken = none(string)
 
   discard updateAccountUserByPk(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -369,9 +386,7 @@ template logoutAction*(request: Request,
   # resp Http307, @[("Location", "/")], ""
 
 
-template postLoginAction*(
-           request: Request,
-           webContext: WebContext) =
+template postLoginAction*(nexusCoreContext: NexusCoreContext) =
 
   var
     verified: bool
@@ -380,8 +395,7 @@ template postLoginAction*(
 
   (verified,
    loginURL,
-   token) = loginPagePost(request,
-                          webContext)
+   token) = loginPagePost(nexusCoreContext)
 
   if verified == true:
 
@@ -396,7 +410,7 @@ template postLoginAction*(
     # Get 'Nexus Pay subscriptions enabled' setting
     let nexusPaySubscriptionsEnabled =
           getNexusSettingValue(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             module = "Nexus Core",
             key = "Nexus Pay subscriptions enabled")
 
@@ -410,7 +424,7 @@ template postLoginAction*(
 
     let accountUser =
           getAccountUserByEmail(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             email)
 
     if accountUser != none(AccountUser):

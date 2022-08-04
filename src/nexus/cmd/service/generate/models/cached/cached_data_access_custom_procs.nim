@@ -261,7 +261,7 @@ proc cachedUpdateCustomProc*(
     let field = getModelFieldByName(setField,
                                     model)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       getOption = ".get"
 
     str &= &"           {field.nameInCamelCase}{getOption}"
@@ -274,7 +274,7 @@ proc cachedUpdateCustomProc*(
     let field = getModelFieldByName(whereField,
                                     model)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       getOption = ".get"
 
     str &= &",\n           {field.nameInCamelCase}{getOption}"

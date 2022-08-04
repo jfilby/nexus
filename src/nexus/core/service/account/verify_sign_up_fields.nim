@@ -3,6 +3,7 @@ import docui/service/sdk/docui_elements
 import docui/service/sdk/docui_types
 import docui/service/sdk/docui_utils
 import nexus/core/data_access/account_user_data
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import verify_account_fields
 
@@ -47,7 +48,7 @@ proc verifyPasswordFields*(
 
 
 proc verifySignUpFields*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       nexusCoreContext: NexusCoreContext,
        name: string,
        email: string,
        password1: string,
@@ -84,7 +85,7 @@ proc verifySignUpFields*(
   # Verify that the email is not already signed up
   let emailExists =
         existsAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   if email_exists == true:
@@ -102,7 +103,7 @@ proc verifySignUpFields*(
   # Verify email address
   var docuiReturn =
         verifyEmailAddress(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   if docuiReturn.isVerified == false:

@@ -4,11 +4,11 @@ import nexus/core_extras/types/model_types
 
 
 proc truncateNexusCoreExtrasTables*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
-  truncateListItem(nexusCoreExtrasModule,
+  truncateListItem(nexusCoreExtrasDbContext,
                    cascade = cascade)
 
-  truncateMenuItem(nexusCoreExtrasModule)
+  truncateMenuItem(nexusCoreExtrasDbContext)
 

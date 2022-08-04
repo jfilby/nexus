@@ -51,7 +51,7 @@ proc buildAssignModelTypeFieldsFromRow*(
                                   withOption = false)
 
     # Not null fields: add to insert statement
-    if field.constraints.contains("not null"):
+    if field.isRequired == true:
 
       if field.`type` == "char":
         str &= &"{indent}{model.nameInCamelCase}.{field.nameInCamelCase} = row[{i}][0]\n"
@@ -106,7 +106,7 @@ proc buildInsertSQLFromModelFieldNames*(
   for field in model.fields:
 
     # Skip PK if auto-gen and not uuid
-    if field.constraints.contains("auto-value") and
+    if field.isAutoValue == true and
        field.`type` != "uuid":
 
       continue
@@ -125,7 +125,7 @@ proc buildInsertSQLFromModelFieldNames*(
       aIndent = indent
 
     # Not null fields: add to insert statement
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
 
       aIndent &= "  "
       getOption = ".get"
@@ -408,7 +408,7 @@ proc countFieldNames*(
   return count
 
 
-proc fieldListWithoutOptionalFields*(
+proc fieldListWithOnlyOptionalFields*(
        model: Model,
        listFields: seq[string]): seq[string] =
 
@@ -420,7 +420,7 @@ proc fieldListWithoutOptionalFields*(
     let field = getFieldByName(listField,
                                model)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       returnFields.add(listField)
 
   # Return
@@ -558,7 +558,7 @@ proc listFieldNames*(
                                                    field).get
 
       if foundDefault == false and
-         not field.constraints.contains("not null"):
+         field.isRequired == false:
 
         let nimTypeWithoutOption =
               getNimType(field,
@@ -616,7 +616,7 @@ proc listModelFieldNames*(
   for field in model.fields:
 
     if skipAutoValue == true:
-      if field.constraints.contains("auto-value"):
+      if field.isAutoValue == true:
         continue
 
     fields.add(field.name)
@@ -838,7 +838,7 @@ proc setClause*(str: var string,
                          field,
                          withOption = false)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       getOption = ".get"
       option = true
 

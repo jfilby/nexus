@@ -1,4 +1,4 @@
-import chronicles, options, sets, strformat, strutils
+import algorithm, chronicles, options, sets, strformat, strutils
 import nexus/core/service/format/case_utils
 import nexus/core/service/format/tokenize
 import nexus/cmd/service/generate/modules/module_utils
@@ -142,6 +142,20 @@ proc getModel*(modelYaml: ModelYAML,
     else:
       field.isArray = false
 
+    # Set isRequired
+    if field.constraints.contains("not null"):
+      field.isRequired = true
+
+    else:
+      field.isRequired = false
+
+    # Set isAutoValue
+    if field.constraints.contains("auto-value"):
+      field.isAutoValue = true
+
+    else:
+      field.isAutoValue = false
+
     # Set additional fields
     field.nameInCamelCase = inCamelCase(field.name)
     field.nameInPascalCase = inPascalCase(field.name)
@@ -275,7 +289,7 @@ proc generateNimTypeStringToStringLine(
        fromVar: string,
        indent: string) =
 
-  let withOption = not field.constraints.contains("not null")
+  let withOption = not field.isRequired
 
   str &= &"{indent}if {fromVar} != \"\":\n"
   
@@ -294,7 +308,7 @@ proc generateNimTypeStringToRawLine(
        fromVar: string,
        indent: string) =
 
-  let withOption = not field.constraints.contains("not null")
+  let withOption = not field.isRequired
 
   str &= &"{indent}if {fromVar} != \"\":\n"
 
@@ -672,7 +686,7 @@ proc getNimType*(field: Field,
 
   # Add option syntax
   if withOption == true and
-     not field.constraints.contains("not null"):
+     field.isRequired == false:
     nimType = "Option[" & nimType & "]"
 
   return nimType
@@ -724,7 +738,7 @@ proc getNimType*(fields: Fields,
 
     # Add option syntax
     if withOption == true and
-       not field.constraints.contains("not null"):
+       field.isRequired == false:
       nimFieldType = "Option[" & nimFieldType & "]"
 
     nimType &= nimFieldType
@@ -777,8 +791,12 @@ proc getProcPostDetails*(
   return str
 
 
-proc initModelTypesStr*(imports: OrderedSet[string]): string =
+proc initModelTypesStr*(imports: var seq[string]): string =
 
+  # Sort imports
+  sort(imports)
+
+  # Imports string (delimited with commas)
   var
     first = true
     importsStr = ""

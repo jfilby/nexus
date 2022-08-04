@@ -267,7 +267,7 @@ proc updateCustomProc*(
             setField,
             model)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       getOption = ".get"
 
     str &= &"           {field.nameInSnakeCase}{getOption}"
@@ -280,7 +280,7 @@ proc updateCustomProc*(
     let field = getModelFieldByName(whereField,
                                     model)
 
-    if not field.constraints.contains("not null"):
+    if field.isRequired == false:
       getOption = ".get"
 
     str &= &",\n           {field.nameInSnakeCase}{getOption}"

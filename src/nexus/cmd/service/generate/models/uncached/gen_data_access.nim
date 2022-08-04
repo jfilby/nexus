@@ -172,7 +172,7 @@ proc generateDataAccessFile*(
     str &= "\n"
 
   # Get or Insert by PK (if the PK isn't auto-generated)
-  if not model.fields[0].constraints.contains("auto-value"):
+  if model.fields[0].isAutoValue == false:
 
     if getOrCreateProc(str,
                        model,

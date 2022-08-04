@@ -4,6 +4,7 @@ import docui/service/sdk/docui_utils
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/db_conn
 import nexus/core/service/account/utils
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
@@ -13,9 +14,20 @@ import send_user_emails
 import verify_reset_password_fields
 
 
-proc resetPasswordRequestAction*(request: Request): DocUIReturn =
+proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
+       DocUIReturn =
 
-  let content_type = getContentType(request)
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Initial vars
+  template request: untyped = nexusCoreContext.web.get.request
+
+  let contentType = getContentType(request)
 
   var
     email = ""
@@ -31,7 +43,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
   # Handle JSON post
   var formValues: JsonNode
 
-  if content_type == ContentType.JSON:
+  if contentType == ContentType.JSON:
     let json = parseJson(request.body)
 
     if json.hasKey(DocUI_Form):
@@ -48,7 +60,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   # Verify the input
@@ -66,7 +78,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             email)
 
     # Get passwordResetCode
@@ -74,7 +86,7 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
 
     # Update accountUser with the passwordResetCode
     discard updateAccountUserByPk(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               accountUser.get,
               setFields = @[ "password_reset_code"])
 
@@ -88,9 +100,20 @@ proc resetPasswordRequestAction*(request: Request): DocUIReturn =
   return newDocUIReturn(true)
 
 
-proc resetPasswordChangeAction*(request: Request): DocUIReturn =
+proc resetPasswordChangeAction*(nexusCoreContext: NexusCoreContext):
+       DocUIReturn =
 
-  let content_type = getContentType(request)
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Initial vars
+  template request: untyped = nexusCoreContext.web.get.request
+
+  let contentType = getContentType(request)
 
   # Get form params
   var
@@ -114,7 +137,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
   # Handle JSON post
   var formValues: JsonNode
 
-  if content_type == ContentType.JSON:
+  if contentType == ContentType.JSON:
     let json = parseJson(request.body)
 
     if json.hasKey(DocUI_Form):
@@ -137,7 +160,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   # Verify the input
@@ -158,7 +181,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             email)
 
     # Update password
@@ -169,7 +192,7 @@ proc resetPasswordChangeAction*(request: Request): DocUIReturn =
                    inSalt = "")
 
     discard updateAccountUserByPk(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               accountUser.get,
               setFields = @[ "password_hash",
                              "password_salt" ])

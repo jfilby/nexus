@@ -10,8 +10,10 @@ proc generateModelFields(
 
   for field in model.fields:
 
-    let nimType = getNimType(field,
-                             withOption = true)
+    let nimType =
+          getNimType(
+            field,
+            withOption = true)
 
     # Raw type
     str &= &"    {field.nameInCamelCase}*: {nimType}\n"

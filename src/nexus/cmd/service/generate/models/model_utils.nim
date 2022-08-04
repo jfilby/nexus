@@ -289,8 +289,7 @@ proc modelUsesOptionalTypes*(model: Model): bool =
 
   for field in model.fields:
 
-    if not field.constraints.contains("not null"):
-
+    if field.isRequired == false:
       return true
 
   return false

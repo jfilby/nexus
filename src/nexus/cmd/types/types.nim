@@ -82,6 +82,8 @@ type
     constraints*: seq[string]
 
     isArray*: bool
+    isRequired*: bool
+    isAutoValue*: bool
     shortHash*: string
 
 

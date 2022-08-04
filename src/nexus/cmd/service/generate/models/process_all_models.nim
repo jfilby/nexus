@@ -17,8 +17,6 @@ proc processAllModels*(
   path = &"{confPath}{DirSep}models"
   modelConfPaths.add(path)
 
-  echo "processAllModels(): model path: " & path
-
   debug "processAllModels(): added path",
     path = path
 
@@ -26,8 +24,6 @@ proc processAllModels*(
   for module in generatorInfo.modules:
 
     path = &"{module.confPath}{DirSep}models{DirSep}{module.nameInSnakeCase}"
-
-    echo "processAllModels(): possible import path: " & path
 
     debug "processAllModels(): possible import path",
       path = path,

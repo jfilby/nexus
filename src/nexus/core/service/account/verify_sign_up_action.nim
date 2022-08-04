@@ -8,6 +8,7 @@ import nexus/core/service/account/send_user_emails
 import nexus/core/service/account/utils
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/nexus_settings/get
+import nexus/core/types/context_type
 import nexus/core/types/view_types
 import nexus/core_extras/service/format/hash
 import nexus/crm/data_access/mailing_list_data
@@ -23,9 +24,19 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
               children)
 
 
-proc verifySignUpAction*(request: Request): DocUIReturn =
+proc verifySignUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
 
-  let content_type = getContentType(request)
+  # Validate
+  if nexusCoreContext.web == none(WebContext):
+
+    raise newException(
+            ValueError,
+            "nexusCoreContext.web == none")
+
+  # Initial vars
+  template request: untyped = nexusCoreContext.web.get.request
+
+  let contentType = getContentType(request)
 
   var
     field_errors: Table[string, string]
@@ -33,7 +44,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
     signUpCode = ""
 
   # Handle form post
-  if content_type == ContentType.Form:
+  if contentType == ContentType.Form:
     if request.params.hasKey("email"):
       email = request.params["email"]
 
@@ -43,7 +54,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
   # Handle JSON post
   var formValues: JsonNode
 
-  if content_type == ContentType.JSON:
+  if contentType == ContentType.JSON:
     debug "verifySignupAction: request",
       body = request.body
 
@@ -63,13 +74,13 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
   # Get accountUser record
   var accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   # Verify fields
   let docuiReturn =
         verifySignUpCodeFields(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email,
           signUpCode,
           accountUser)
@@ -84,7 +95,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
 
       var rowsUpdated =
             updateAccountUserByPk(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               accountUser.get,
               setFields = @[ "is_active",
                              "is_verified" ])
@@ -100,39 +111,40 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
 
       # Get mailing list
       let
-        nexusCRMModule =
-          NexusCRMModule(db: nexusCoreDbContext.db)
+        nexusCrmDbContext =
+          NexusCrmDbContext(dbConn: nexusCoreContext.db.dbConn)
 
         mailingListName =
           getNexusSettingValue(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             module = "Nexus CRM",
             key = "Announcements Mailing List")
 
         mailingListOwnerEmail =
           getNexusSettingValue(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             module = "Nexus CRM",
             key = "Announcements Mailing List Owner Email")
 
         ownerAccountUser =
           getAccountUserByEmail(
-            nexusCoreDbContext,
+            nexusCoreContext.db,
             mailingListOwnerEmail.get)
 
         mailingList =
           getMailingListByAccountUserIdAndName(
-            nexusCRMModule,
+            nexusCrmDbContext,
             ownerAccountUser.get.accountUserId,
             mailingListName.get)
 
       # Activate mailing list for subscriber
-      let uniqueHash = getUniqueHash(@[ $mailingList.get.mailingListId,
-                                        email ])
+      let uniqueHash =
+            getUniqueHash(@[ $mailingList.get.mailingListId,
+                             email ])
 
       var mailingListSubscriber =
             getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId(
-              nexusCRMModule,
+              nexusCrmDbContext,
               accountUser.get.accountUserId,
               mailingList.get.mailingListId,
               uniqueHash,
@@ -152,7 +164,7 @@ proc verifySignUpAction*(request: Request): DocUIReturn =
 
         rowsUpdated =
           updateMailingListSubscriberByPk(
-            nexusCRMModule,
+            nexusCrmDbContext,
             mailingListSubscriber,
             setFields = @[ "is_active",
                            "is_verified" ])

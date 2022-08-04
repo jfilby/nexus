@@ -8,50 +8,77 @@ proc generateContextProc*(
 
   debug "generateContextProc()"
 
-  var str = ""
+  var
+    str = ""
+    imports: seq[string]
+    param = ""
 
-  if module.isWeb == true:
-    str &=
-      "import jester\n" &
-      "import nexus/core/types/model_types as nexus_core_model_types\n"
+  # Determine imports
+  if module.isWeb == true or
+    module.nameInPascalCase == "NexusCore":
 
-  var param = ""
+    imports.add("jester, options")
+    imports.add("nexus/core/data_access/db_conn")
+    imports.add("nexus/core/types/model_types as nexus_core_model_types")
+    imports.add(&"{module.srcRelativePath}/types/context_type")
+    imports.add(&"{module.srcRelativePath}/types/model_types")
+    imports.add("new_web_context")
 
-  if module.isWeb == true:
-    param = "request: Request"
+    param = "request: Option[Request] = none(Request)"
+
+  else:
+    imports.add(&"{module.srcRelativePath}/types/context_type")
+    imports.add(&"{module.srcRelativePath}/types/model_types")
+
+  # Generate: imports
+  for `import` in imports:
+    str &= &"import {`import`}\n"
 
   str &=
-    &"import {module.srcRelativePath}/types/context_type\n" &
-    &"import {module.srcRelativePath}/types/model_types\n" &
-     "import new_web_context\n" &
      "\n" &
-     "\n" &
+     "\n"
+
+  # Generate: newModuleContext()
+  str &=
     &"proc new{module.nameInPascalCase}Context*({param}):\n" &
     &"       {module.nameInPascalCase}Context =\n" &
      "\n" &
     &"  var {module.nameInCamelCase}Context = {module.nameInPascalCase}Context()\n" &
-     "\n" &
-    &"  {module.nameInCamelCase}Context.db = {module.nameInPascalCase}DbContext()\n"
+     "\n"
+
+  # Generate: Init .db
+  str &=
+    &"  {module.nameInCamelCase}Context.db =\n"
 
   if module.nameInPascalCase != "NexusCore":
 
     str &=
+      &"    {module.nameInPascalCase}DbContext()\n" &
        "\n" &
       &"  {module.nameInCamelCase}Context.nexusCoreDbContext =\n" &
       &"    NexusCoreDbContext(dbConn: {module.nameInCamelCase}Context.db.dbConn)\n"
 
-  if module.isWeb == true:
+  else:
+    str &=
+        &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n"
+
+  # Generate: Init .web
+  # For web-enabled modules or Nexus Core (which is a include web library procs)
+  if module.isWeb == true or
+     module.nameInPascalCase == "NexusCore":
     str &=
        "\n" &
       &"  {module.nameInCamelCase}Context.web =\n" &
-       "    newWebContext(request,\n"
+       "    some(\n" &
+       "      newWebContext(request.get,\n"
 
-  if module.nameInPascalCase == "NexusCore":
-    str &= "                  nexusCoreDbContext)\n"
+    if module.nameInPascalCase == "NexusCore":
+      str &= "                    nexusCoreDbContext))\n"
 
-  else:
-    str &= &"                  {module.nameInCamelCase}Context.nexusCoreDbContext)\n"
+    else:
+      str &= &"                    {module.nameInCamelCase}Context.nexusCoreDbContext))\n"
 
+  # Generate: return
   str &=
      "\n" &
     &"  return {module.nameInCamelCase}Context\n" &
