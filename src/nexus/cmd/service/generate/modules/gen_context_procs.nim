@@ -13,7 +13,8 @@ proc generateContextProc*(
     modulePath = &"{module.srcPath}{DirSep}service{DirSep}module"
     contextFilename = &"{modulePath}{DirSep}context.nim"
 
-  if fileExists(contextFilename):
+  if fileExists(contextFilename) and
+     generatorInfo.overwrite == false:
 
     echo ".. not overwriting: " & contextFilename
     return
@@ -28,8 +29,16 @@ proc generateContextProc*(
   if module.isWeb == true or
     module.nameInPascalCase == "NexusCore":
 
+    # Jester and options are only needed if moduleContext.web is used
     imports.add("jester, options")
-    imports.add("nexus/core/data_access/db_conn")
+
+  # DB Connections are always used
+  imports.add("nexus/core/data_access/db_conn")
+
+  # Further .web imports
+  if module.isWeb == true or
+    module.nameInPascalCase == "NexusCore":
+
     imports.add("nexus/core/types/model_types as nexus_core_model_types")
     imports.add(&"{module.srcRelativePath}/types/context_type")
     imports.add(&"{module.srcRelativePath}/types/model_types")
@@ -37,6 +46,7 @@ proc generateContextProc*(
 
     param = "request: Option[Request] = none(Request)"
 
+  # Non .web imports
   else:
     imports.add(&"{module.srcRelativePath}/types/context_type")
     imports.add(&"{module.srcRelativePath}/types/model_types")

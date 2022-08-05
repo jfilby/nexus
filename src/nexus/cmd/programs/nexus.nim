@@ -1,4 +1,4 @@
-import os, strformat
+import os, parseopt, strformat, strutils
 # import nexus/core/service/format/filename_utils
 import nexus/cmd/service/generate/generate
 
@@ -12,27 +12,48 @@ proc runMain() =
     basePath = "."
     refresh = "refresh-modified"
 
+  # Parse parameters
   let paramCount = paramCount()
-  # echo &"paramCount: {paramCount}"
+
+  var
+    options: seq[string]
+    args: seq[string]
+
+  for i in 1 .. paramCount:
+
+    let arg = paramStr(i)
+
+    if arg[0] == '-':
+      options.add(arg)
+
+    else:
+      args.add(arg)
+
+  # Optional flags
+  var
+    opts = initOptParser(
+             join(options, " "))
+
+    overwrite = false
+
+  for kind, key, val in getopt(opts):
+
+    if (kind == cmdShortOption and
+        key == "o") or
+       (kind == cmdLongOption and
+        key == "overwrite"):
+
+      overwrite = true
 
   # Get command
-  if paramCount >= 1:
-    command = paramStr(1)
+  if len(args) >= 1:
+    command = args[0]
 
   if command == "gen":
-    if paramCount >= 2:
+    if len(args) >= 2:
 
       invalidParamCount = false
-      artifact = paramStr(2)
-      # basePath = resolveCrossPlatformPath(getEnv("NEXUS_SRC_PATH"))
-
-      # echo "Defaulting basePath to: $NEXUS_SRC_PATH"
-
-    # elif paramCount() == 4:
-    #   invalidParamCount = false
-    #   artifact = paramStr(2)
-    #   basePath = paramStr(3)
-    #   refresh = paramStr(4)
+      artifact = args[1]
 
   else:
     echo "Unknown command"
@@ -45,10 +66,13 @@ proc runMain() =
   if invalidParamCount == true:
     echo "Incorrect number of parameters."
     echo ""
-    echo "Run: nexus gen <artifact>" # [base-path refresh]"
+    echo "Run: nexus [options] gen <artifact>" # [base-path refresh]"
     echo ""
     echo "The artifact to generate: web-app | web-service | console-app | " &
          "library | models | web-routes"
+    echo ""
+    echo "Options:"
+    echo "--overwrite or -o: Overwrite generated context files if they exist"
 
     quit(QuitFailure)
 
@@ -77,9 +101,11 @@ proc runMain() =
 
   generate(artifact,
            basePath,
-           refresh)
+           refresh,
+           overwrite)
 
 
+# Main
 when isMainModule:
   runMain()
 

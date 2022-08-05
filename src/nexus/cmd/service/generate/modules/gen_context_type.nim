@@ -26,7 +26,8 @@ proc generateContextType*(
       module)
 
   # Skip context type file if it already exists, as users can modify it
-  if fileExists(contextFilename):
+  if fileExists(contextFilename)and
+     generatorInfo.overwrite == false:
 
     echo ".. not overwriting: " & contextFilename
     return

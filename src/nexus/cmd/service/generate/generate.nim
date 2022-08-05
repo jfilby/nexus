@@ -25,12 +25,16 @@ proc generateModulesConfig(
 # Code
 proc generate*(artifact: string,
                basePath: string,
-               refresh: string) =
+               refresh: string,
+               overwrite: bool) =
 
   # Try to read conf/nexus.yaml (might not exist yet)
   var (nexusYamlExists,
        generatorInfo) =
         readNexusYaml(&"{basePath}{DirSep}conf")
+
+  # Settings
+  generatorInfo.overwrite = overwrite
 
   # Generate an app (only)
   if @[ "console-app",

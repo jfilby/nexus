@@ -493,6 +493,7 @@ type
 
   GeneratorInfo* = ref object of RootObj
     refresh*: bool
+    overwrite*: bool
     status*: char
     errorMessage*: string
 
