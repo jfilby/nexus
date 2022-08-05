@@ -7,6 +7,12 @@ import nexus/cmd/types/types
 
 proc generateNewWebContext(webArtifact: WebArtifact) =
 
+  # Define path and filename
+  let
+    path = &"{webArtifact.srcPath}{DirSep}service{DirSep}module"
+    filename = &"{path}{DirSep}new_web_context.nim"
+
+  # Context
   var str = ""
 
   str &= "import jester\n" &
@@ -38,10 +44,6 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
          "\n"
 
   # Write new_web_context.nim routes file
-  let
-    path = &"{webArtifact.srcPath}{DirSep}service{DirSep}module"
-    filename = &"{path}{DirSep}new_web_context.nim"
-
   if not dirExists(path):
 
     echo ".. creating path: " & path

@@ -8,15 +8,13 @@ import crm/types/model_types
 proc newNexusCRMContext*():
        NexusCRMContext =
 
-  var nexusCRMContext = NexusCRMContext()
-
-  nexusCRMContext.db =
-    NexusCRMDbContext(dbConn: getDbConn())
+  var nexusCRMContext =
+        NexusCRMContext(db: NexusCRMDbContext())
 
   nexusCRMContext.nexusCoreContext =
-    NexusCoreContext(
-      db: NexusCoreDbContext(
-        dbConn: nexusCRMContext.db.dbConn))
+    NexusCoreContext(db: NexusCoreDbContext())
+
+  nexusCRMContext.db.dbConn = getDbConn()
 
   return nexusCRMContext
 

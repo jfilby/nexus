@@ -67,22 +67,28 @@ proc generateContextProc*(
   str &=
     &"proc new{module.nameInPascalCase}Context*({param}):\n" &
     &"       {module.nameInPascalCase}Context =\n" &
-     "\n" &
-    &"  var {module.nameInCamelCase}Context = {module.nameInPascalCase}Context()\n" &
      "\n"
 
-  # Generate: Init .db
+  # Declare context objects
   str &=
-    &"  {module.nameInCamelCase}Context.db =\n"
+    &"  var {module.nameInCamelCase}Context =\n" &
+    &"        {module.nameInPascalCase}Context(db: {module.nameInPascalCase}DbContext())\n"
 
   if module.nameInPascalCase != "NexusCore":
-
     str &=
-      &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n"
+       "\n" &
+      &"  {module.nameInCamelCase}Context.nexusCoreContext =\n" &
+      &"    NexusCoreContext(db: NexusCoreDbContext())\n"
 
-  else:
+  str &= "\n"
+
+  # Generate: Init .db per context
+  str &=
+    &"  {module.nameInCamelCase}Context.db.dbConn = getDbConn()\n"
+
+  if module.nameInPascalCase == "NexusCore":
     str &=
-        &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n"
+      &"    {module.nameInCamelCase}Context.nexusCoreModule.dbConn = {module.nameInCamelCase}Context.db.dbConn\n"
 
   # Generate: Init .web
   # For web-enabled modules or Nexus Core (which is a include web library procs)
@@ -99,26 +105,17 @@ proc generateContextProc*(
       str &= "                    nexusCoreDbContext))\n"
 
     else:
-      str &= &"                    {module.nameInCamelCase}Context.nexusCoreDbContext))\n"
+      str &= &"                    {module.nameInCamelCase}Context.nexusCoreContext.db))\n"
 
   # For modules other than Nexus Core, create a Nexus Core context
   if module.nameInPascalCase != "NexusCore":
-
-    str &=
-       "\n" &
-      &"  {module.nameInCamelCase}Context.nexusCoreContext =\n" &
-       "    NexusCoreContext(\n" &
-       "      db: NexusCoreDbContext(\n" &
-      &"        dbConn: {module.nameInCamelCase}Context.db.dbConn)"
 
     if module.isWeb == true or
        module.nameInPascalCase == "NexusCore":
 
       str &=
-         ",\n" &
-        &"        web: {module.nameInCamelCase}Context.web"
-
-    str &= ")\n"
+         "\n" &
+        &"  # {module.nameInCamelCase}Context.nexusCoreContext.web = {module.nameInCamelCase}Context.web\n"
 
   # Generate: return
   str &=

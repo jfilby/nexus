@@ -8,10 +8,11 @@ import new_web_context
 proc newNexusCoreContext*(request: Option[Request] = none(Request)):
        NexusCoreContext =
 
-  var nexusCoreContext = NexusCoreContext()
+  var nexusCoreContext =
+        NexusCoreContext(db: NexusCoreDbContext())
 
-  nexusCoreContext.db =
-    NexusCoreDbContext(dbConn: getDbConn())
+  nexusCoreContext.db.dbConn = getDbConn()
+    nexusCoreContext.nexusCoreModule.dbConn = nexusCoreContext.db.dbConn
 
   nexusCoreContext.web =
     some(

@@ -8,15 +8,13 @@ import social/types/model_types
 proc newNexusSocialContext*():
        NexusSocialContext =
 
-  var nexusSocialContext = NexusSocialContext()
-
-  nexusSocialContext.db =
-    NexusSocialDbContext(dbConn: getDbConn())
+  var nexusSocialContext =
+        NexusSocialContext(db: NexusSocialDbContext())
 
   nexusSocialContext.nexusCoreContext =
-    NexusCoreContext(
-      db: NexusCoreDbContext(
-        dbConn: nexusSocialContext.db.dbConn))
+    NexusCoreContext(db: NexusCoreDbContext())
+
+  nexusSocialContext.db.dbConn = getDbConn()
 
   return nexusSocialContext
 
