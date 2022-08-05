@@ -35,11 +35,15 @@ proc generateContextProc*(
   # DB Connections are always used
   imports.add("nexus/core/data_access/db_conn")
 
+  # Nexus Core imports for non-Nexus Core modules
+  if module.nameInPascalCase != "NexusCore":
+    imports.add("nexus/core/types/context_type as nexus_core_context_type")
+    imports.add("nexus/core/types/model_types as nexus_core_model_types")
+
   # Further .web imports
   if module.isWeb == true or
     module.nameInPascalCase == "NexusCore":
 
-    imports.add("nexus/core/types/model_types as nexus_core_model_types")
     imports.add(&"{module.srcRelativePath}/types/context_type")
     imports.add(&"{module.srcRelativePath}/types/model_types")
     imports.add("new_web_context")
@@ -104,7 +108,7 @@ proc generateContextProc*(
        "\n" &
       &"  {module.nameInCamelCase}Context.nexusCoreContext =\n" &
        "    NexusCoreContext(\n" &
-       "      NexusCoreDbContext(\n" &
+       "      db: NexusCoreDbContext(\n" &
       &"        dbConn: {module.nameInCamelCase}Context.db.dbConn)"
 
     if module.isWeb == true or

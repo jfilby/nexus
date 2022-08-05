@@ -1,6 +1,5 @@
 import jester, options
 import nexus/core/data_access/db_conn
-import nexus/core/types/model_types as nexus_core_model_types
 import core/types/context_type
 import core/types/model_types
 import new_web_context
