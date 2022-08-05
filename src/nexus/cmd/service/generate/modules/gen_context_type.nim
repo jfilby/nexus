@@ -40,7 +40,7 @@ proc generateContextType*(
     str &= "import options\n"
 
   if module.nameInPascalCase != "NexusCore":
-    str &= "import nexus/core/types/model_types as nexus_core_model_types\n"
+    str &= "import nexus/core/types/context_type as nexus_core_context_type\n"
 
   if module.isWeb == true or
      module.nameInPascalCase == "NexusCore":
@@ -59,7 +59,7 @@ proc generateContextType*(
            "\n"
 
   if module.nameInPascalCase != "NexusCore":
-    str &= "    nexusCoreDbContext*: NexusCoreDbContext\n" &
+    str &= "    nexusCoreContext*: NexusCoreContext\n" &
            "\n"
 
   str &= "    # Add your own context vars below this comment\n" &

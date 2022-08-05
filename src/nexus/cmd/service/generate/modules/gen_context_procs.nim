@@ -74,10 +74,7 @@ proc generateContextProc*(
   if module.nameInPascalCase != "NexusCore":
 
     str &=
-      &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n" &
-       "\n" &
-      &"  {module.nameInCamelCase}Context.nexusCoreDbContext =\n" &
-      &"    NexusCoreDbContext(dbConn: {module.nameInCamelCase}Context.db.dbConn)\n"
+      &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n"
 
   else:
     str &=
@@ -87,6 +84,7 @@ proc generateContextProc*(
   # For web-enabled modules or Nexus Core (which is a include web library procs)
   if module.isWeb == true or
      module.nameInPascalCase == "NexusCore":
+
     str &=
        "\n" &
       &"  {module.nameInCamelCase}Context.web =\n" &
@@ -98,6 +96,25 @@ proc generateContextProc*(
 
     else:
       str &= &"                    {module.nameInCamelCase}Context.nexusCoreDbContext))\n"
+
+  # For modules other than Nexus Core, create a Nexus Core context
+  if module.nameInPascalCase != "NexusCore":
+
+    str &=
+       "\n" &
+      &"  {module.nameInCamelCase}Context.nexusCoreContext =\n" &
+       "    NexusCoreContext(\n" &
+       "      NexusCoreDbContext(\n" &
+      &"        dbConn: {module.nameInCamelCase}Context.db.dbConn)"
+
+    if module.isWeb == true or
+       module.nameInPascalCase == "NexusCore":
+
+      str &=
+         ",\n" &
+        &"        web: {module.nameInCamelCase}Context.web"
+
+    str &= ")\n"
 
   # Generate: return
   str &=

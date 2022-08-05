@@ -1,3 +1,4 @@
+import nexus/core/data_access/db_conn
 import crm/types/context_type
 import crm/types/model_types
 
@@ -8,10 +9,12 @@ proc newNexusCRMContext*():
   var nexusCRMContext = NexusCRMContext()
 
   nexusCRMContext.db =
-    NexusCRMDbContext()
+    NexusCRMDbContext(dbConn: getDbConn())
 
-  nexusCRMContext.nexusCoreDbContext =
-    NexusCoreDbContext(dbConn: nexusCRMContext.db.dbConn)
+  nexusCRMContext.nexusCoreContext =
+    NexusCoreContext(
+      NexusCoreDbContext(
+        dbConn: nexusCRMContext.db.dbConn))
 
   return nexusCRMContext
 

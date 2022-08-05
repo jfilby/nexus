@@ -1,3 +1,4 @@
+import nexus/core/data_access/db_conn
 import core_extras/types/context_type
 import core_extras/types/model_types
 
@@ -8,10 +9,12 @@ proc newNexusCoreExtrasContext*():
   var nexusCoreExtrasContext = NexusCoreExtrasContext()
 
   nexusCoreExtrasContext.db =
-    NexusCoreExtrasDbContext()
+    NexusCoreExtrasDbContext(dbConn: getDbConn())
 
-  nexusCoreExtrasContext.nexusCoreDbContext =
-    NexusCoreDbContext(dbConn: nexusCoreExtrasContext.db.dbConn)
+  nexusCoreExtrasContext.nexusCoreContext =
+    NexusCoreContext(
+      NexusCoreDbContext(
+        dbConn: nexusCoreExtrasContext.db.dbConn))
 
   return nexusCoreExtrasContext
 

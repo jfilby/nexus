@@ -1,11 +1,11 @@
-import nexus/core/types/model_types as nexus_core_model_types
+import nexus/core/types/context_type as nexus_core_context_type
 import model_types
 
 
 type
   NexusCRMContext* = object
     db*: NexusCRMDbContext
-    nexusCoreDbContext*: NexusCoreDbContext
+    nexusCoreContext*: NexusCoreContext
 
     # Add your own context vars below this comment
 
