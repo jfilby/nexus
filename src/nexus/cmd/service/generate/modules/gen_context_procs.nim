@@ -74,7 +74,7 @@ proc generateContextProc*(
   if module.nameInPascalCase != "NexusCore":
 
     str &=
-      &"    {module.nameInPascalCase}DbContext()\n" &
+      &"    {module.nameInPascalCase}DbContext(dbConn: getDbConn())\n" &
        "\n" &
       &"  {module.nameInCamelCase}Context.nexusCoreDbContext =\n" &
       &"    NexusCoreDbContext(dbConn: {module.nameInCamelCase}Context.db.dbConn)\n"
