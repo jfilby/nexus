@@ -10,12 +10,13 @@ proc generateContextType*(
   debug "generateContextType()"
 
   # Create types path if it doesn't exist
-  let typesPath = &"{module.srcPath}{DirSep}types"
-
-  createDir(typesPath)
+  let
+    typesPath = &"{module.srcPath}{DirSep}types"
+    typesFilename = &"{typesPath}{DirSep}model_types.nim"
+    contextFilename = &"{typesPath}{DirSep}context_type.nim"
 
   # Create a basic model types file if none exists
-  let typesFilename = &"{typesPath}{DirSep}model_types.nim"
+  createDir(typesPath)
 
   if not fileExists(typesFilename):
 
@@ -23,6 +24,12 @@ proc generateContextType*(
       typesPath,
       typesFilename,
       module)
+
+  # Skip context type file if it already exists, as users can modify it
+  if fileExists(contextFilename):
+
+    echo ".. not overwriting: " & contextFilename
+    return
 
   # Content
   var str = ""
@@ -58,8 +65,6 @@ proc generateContextType*(
          "\n"
 
   # Write types file
-  let contextFilename = &"{typesPath}{DirSep}context_type.nim"
-
   echo ".. writing: " & contextFilename
 
   writeFile(contextFilename,

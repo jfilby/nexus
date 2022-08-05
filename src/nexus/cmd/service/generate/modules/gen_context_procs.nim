@@ -8,6 +8,17 @@ proc generateContextProc*(
 
   debug "generateContextProc()"
 
+  # Skip file if it already exists, as users can modify context procs
+  let
+    modulePath = &"{module.srcPath}{DirSep}service{DirSep}module"
+    contextFilename = &"{modulePath}{DirSep}context.nim"
+
+  if fileExists(contextFilename):
+
+    echo ".. not overwriting: " & contextFilename
+    return
+
+  # Vars
   var
     str = ""
     imports: seq[string]
@@ -85,10 +96,6 @@ proc generateContextProc*(
      "\n"
 
   # Write types file
-  let
-    modulePath = &"{module.srcPath}{DirSep}service{DirSep}module"
-    contextFilename = &"{modulePath}{DirSep}context.nim"
-
   echo ".. writing: " & contextFilename
 
   createDir(modulePath)
