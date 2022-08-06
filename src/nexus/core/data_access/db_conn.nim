@@ -1,6 +1,11 @@
 import chronicles, db_postgres, os, strformat, strutils
 
 
+proc closeDbConn*(dbConn: var DbConn) =
+
+  close(dbConn)
+
+
 proc getDbConn*(): DbConn =
 
   # If a DEFAULT_DB_PREFIX env is specified then use it

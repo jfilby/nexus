@@ -1,17 +1,19 @@
 import chronicles, options, times
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/account_user_role_data
+import nexus/core/types/context_type as nexus_core_context_type
 import nexus/core/types/model_types as nexus_core_model_types
 import nexus/core_extras/service/lists/list_utils
+import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
-proc getAdminRoleId*(nexusCoreExtrasModule: NexusCoreExtrasModule): int64 =
+proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): int64 =
 
   # Get admin user role
   let adminListItemId =
         getListItemIdByParentNameAndDisplayName(
-          nexusCoreExtrasModule,
+          nexusCoreExtrasContext,
           "User Roles: Account User",
           "Admin")
 
@@ -23,17 +25,18 @@ proc getAdminRoleId*(nexusCoreExtrasModule: NexusCoreExtrasModule): int64 =
   return adminListItemId.get
 
 
-proc userHasAdminRole*(nexusCoreDbContext: NexusCoreDbContext,
-                       nexusCoreExtrasModule: NexusCoreExtrasModule,
-                       accountUser: AccountUser): bool =
+proc userHasAdminRole*(
+       nexusCoreContext: NexusCoreContext,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       accountUser: AccountUser): bool =
 
   # Get adminRoleId
-  let adminRoleId = getAdminRoleId(nexusCoreExtrasModule)
+  let adminRoleId = getAdminRoleId(nexusCoreExtrasContext)
 
   # Check for user/role
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           accountUser.accountUserId,
           adminRoleId)
 

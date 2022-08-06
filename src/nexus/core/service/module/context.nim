@@ -1,8 +1,14 @@
 import jester, options
 import nexus/core/data_access/db_conn
-import core/types/context_type
-import core/types/model_types
+import nexus/core/types/context_type
+import nexus/core/types/model_types
 import new_web_context
+
+
+proc deleteTraderEngineContext*(
+       nexusCoreContext: var NexusCoreContext) =
+
+  closeDbConn(nexusCoreContext.db.dbConn)
 
 
 proc newNexusCoreContext*(request: Option[Request] = none(Request)):
@@ -12,12 +18,11 @@ proc newNexusCoreContext*(request: Option[Request] = none(Request)):
         NexusCoreContext(db: NexusCoreDbContext())
 
   nexusCoreContext.db.dbConn = getDbConn()
-    nexusCoreContext.nexusCoreModule.dbConn = nexusCoreContext.db.dbConn
 
   nexusCoreContext.web =
     some(
       newWebContext(request.get,
-                    nexusCoreDbContext))
+                    nexusCoreContext.db))
 
   return nexusCoreContext
 
