@@ -198,7 +198,7 @@ proc generateNewContextProc(
 
       str &=
          "\n" &
-        &"  # {module.nameInCamelCase}Context.nexusCoreContext.web = {module.nameInCamelCase}Context.web\n"
+        &"  {module.nameInCamelCase}Context.nexusCoreContext.web = {module.nameInCamelCase}Context.web\n"
 
   # Generate: return
   str &=
