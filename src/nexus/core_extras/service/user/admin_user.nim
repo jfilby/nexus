@@ -4,24 +4,20 @@ import nexus/core/data_access/account_user_role_data
 import nexus/core/service/account/encrypt
 import nexus/core/types/model_types as nexus_core_model_types
 import nexus/core_extras/types/model_types
+import engine/types/context_type
 import assign_admin_role
 
 
 proc getOrCreateAdminUser*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreContext: NexusCoreContext,
        email: string,
        password: string): AccountUser =
-
-  # Get module
-  var nexusCoreDbContext = NexusCoreDbContext()
-
-  nexusCoreDbContext.db = nexusCoreExtrasModule.db
 
   # Get or create the user account
   var accountUser: Option[AccountUser]
 
   if existsAccountUserByEmail(
-       nexusCoreDbContext,
+       nexusCoreContext.nexusCoreContext.db,
        email) == false:
 
     # Get the passwordHash and salt
@@ -38,29 +34,30 @@ proc getOrCreateAdminUser*(
       signUpCode = generateSignUpCode()
 
     # Insert into accountUser
-    accountUser = some(createAccountUser(
-                         nexusCoreDbContext,
-                         accountId = none(int64),
-                         name = "Admin User",
-                         email = email,
-                         passwordHash = passwordHash,
-                         passwordSalt = salt,
-                         apiKey = apiKey,
-                         signUpCode = "",
-                         signUpDate = now(),
-                         passwordResetCode = none(string),
-                         password_reset_date = none(DateTime),
-                         isActive = true,
-                         isAdmin = true,
-                         isVerified = true,
-                         last_login = none(DateTime),
-                         last_update = none(DateTime),
-                         created = now()))
+    accountUser =
+      some(createAccountUser(
+             nexusCoreContext.nexusCoreContext.db,
+             accountId = none(int64),
+             name = "Admin User",
+             email = email,
+             passwordHash = passwordHash,
+             passwordSalt = salt,
+             apiKey = apiKey,
+             signUpCode = "",
+             signUpDate = now(),
+             passwordResetCode = none(string),
+             password_reset_date = none(DateTime),
+             isActive = true,
+             isAdmin = true,
+             isVerified = true,
+             last_login = none(DateTime),
+             last_update = none(DateTime),
+             created = now()))
 
   else:
     accountUser =
       getAccountUserByEmail(
-        nexusCoreDbContext,
+        nexusCoreContext.nexusCoreContext.db,
         email)
 
   # Verify the user
@@ -71,14 +68,14 @@ proc getOrCreateAdminUser*(
 
   rowsUpdated =
     updateAccountUserByPk(
-      nexusCoreDbContext,
+      nexusCoreContext.nexusCoreContext.db,
       accountUser.get,
       setFields = @[ "is_active",
                      "isVerified" ])
 
   # Create the Admin role for the user
   assignAdminRole(
-    nexusCoreExtrasModule,
+    nexusCoreContext,
     accountUser.get.accountUserId)
 
   return accountUser.get

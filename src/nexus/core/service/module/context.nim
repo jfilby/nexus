@@ -5,7 +5,7 @@ import nexus/core/types/model_types
 import new_web_context
 
 
-proc deleteTraderEngineContext*(
+proc deleteNexusCoreContext*(
        nexusCoreContext: var NexusCoreContext) =
 
   closeDbConn(nexusCoreContext.db.dbConn)

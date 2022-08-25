@@ -5,7 +5,7 @@ import nexus/social/types/context_type
 import nexus/social/types/model_types
 
 
-proc deleteTraderEngineContext*(
+proc deleteNexusCoreContext*(
        nexusSocialContext: var NexusSocialContext) =
 
   closeDbConn(nexusSocialContext.db.dbConn)

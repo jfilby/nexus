@@ -2,6 +2,7 @@ import chronicles, db_postgres, os, streams, strformat, times, yaml
 import nexus/core/service/format/type_utils
 import nexus/core_extras/data_access/menu_item_data
 import nexus/core_extras/service/lists/list_utils
+import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
@@ -27,17 +28,20 @@ type
 
 
 # Forward declarations
-proc loadMenuYAML*(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                   filename: string)
-proc loadMenusYAML(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                   parentMenuItemId: Option[int64],
-                   menusYAML: MenusYAML,
-                   level: int)
+proc loadMenuYAML*(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       filename: string)
+proc loadMenusYAML(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       parentMenuItemId: Option[int64],
+       menusYAML: MenusYAML,
+       level: int)
 
 
 # Code
-proc loadMenuFiles*(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                    path: string) =
+proc loadMenuFiles*(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       path: string) =
 
   for kind, filename in walkDir(path,
                                 relative = true):
@@ -45,29 +49,31 @@ proc loadMenuFiles*(nexusCoreExtrasModule: NexusCoreExtrasModule,
     if kind == pcFile and
        filename[0] != '.':
     
-      loadMenuYAML(nexusCoreExtrasModule,
+      loadMenuYAML(nexusCoreExtrasContext,
                    &"{path}{DirSep}{filename}")
 
 
-proc truncateAndLoadMenuFiles*(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                               dataLoadPath: string,
-                               truncate: bool = false) =
+proc truncateAndLoadMenuFiles*(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dataLoadPath: string,
+       truncate: bool = false) =
 
   # Truncate
   if truncate == true:
 
-    truncateMenuItem(nexusCoreExtrasModule)
+    truncateMenuItem(nexusCoreExtrasContext.db)
 
   # Load files
   info "truncateAndLoadMenuFiles()",
     dataLoadPath = dataLoadPath
 
-  loadMenuFiles(nexusCoreExtrasModule,
+  loadMenuFiles(nexusCoreExtrasContext,
                 dataLoadPath)
 
 
-proc loadMenuYAML*(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                   filename: string) =
+proc loadMenuYAML*(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       filename: string) =
 
   info "loadMenuYAML()",
     filename = filename
@@ -81,16 +87,17 @@ proc loadMenuYAML*(nexusCoreExtrasModule: NexusCoreExtrasModule,
   s.close()
 
   # Create menu items
-  loadMenusYAML(nexusCoreExtrasModule,
+  loadMenusYAML(nexusCoreExtrasContext,
                 none(int64),
                 menusYAML,
                 level = 1)
 
 
-proc loadMenusYAML(nexusCoreExtrasModule: NexusCoreExtrasModule,
-                   parentMenuItemId: Option[int64],
-                   menusYAML: MenusYAML,
-                   level: int) =
+proc loadMenusYAML(
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       parentMenuItemId: Option[int64],
+       menusYAML: MenusYAML,
+       level: int) =
 
   var position = 1
 
@@ -106,16 +113,17 @@ proc loadMenusYAML(nexusCoreExtrasModule: NexusCoreExtrasModule,
 
       for roleName in menuRoleYAML.roleNames:
 
-        let roleListItemId = getListItemIdByParentNameAndDisplayName(
-                               nexusCoreExtrasModule,
-                               &"User Roles: {menuRoleYAML.roleType}",
-                               roleName)
+        let roleListItemId =
+              getListItemIdByParentNameAndDisplayName(
+                nexusCoreExtrasContext,
+                &"User Roles: {menuRoleYAML.roleType}",
+                roleName)
 
         roleIds.add(roleListItemId.get)
 
     # Create menu
     let menu = getOrCreateMenuItemByNameAndURLAndScreen(
-                 nexusCoreExtrasModule,
+                 nexusCoreExtrasContext.db,
                  parentMenuItemId,
                  menuYAML.name,
                  menuYAML.url,
@@ -126,7 +134,7 @@ proc loadMenusYAML(nexusCoreExtrasModule: NexusCoreExtrasModule,
                  now())
 
     # Create menu items
-    loadMenusYAML(nexusCoreExtrasModule,
+    loadMenusYAML(nexusCoreExtrasContext,
                   some(menu.menu_itemId),
                   menuYaml.items,
                   level = level + 1)

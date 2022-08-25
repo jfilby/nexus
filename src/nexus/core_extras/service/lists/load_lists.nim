@@ -1,5 +1,6 @@
 import chronicles, db_postgres, os, streams, strformat, times, yaml
 import nexus/core_extras/data_access/list_item_data
+import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
@@ -31,13 +32,13 @@ type
 
 
 # Forward declarations
-proc loadListYAML*(nexusCoreExtrasModule: NexusCoreExtrasModule,
+proc loadListYAML*(nexusCoreExtrasContext: NexusCoreExtrasContext,
                    filename: string,
                    listLoadType: ListLoadType)
 
 
 # Code
-proc loadListFiles(nexusCoreExtrasModule: NexusCoreExtrasModule,
+proc loadListFiles(nexusCoreExtrasContext: NexusCoreExtrasContext,
                    path: string,
                    listLoadType: ListLoadType) =
 
@@ -52,58 +53,58 @@ proc loadListFiles(nexusCoreExtrasModule: NexusCoreExtrasModule,
     case kind:
 
       of pcDir:
-        loadListFiles(nexusCoreExtrasModule,
+        loadListFiles(nexusCoreExtrasContext,
                       fullPath,
                       listLoadType)
 
       of pcLinkToDir:
-        loadListFiles(nexusCoreExtrasModule,
+        loadListFiles(nexusCoreExtrasContext,
                       fullPath,
                       listLoadType)
 
       of pcFile:
-        loadListYAML(nexusCoreExtrasModule,
+        loadListYAML(nexusCoreExtrasContext,
                      fullPath,
                      listLoadType)
 
       of pcLinkToFile:
-        loadListYAML(nexusCoreExtrasModule,
+        loadListYAML(nexusCoreExtrasContext,
                      fullPath,
                      listLoadType)
 
 
-proc loadListFiles*(nexusCoreExtrasModule: NexusCoreExtrasModule,
+proc loadListFiles*(nexusCoreExtrasContext: NexusCoreExtrasContext,
                     path: string) =
 
-  loadListFiles(nexusCoreExtrasModule,
+  loadListFiles(nexusCoreExtrasContext,
                 &"{path}{DirSep}basic",
                 Basic)
 
-  loadListFiles(nexusCoreExtrasModule,
+  loadListFiles(nexusCoreExtrasContext,
                 &"{path}{DirSep}full",
                 Full)
 
 
 proc truncateAndLoadListFiles*(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        dataLoadPath: string,
        truncate: bool = false) =
 
   # Truncate
   if truncate == true:
-    truncateListItem(nexusCoreExtrasModule,
+    truncateListItem(nexusCoreExtrasContext.db,
                      cascade = true)
 
   # Load files
   info "truncateAndLoadListFiles()",
     dataLoadPath = dataLoadPath
 
-  loadListFiles(nexusCoreExtrasModule,
+  loadListFiles(nexusCoreExtrasContext,
                 dataLoadPath)
 
 
 proc loadBasicListYAML(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        filename: string) =
 
   info "loadBasicListYAML()",
@@ -126,7 +127,7 @@ proc loadBasicListYAML(
 
     # Create list
     let list = getOrCreateListItemByName(
-                 nexusCoreExtrasModule,
+                 nexusCoreExtrasContext.db,
                  parentListItemId = none(int64),
                  seqNo = 1,
                  listBasicYAML.name,
@@ -146,7 +147,7 @@ proc loadBasicListYAML(
         description = none(string)
 
       discard getOrCreateListItemByName(
-                nexusCoreExtrasModule,
+                nexusCoreExtrasContext.db,
                 some(list.listItemId),
                 seqNo,
                 &"{listBasicYAML.name}: {listItemName}",
@@ -158,7 +159,7 @@ proc loadBasicListYAML(
 
 
 proc loadFullListYAML(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        listsFullYAML: ListsFullYAML,
        parentListItemId: Option[int64] = none(int64)) =
 
@@ -174,7 +175,7 @@ proc loadFullListYAML(
     # Create list
     let listItem =
           getOrCreateListItemByName(
-            nexusCoreExtrasModule,
+            nexusCoreExtrasContext.db,
             parentListItemId,
             seqNo = 1,
             listFullYAML.name,
@@ -184,7 +185,7 @@ proc loadFullListYAML(
 
     # Create list items
     loadFullListYAML(
-      nexusCoreExtrasModule,
+      nexusCoreExtrasContext,
       listFullYAML.items,
       some(listItem.listItemId))
 
@@ -192,7 +193,7 @@ proc loadFullListYAML(
 
 
 proc loadFullListYAML(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        filename: string) =
 
   info "loadFullListYAML()",
@@ -207,22 +208,22 @@ proc loadFullListYAML(
   s.close()
 
   loadFullListYAML(
-    nexusCoreExtrasModule,
+    nexusCoreExtrasContext,
     listsFullYAML)
 
 
 proc loadListYAML(
-       nexusCoreExtrasModule: NexusCoreExtrasModule,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        filename: string,
        listLoadType: ListLoadType) =
 
   case listLoadType:
 
     of Basic:
-      loadBasicListYAML(nexusCoreExtrasModule,
+      loadBasicListYAML(nexusCoreExtrasContext,
                         filename)
 
     of Full:
-      loadFullListYAML(nexusCoreExtrasModule,
+      loadFullListYAML(nexusCoreExtrasContext,
                        filename)
 

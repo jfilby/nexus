@@ -5,7 +5,7 @@ import nexus/crm/types/context_type
 import nexus/crm/types/model_types
 
 
-proc deleteTraderEngineContext*(
+proc deleteNexusCoreContext*(
        nexusCRMContext: var NexusCRMContext) =
 
   closeDbConn(nexusCRMContext.db.dbConn)

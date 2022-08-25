@@ -5,7 +5,7 @@ import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
-proc deleteTraderEngineContext*(
+proc deleteNexusCoreContext*(
        nexusCoreExtrasContext: var NexusCoreExtrasContext) =
 
   closeDbConn(nexusCoreExtrasContext.db.dbConn)
