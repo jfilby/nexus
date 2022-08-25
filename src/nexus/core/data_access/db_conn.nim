@@ -1,4 +1,9 @@
-import chronicles, db_postgres, os, strformat, strutils
+import chronicles, db_postgres, locks, options, os, strformat, strutils
+
+
+var
+  dbConnLock*: Lock
+  dbConnLockInited*: bool = false
 
 
 proc closeDbConn*(dbConn: var DbConn) =
@@ -28,17 +33,30 @@ proc getDbConn*(): DbConn =
                    "/",
                    "%2F")
 
+  # Acquire lock, as opening DB connections isn't thread-safe
+  # https://github.com/nim-lang/Nim/issues/20231
+  if dbConnLockInited == false:
+
+    raise newException(
+            ValueError,
+            "DB connection lock was never initialized. There should be a " &
+            "call to initLock() in new<Module>Context().")
+
+  acquire(dbConnLock)
+
   # If no port is specified then just pass basic DB parameters
+  var dbConn: DbConn
+
   if dbPort == "":
     dbString = dbHost
 
     info "getDbConn(): connecting to main db:",
       dbName = dbName
 
-    return open(dbHost,
-                username,
-                password,
-                dbName)
+    dbConn = open(dbHost,
+                  username,
+                  password,
+                  dbName)
 
   # If a port is specified then a connection string must be specified
   else:
@@ -49,8 +67,14 @@ proc getDbConn*(): DbConn =
     info "getDbConn(): connecting to main db:",
       dbShowString = dbShowString
 
-    return open("",
-                "",
-                "",
-                dbString)
+    dbConn = open("",
+                  "",
+                  "",
+                  dbString)
+
+  # Release DB connection lock
+  release(dbConnLock)
+
+  # Return
+  return dbConn
 

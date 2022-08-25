@@ -80,7 +80,7 @@ proc generateDeleteContextProc(
        module: Module) =
 
   str &=
-     "proc deleteTraderEngineContext*(\n" &
+     "proc deleteNexusCoreContext*(\n" &
     &"       {module.nameInCamelCase}Context: var {module.nameInPascalCase}Context) =\n" &
      "\n" &
     &"  closeDbConn({module.nameInCamelCase}Context.db.dbConn)\n" &
@@ -165,7 +165,7 @@ proc generateNewContextProc(
 
   str &= "\n"
 
-  # Generate: Init .db per context
+  # Generate: Init .db per context (with a lock)
   str &=
     &"  {module.nameInCamelCase}Context.db.dbConn = getDbConn()\n"
 

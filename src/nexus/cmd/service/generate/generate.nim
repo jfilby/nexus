@@ -113,7 +113,8 @@ proc generateModuleConfig(
       confPath,
       generatorInfo)
 
-    # Generate DbContext code
+    # Generate Program and Context code
+    generateProgramProcs(generatorInfo)
     generateDbContextProcs(generatorInfo)
 
   # Generate context code
