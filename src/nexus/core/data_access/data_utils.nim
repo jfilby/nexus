@@ -178,16 +178,19 @@ proc parsePgTimestamp*(pgTimestampStr: string): DateTime =
 
   if len(pgTimestampStr) == 10:
     return parse(pgTimestampStr,
-                 "yyyy-MM-dd")
+                 "yyyy-MM-dd",
+                 utc())
 
   elif len(pgTimestampStr) == 19:
     return parse(pgTimestampStr,
-                 "yyyy-MM-dd HH:mm:ss")
+                 "yyyy-MM-dd HH:mm:ss",
+                 utc())
 
   # Truncate for now, leaves out microseconds + tz data
   elif len(pgTimestampStr) >= 22:
     return parse(pgTimestampStr[0 .. 18],
-                 "yyyy-MM-dd HH:mm:ss")
+                 "yyyy-MM-dd HH:mm:ss",
+                 utc())
 
   #elif len(pgTimestampStr) == 29:
     # with .ffffff means microseconds
