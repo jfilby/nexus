@@ -114,7 +114,7 @@ proc generateModuleConfig(
       generatorInfo)
 
     # Generate Program and Context code
-    generateProgramProcs(generatorInfo)
+    # generateProgramProcs(generatorInfo)
     generateDbContextProcs(generatorInfo)
 
   # Generate context code
