@@ -2,7 +2,9 @@ import db_postgres, options, times
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/account_user_role_data
 import nexus/core/service/account/encrypt
+import nexus/core/types/context_type as nexus_core_context_type
 import nexus/core/types/model_types as nexus_core_model_types
+import nexus/core_extras/types/context_type as nexus_core_extras_context_type
 import nexus/core_extras/types/model_types
 import engine/types/context_type
 import assign_admin_role
@@ -10,6 +12,7 @@ import assign_admin_role
 
 proc getOrCreateAdminUser*(
        nexusCoreContext: NexusCoreContext,
+       nexusCoreExtrasContext: NexusCoreExtrasContext,
        email: string,
        password: string): AccountUser =
 
@@ -17,7 +20,7 @@ proc getOrCreateAdminUser*(
   var accountUser: Option[AccountUser]
 
   if existsAccountUserByEmail(
-       nexusCoreContext.nexusCoreContext.db,
+       nexusCoreContext.db,
        email) == false:
 
     # Get the passwordHash and salt
@@ -36,7 +39,7 @@ proc getOrCreateAdminUser*(
     # Insert into accountUser
     accountUser =
       some(createAccountUser(
-             nexusCoreContext.nexusCoreContext.db,
+             nexusCoreContext.db,
              accountId = none(int64),
              name = "Admin User",
              email = email,
@@ -46,7 +49,7 @@ proc getOrCreateAdminUser*(
              signUpCode = "",
              signUpDate = now(),
              passwordResetCode = none(string),
-             password_reset_date = none(DateTime),
+             passwordResetDate = none(DateTime),
              isActive = true,
              isAdmin = true,
              isVerified = true,
@@ -57,7 +60,7 @@ proc getOrCreateAdminUser*(
   else:
     accountUser =
       getAccountUserByEmail(
-        nexusCoreContext.nexusCoreContext.db,
+        nexusCoreContext.db,
         email)
 
   # Verify the user
@@ -68,7 +71,7 @@ proc getOrCreateAdminUser*(
 
   rowsUpdated =
     updateAccountUserByPk(
-      nexusCoreContext.nexusCoreContext.db,
+      nexusCoreContext.db,
       accountUser.get,
       setFields = @[ "is_active",
                      "isVerified" ])
@@ -76,6 +79,7 @@ proc getOrCreateAdminUser*(
   # Create the Admin role for the user
   assignAdminRole(
     nexusCoreContext,
+    nexusCoreExtrasContext,
     accountUser.get.accountUserId)
 
   return accountUser.get
