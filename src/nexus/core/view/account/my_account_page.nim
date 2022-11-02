@@ -7,6 +7,7 @@ import nexus/core/service/account/jwt_utils
 import nexus/core/service/account/roles
 import nexus/core/service/account/verify_my_account_fields
 import nexus/core/service/email/send_email
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
@@ -15,45 +16,46 @@ import account_fields
 
 
 # Forward declarations
-proc myAccountPageMain(request: Request,
-                       webContext: WebContext,
-                       errorMessage: string = "",
-                       name: var string,
-                       email: var string,
-                       apiKey: bool = false): string {.gcsafe.}
+proc myAccountPageMain(
+       nexusCoreContext: NexusCoreContext,
+       errorMessage: string = "",
+       name: var string,
+       email: var string,
+       apiKey: bool = false): string {.gcsafe.}
 
 
 # Code
-proc myAccountPage*(request: Request,
-                    webContext: WebContext,
-                    apiKey: bool = false): string {.gcsafe.} =
+proc myAccountPage*(
+       nexusCoreContext: NexusCoreContext,
+       apiKey: bool = false): string {.gcsafe.} =
 
   var
     name = ""
     email = ""
 
-  myAccountPageMain(request,
-                    webContext,
-                    "",
-                    name,
-                    email,
-                    apiKey)
+  myAccountPageMain(
+    nexusCoreContext,
+    "",
+    name,
+    email,
+    apiKey)
 
 
-proc myAccountPageMain(request: Request,
-                       webContext: WebContext,
-                       errorMessage: string = "",
-                       name: var string,
-                       email: var string,
-                       apiKey: bool = false): string {.gcsafe.} =
+proc myAccountPageMain(
+       nexusCoreContext: NexusCoreContext,
+       errorMessage: string = "",
+       name: var string,
+       email: var string,
+       apiKey: bool = false): string {.gcsafe.} =
 
   # Redirect to login if the user isn't logged in
-  if webContext.loggedIn == false:
+  if nexusCoreContext.web.get.loggedIn == false:
     return redirectToLogin()
 
   # Get accountUser record
-  let accountUser = getAccountUserByPk(nexusCoreDbContext,
-                                       webContext.accountUserId)
+  let accountUser =
+        getAccountUserByPk(nexusCoreContext.db,
+                           nexusCoreContext.web.get.accountUserId)
 
   # Set form fields, if not already set from a previous form post
   if name == "":
@@ -65,18 +67,23 @@ proc myAccountPageMain(request: Request,
   # Set pageContext
   var pageContext = newPageContext(pageTitle = "My Account")
 
-  let formDiv = getFormFactorClass(webContext,
-                                   desktopClass = "form_div")
+  let formDiv = getFormFactorClass(
+                  nexusCoreContext.web.get,
+                  desktopClass = "form_div")
 
   # My Account form
-  let vnode = buildHtml(tdiv(style = style(StyleAttr.width, webContext.formWidth))):
+  let vnode = buildHtml(tdiv(style =
+                style(StyleAttr.width,
+                      nexusCoreContext.web.get.formWidth))):
 
     if errorMessage != "":
-      tdiv(style = style(StyleAttr.width, webContext.formWidthNarrow)):
+      tdiv(style = style(StyleAttr.width,
+                         nexusCoreContext.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
-         style = style(StyleAttr.width, webContext.formWidthNarrow)):
+         style = style(StyleAttr.width,
+                      nexusCoreContext.web.get.formWidthNarrow)):
 
       form(`method` = "post"):
         nameField(name,
@@ -93,17 +100,16 @@ proc myAccountPageMain(request: Request,
                          name = "Generate a new API Key")
 
   # Render page
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode,
-                 nexusCoreDbContext = some(nexusCoreDbContext))
+                 nexusCoreDbContext = some(nexusCoreContext.db))
 
 
-proc myAccountPagePost*(request: Request,
-                        webContext: WebContext): string =
+proc myAccountPagePost*(nexusCoreContext: NexusCoreContext): string =
 
   # Redirect to login if the user isn't logged in
-  if webContext.loggedIn == false:
+  if nexusCoreContext.web.get.loggedIn == false:
     return redirectToLogin()
 
   # Get form data
@@ -113,17 +119,17 @@ proc myAccountPagePost*(request: Request,
     password1 = ""
     password2 = ""
 
-  if request.params.hasKey("name"):
-    name = request.params["name"]
+  if nexusCoreContext.web.get.request.params.hasKey("name"):
+    name = nexusCoreContext.web.get.request.params["name"]
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
-  if request.params.hasKey("password1"):
-    password1 = request.params["password1"]
+  if nexusCoreContext.web.get.request.params.hasKey("password1"):
+    password1 = nexusCoreContext.web.get.request.params["password1"]
 
-  if request.params.hasKey("password2"):
-    password2 = request.params["password2"]
+  if nexusCoreContext.web.get.request.params.hasKey("password2"):
+    password2 = nexusCoreContext.web.get.request.params["password2"]
 
   # Verify the input
   var
@@ -132,11 +138,13 @@ proc myAccountPagePost*(request: Request,
     errorMessage: string
     errorMessageRole: string
 
-  let docUIReturn = verifyMyAccountFields(nexusCoreDbContext,
-                                          name,
-                                          email,
-                                          password1,
-                                          password2)
+  let docUIReturn =
+        verifyMyAccountFields(
+          nexusCoreContext.db,
+          name,
+          email,
+          password1,
+          password2)
 
   verified = docUIReturn.isVerified
   errorMessage = docUIReturn.errorMessage
@@ -144,8 +152,8 @@ proc myAccountPagePost*(request: Request,
   # Check user roles
   (verifiedRole,
    errorMessageRole) = checkModifyDataRole(
-                         nexusCoreDbContext,
-                         webContext.accountUserId,
+                         nexusCoreContext.db,
+                         nexusCoreContext.web.get.accountUserId,
                          modifyDataRole = "Modify user data")
 
   if verifiedRole == false:
@@ -156,8 +164,10 @@ proc myAccountPagePost*(request: Request,
   if verified == true:
 
     # Get accountUser row
-    var accountUser = getAccountUserByPk(nexusCoreDbContext,
-                                         webContext.accountUserId)
+    var accountUser =
+          getAccountUserByPk(
+            nexusCoreContext.db,
+            nexusCoreContext.web.get.accountUserId)
 
     var
       emailChanged = ""
@@ -171,14 +181,16 @@ proc myAccountPagePost*(request: Request,
 
       # Get the passwordHash and salt
       (accountUser.get.passwordHash,
-       accountUser.get.passwordSalt) = hashPassword(password1,
-                                                    "")
+       accountUser.get.passwordSalt) =
+        hashPassword(password1,
+                     "")
 
-      let rowsUpdated = updateAccountUserByPk(
-                          nexusCoreDbContext,
-                          accountUser.get,
-                          setFields = @[ "password_hash",
-                                         "password_salt" ])
+      let rowsUpdated =
+            updateAccountUserByPk(
+              nexusCoreContext.db,
+              accountUser.get,
+              setFields = @[ "password_hash",
+                             "password_salt" ])
 
     # Update fields if changed
     if accountUser.get.name != name:
@@ -187,10 +199,11 @@ proc myAccountPagePost*(request: Request,
 
       accountUser.get.name = name
 
-      let updated_rows = updateAccountUserByPk(
-                           nexusCoreDbContext,
-                           accountUser.get,
-                           setFields = @[ "name" ])
+      let updatedRows =
+            updateAccountUserByPk(
+              nexusCoreContext.db,
+              accountUser.get,
+              setFields = @[ "name" ])
 
     # Send an email if username was changed
     if accountUser.get.email != email:
@@ -199,9 +212,11 @@ proc myAccountPagePost*(request: Request,
 
       accountUser.get.email = email
 
-      let updatedRows = updateAccountUserByPk(nexusCoreDbContext,
-                                              accountUser.get,
-                                              setFields = @[ "email" ])
+      let updatedRows =
+            updateAccountUserByPk(
+              nexusCoreContext.db,
+              accountUser.get,
+              setFields = @[ "email" ])
 
     return redirectToURL(&"/account/my-account/success?emailChanged={emailChanged}&" &
                          &"personalDetailsChanged={personalDetailsChanged}&" &
@@ -209,18 +224,17 @@ proc myAccountPagePost*(request: Request,
 
   else:
     # On error go back to the sign up page
-    return myAccountPageMain(request,
-                             webContext,
+    return myAccountPageMain(nexusCoreContext,
                              errorMessage,
                              name,
                              email)
 
 
-proc myAccountSuccessPage*(request: Request,
-                           webContext: WebContext,
-                           emailChanged: string = "",
-                           personalDetailsChanged: string = "",
-                           passwordChanged: string = ""): string =
+proc myAccountSuccessPage*(
+       nexusCoreContext: NexusCoreContext,
+       emailChanged: string = "",
+       personalDetailsChanged: string = "",
+       passwordChanged: string = ""): string =
 
   let vnode = buildHtml(tdiv()):
     br()
@@ -246,8 +260,8 @@ proc myAccountSuccessPage*(request: Request,
   var pageContext = newPageContext(pageTitle = "My Account")
 
   # Render page
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode,
-                 nexusCoreDbContext = some(nexusCoreDbContext))
+                 nexusCoreDbContext = some(nexusCoreContext.db))
 

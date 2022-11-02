@@ -1,4 +1,5 @@
-import chronicles, db_postgres, jester, json, options, strformat, strutils, times
+import chronicles, db_postgres, jester, json, options, strformat, strutils
+import tables, times
 import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/account_user_role_data
@@ -10,31 +11,32 @@ import nexus/core/types/model_types
 import nexus/core/types/types as nexus_core_types
 import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
+import nexus/core/types/context_type
 import nexus/core/types/view_types
 import account_fields
 
 
-proc alreadyLoggedInForm*(
-       webContext: WebContext,
-       pageContext: PageContext): string =
+proc alreadyLoggedInForm*(nexusCoreContext: NexusCoreContext): string =
 
   debug "alreadyLoggedInForm()",
     token = webContext.token
 
   let
     formDiv = getFormFactorClass(
-                webContext,
+                nexusCoreContext.web.get,
                 desktopClass = "form_div")
 
     vnode =
       buildHtml(tdiv(class = formDiv,
                      style = style(StyleAttr.width,
-                                   webContext.formWidthNarrow))):
+                                   nexusCoreContext.web.get.formWidthNarrow))):
         br()
         p(): text "Already logged in."
 
+  var pageContext = newPageContext(pageTitle = "Already logged in")
+
   return baseForContent(
-           webContext,
+           nexusCoreContext.web.get,
            pageContext,
            vnode)
 
@@ -50,8 +52,9 @@ proc loginForm*(
           webContext,
           desktopClass = "form_div")
 
-  buildHtml(tdiv(style = style(StyleAttr.width,
-                               webContext.formWidth))):
+  buildHtml(tdiv(style =
+    style(StyleAttr.width,
+          webContext.formWidth))):
 
     # Error message
     if errorMessage != "":
@@ -148,19 +151,17 @@ proc loginMinimalForm*(
             a(href = "/account/reset-password"): text "Reset Password"
 
 
-proc loginPage*(request: Request,
-                webContext: WebContext,
+proc loginPage*(nexusCoreContext: NexusCoreContext,
                 inErrorMessage: string = "",
                 inEmail: string = ""): string =
 
   var pageContext = newPageContext(pageTitle = "Login")
 
   # If already logged in
-  if webContext.loggedIn == true or webContext.token != "":
+  if nexusCoreContext.web.get.loggedIn == true or
+     nexusCoreContext.web.get.token != "":
 
-    return alreadyLoggedInForm(
-             webContext,
-             pageContext)
+    return alreadyLoggedInForm(nexusCoreContext)
 
   # Get vars
   var
@@ -172,19 +173,19 @@ proc loginPage*(request: Request,
     errorMessage = inErrorMessage
 
   else:
-    if request.params.hasKey("errorMessage"):
-      errorMessage = request.params["errorMessage"]
+    if nexusCoreContext.web.get.request.params.hasKey("errorMessage"):
+      errorMessage = nexusCoreContext.web.get.request.params["errorMessage"]
 
   if inEmail != "":
     email = inEmail
 
   else:
-    if request.params.hasKey("email"):
-      email = request.params["email"]
+    if nexusCoreContext.web.get.request.params.hasKey("email"):
+      email = nexusCoreContext.web.get.request.params["email"]
 
-  if request.params.hasKey("isVerified"):
+  if nexusCoreContext.web.get.request.params.hasKey("isVerified"):
 
-    if request.params["isVerified"] == "f":
+    if nexusCoreContext.web.get.request.params["isVerified"] == "f":
       isVerified = false
 
   debug "loginPage()",
@@ -193,28 +194,27 @@ proc loginPage*(request: Request,
 
   let vnode =
         buildHtml(tdiv()):
-          loginForm(webContext,
-            errorMessage,
-            email,
-            isVerified)
+          loginForm(nexusCoreContext.web.get,
+                    errorMessage,
+                    email,
+                    isVerified)
 
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode)
 
 
-proc loginPagePost*(request: Request,
-                    webContext: WebContext):
+proc loginPagePost*(nexusCoreContext: NexusCoreContext):
                       (bool, string, string) =
 
   # Get email
   var email = ""
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
   # Check for resend sign up code button
-  if request.params.hasKey("resendSignUpCode"):
+  if nexusCoreContext.web.get.request.params.hasKey("resendSignUpCode"):
 
     return (false,
             redirectToURL("/account/sign_up/resend_code?email=" & email),
@@ -222,8 +222,7 @@ proc loginPagePost*(request: Request,
 
   # Attempt login and get a JWT token
   let docUIReturn =
-        loginAction(request,
-                    webContext,
+        loginAction(nexusCoreContext,
                     none(JsonNode))
 
   debug "loginPagePost()",
@@ -254,7 +253,7 @@ proc loginPagePost*(request: Request,
       # Get AccountUser record
       let accountUser =
             getAccountUserByEmail(
-              nexusCoreDbContext,
+              nexusCoreContext.db,
               email)
 
       if accountUser != none(AccountUser):

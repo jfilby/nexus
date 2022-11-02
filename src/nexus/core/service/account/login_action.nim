@@ -355,7 +355,7 @@ template logoutAction*(nexusCoreContext: NexusCoreContext,
   var accountUser =
         getAccountUserByPk(
           nexusCoreContext.db,
-          nexusCoreContext.web.get.webContext.accountUserId)
+          nexusCoreContext.web.get.accountUserId)
 
   if accountUser == none(AccountUser):
 
@@ -419,8 +419,8 @@ template postLoginAction*(nexusCoreContext: NexusCoreContext) =
       email = ""
       redirectToURL = "/?first_homepage=t"
 
-    if request.params.hasKey("email"):
-      email = request.params["email"]
+    if nexusCoreContext.web.get.request.params.hasKey("email"):
+      email = nexusCoreContext.web.get.request.params["email"]
 
     let accountUser =
           getAccountUserByEmail(

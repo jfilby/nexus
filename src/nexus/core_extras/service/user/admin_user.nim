@@ -74,7 +74,7 @@ proc getOrCreateAdminUser*(
       nexusCoreContext.db,
       accountUser.get,
       setFields = @[ "is_active",
-                     "isVerified" ])
+                     "is_verified" ])
 
   # Create the Admin role for the user
   assignAdminRole(

@@ -9,6 +9,7 @@ import nexus/core/service/account/verify_sign_up_action
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/account/verify_sign_up_code_fields
 import nexus/core/service/email/send_email
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
@@ -17,8 +18,7 @@ import account_fields
 
 
 proc signUpVerifyPage*(
-       request: Request,
-       webContext: WebContext,
+       nexusCoreContext: NexusCoreContext,
        errorMessage = "",
        inEmail = ""): string =
 
@@ -28,14 +28,14 @@ proc signUpVerifyPage*(
     signUpCode = ""
     autoScript = ""
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
   elif inEmail != "":
     email = inEmail
 
-  if request.params.hasKey("code"):
-    signUpCode = request.params["code"]
+  if nexusCoreContext.web.get.request.params.hasKey("code"):
+    signUpCode = nexusCoreContext.web.get.request.params["code"]
 
   # Get autoScript if possible
   if errorMessage == "" and
@@ -52,20 +52,22 @@ proc signUpVerifyPage*(
   # Page
   var pageContext = newPageContext(pageTitle = "Verify Sign Up")
 
-  let formDiv = getFormFactorClass(webContext,
-                                   desktopClass = "form_div")
+  let formDiv = getFormFactorClass(
+                  nexusCoreContext.web.get,
+                  desktopClass = "form_div")
 
-  let vnode = buildHtml(tdiv(style = style(StyleAttr.width,
-                                           webContext.formWidth))):
+  let vnode = buildHtml(tdiv(style =
+                style(StyleAttr.width,
+                      nexusCoreContext.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         webContext.formWidthNarrow)):
+                         nexusCoreContext.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       webContext.formWidthNarrow)):
+                       nexusCoreContext.web.get.formWidthNarrow)):
 
       p(): text "A verification code has been emailed to you. " &
                 "Enter that code into the form below for verification."
@@ -91,27 +93,26 @@ proc signUpVerifyPage*(
       verbatim(autoScript)
 
   # Render
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode)
 
 
-proc signUpVerifyPagePost*(
-       request: Request,
-       webContext: WebContext): (bool, string, string, string, string) =
+proc signUpVerifyPagePost*(nexusCoreContext: NexusCoreContext):
+       (bool, string, string, string, string) =
 
   var
     email = ""
     signUpCode = ""
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
-  if request.params.hasKey("signUpCode"):
-    signUpCode = request.params["signUpCode"]
+  if nexusCoreContext.web.get.request.params.hasKey("signUpCode"):
+    signUpCode = nexusCoreContext.web.get.request.params["signUpCode"]
 
   # Verify sign-up action
-  var docuiReturn = verifySignUpAction(request)
+  var docuiReturn = verifySignUpAction(nexusCoreContext)
 
   # On error go back to the signUp page
   if docuiReturn.isVerified == false:
@@ -123,10 +124,10 @@ proc signUpVerifyPagePost*(
             "")
 
   # Login action
-  docUIReturn = loginActionByEmailVerified(
-                  nexusCoreDbContext,
-                  webContext,
-                  email)
+  docUIReturn =
+    loginActionByEmailVerified(
+      nexusCoreContext,
+      email)
 
   # On success
   let
@@ -135,7 +136,7 @@ proc signUpVerifyPagePost*(
 
     nexusSetting =
       getNexusSettingByModuleAndKey(
-        nexusCoreDbContext,
+        nexusCoreContext.db,
         module,
         key)
 
@@ -154,8 +155,7 @@ proc signUpVerifyPagePost*(
           &"{nexusSetting.get.value.get}?email={email}")
 
 
-template postSignUpVerifyAction*(request: Request,
-                                 webContext: WebContext) =
+template postSignUpVerifyAction*(nexusCoreContext: NexusCoreContext) =
 
   var
     email: string
@@ -168,8 +168,7 @@ template postSignUpVerifyAction*(request: Request,
    email,
    errorMessage,
    token,
-   redirectToURL) = signUpVerifyPagePost(request,
-                                         webContext)
+   redirectToURL) = signUpVerifyPagePost(nexusCoreContext)
 
   if verified == true:
 
@@ -184,8 +183,7 @@ template postSignUpVerifyAction*(request: Request,
     myRedirect redirectToURL
 
   else:
-    resp signUpVerifyPage(request,
-                          webContext,
+    resp signUpVerifyPage(nexusCoreContext,
                           errorMessage,
                           email)
 

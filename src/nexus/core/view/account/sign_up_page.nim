@@ -4,6 +4,7 @@ import nexus/core/data_access/account_user_data
 import nexus/core/data_access/account_user_role_data
 import nexus/core/data_access/db_conn
 import nexus/core/service/account/sign_up_action
+import nexus/core/types/context_type
 import nexus/core/types/model_types
 import nexus/core/types/view_types
 import nexus/core/view/common/common_fields
@@ -12,8 +13,7 @@ import account_fields, login_page
 
 
 proc signUpPage*(
-       request: Request,
-       webContext: WebContext,
+       nexusCoreContext: NexusCoreContext,
        errorMessage = "",
        infoMessage = "",
        name = "",
@@ -22,39 +22,39 @@ proc signUpPage*(
   var pageContext = newPageContext(pageTitle = "Sign Up")
 
   # If already logged in
-  if webContext.loggedIn == true or webContext.token != "":
+  if nexusCoreContext.web.get.loggedIn == true or
+     nexusCoreContext.web.get.token != "":
 
-    return alreadyLoggedInForm(
-             webContext,
-             pageContext)
+    return alreadyLoggedInForm(nexusCoreContext)
 
   # Get vars
   var email = inEmail
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
   # Page
   let formDiv = getFormFactorClass(
-                  webContext,
+                  nexusCoreContext.web.get,
                   desktopClass = "form_div")
 
-  let vnode = buildHtml(tdiv(style = style(StyleAttr.width,
-                                           webContext.formWidth))):
+  let vnode = buildHtml(tdiv(style =
+                style(StyleAttr.width,
+                      nexusCoreContext.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         webContext.formWidthNarrow)):
+                         nexusCoreContext.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     if infoMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         webContext.formWidthNarrow)):
+                         nexusCoreContext.web.get.formWidthNarrow)):
         infoMessage(infoMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       webContext.formWidthNarrow)):
+                       nexusCoreContext.web.get.formWidthNarrow)):
 
       form(`method` = "post"):
         nameField(name,
@@ -68,22 +68,20 @@ proc signUpPage*(
         br()
         signUpButton()
 
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode)
 
 
-proc signUpPagePost*(
-       request: Request,
-       webContext: WebContext): string =
+proc signUpPagePost*(nexusCoreContext: NexusCoreContext): string =
 
   var email = ""
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
   # Sign-up action
-  let docuiReturn = signUpAction(request)
+  let docuiReturn = signUpAction(nexusCoreContext)
 
   # Sign up: new user (if verification succeeded)
   if docuiReturn.isVerified == true:
@@ -94,27 +92,24 @@ proc signUpPagePost*(
   else:
     # Get form data
     let
-      name = request.params["name"]
-      password1 = request.params["password1"]
-      password2 = request.params["password2"]
+      name = nexusCoreContext.web.get.request.params["name"]
+      password1 = nexusCoreContext.web.get.request.params["password1"]
+      password2 = nexusCoreContext.web.get.request.params["password2"]
 
     # On error go back to the sign up page
-    return signUpPage(request,
-                      webContext,
+    return signUpPage(nexusCoreContext,
                       docUIReturn.errorMessage,
                       name = name,
                       inEmail = email)
 
 
-proc signUpSuccessPage*(
-       request: Request,
-       webContext: WebContext): string =
+proc signUpSuccessPage*(nexusCoreContext: NexusCoreContext): string =
 
   # Get vars
   var email = ""
 
-  if request.params.hasKey("email"):
-    email = request.params["email"]
+  if nexusCoreContext.web.get.request.params.hasKey("email"):
+    email = nexusCoreContext.web.get.request.params["email"]
 
   # Setup pageContext
   var pageContext = newPageContext(pageTitle = "Sign Up")
@@ -122,7 +117,7 @@ proc signUpSuccessPage*(
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          nexusCoreContext.db,
           email)
 
   # Success message
@@ -158,11 +153,11 @@ proc signUpSuccessPage*(
       p()
 
     if login == true:
-      loginForm(webContext,
+      loginForm(nexusCoreContext.web.get,
                 errorMessage = "",
                 email)
 
-  baseForContent(webContext,
+  baseForContent(nexusCoreContext.web.get,
                  pageContext,
                  vnode)
 
