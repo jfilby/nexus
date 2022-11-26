@@ -5,3 +5,4 @@ bin/
 tmp/tmp_dict.yaml
 old_docs/
 src/tests/env/env.bat
+src/tests/orm/orm_test.log
