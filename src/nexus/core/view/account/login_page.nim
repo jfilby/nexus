@@ -158,8 +158,7 @@ proc loginPage*(nexusCoreContext: NexusCoreContext,
   var pageContext = newPageContext(pageTitle = "Login")
 
   # If already logged in
-  if nexusCoreContext.web.get.loggedIn == true or
-     nexusCoreContext.web.get.token != "":
+  if nexusCoreContext.web.get.loggedIn == true:
 
     return alreadyLoggedInForm(nexusCoreContext)
 

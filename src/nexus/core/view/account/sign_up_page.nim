@@ -22,8 +22,7 @@ proc signUpPage*(
   var pageContext = newPageContext(pageTitle = "Sign Up")
 
   # If already logged in
-  if nexusCoreContext.web.get.loggedIn == true or
-     nexusCoreContext.web.get.token != "":
+  if nexusCoreContext.web.get.loggedIn == true:
 
     return alreadyLoggedInForm(nexusCoreContext)
 
