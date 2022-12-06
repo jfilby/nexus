@@ -80,7 +80,7 @@ proc generateDeleteContextProc(
        module: Module) =
 
   str &=
-     "proc deleteNexusCoreContext*(\n" &
+    &"proc delete{module.nameInPascalCase}Context*(\n" &
     &"       {module.nameInCamelCase}Context: var {module.nameInPascalCase}Context) =\n" &
      "\n" &
     &"  closeDbConn({module.nameInCamelCase}Context.db.dbConn)\n" &
