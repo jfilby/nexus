@@ -1,5 +1,6 @@
-import chronicles, os, strformat
+import chronicles, os, sets, strformat
 import nexus/cmd/types/types
+import gen_db_context_procs
 
 
 # Forward declarations
@@ -94,6 +95,7 @@ proc generateImports(
        module: Module) =
 
   var
+    stdlibImports: OrderedSet[string]
     imports: seq[string]
     importPrefix = ""
 
@@ -102,12 +104,16 @@ proc generateImports(
 
     importPrefix = &"{module.package}/"
 
-  # Determine imports
+  # Determine stdlib imports
+  stdlibImports.incl("db_postgres")
+  stdlibImports.incl("tables")
+
   if module.isWeb == true or
     module.nameInPascalCase == "NexusCore":
 
     # Jester and options are only needed if moduleContext.web is used
-    imports.add("jester, options")
+    stdlibImports.incl("jester")
+    stdlibImports.incl("options")
 
   # DB Connections are always used
   imports.add("nexus/core/data_access/db_conn")
@@ -132,7 +138,26 @@ proc generateImports(
     imports.add(&"{importPrefix}{module.srcRelativePath}/types/context_type")
     imports.add(&"{importPrefix}{module.srcRelativePath}/types/model_types")
 
-  # Generate: imports
+  # Context DB import
+  imports.add("context_db")
+
+  # Generate stdlib import strings
+  var first = true
+  str &= "import "
+
+  for stdlibImport in stdlibImports:
+
+    if first == false:
+      str &= ", "
+
+    else:
+      first = false
+
+    str &= stdlibImport
+
+  str &= "\n"
+
+  # Generate import strings
   for `import` in imports:
     str &= &"import {`import`}\n"
 
