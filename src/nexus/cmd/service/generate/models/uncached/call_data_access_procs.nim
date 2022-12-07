@@ -19,7 +19,7 @@ proc callCreateProc*(
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
       &"        {procName}(\n" &
-      &"           {model.module.nameInCamelCase}DbContext,\n"
+      &"           dbContext,\n"
 
     indent = "           "
 
@@ -63,7 +63,7 @@ proc callDeleteProc*(
     procLine =
        "  let rowsDeleted = \n" &
       &"        {procName}(\n" &
-      &"          {model.module.nameInCamelCase}DbContext,\n"
+      &"          dbContext,\n"
 
     indent = "          "
 
@@ -115,7 +115,7 @@ proc callExistsProc*(
   let
     procLine =
       &"  return {procName}(\n" &
-      &"           {model.module.nameInCamelCase}DbContext,\n"
+      &"           dbContext,\n"
 
     indent = "           "
 
@@ -157,7 +157,7 @@ proc callFilterWithWhereClauseProc*(
   let
     procLine = &"  let {model.namePluralInCamelCase} =\n" &
                &"        {procName}(\n" &
-               &"          {model.module.nameInCamelCase}DbContext,\n"
+               &"          dbContext,\n"
     indent = "          "
 
   str &= procLine &
@@ -184,7 +184,7 @@ proc callFilterWithWhereFieldsProc*(
     procLine =
       &"  let {model.namePluralInSnakeCase} =\n" &
       &"        {procName}(\n" &
-      &"          {model.module.nameInSnakeCase}DbContext,\n"
+      &"          dbContext,\n"
 
     indent = "          "
 
@@ -222,7 +222,7 @@ proc callGetProc*(
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
       &"        {procName}(\n" &
-      &"          {model.module.nameInCamelCase}DbContext,\n"
+      &"          dbContext,\n"
 
     indent = "          "
 
@@ -262,7 +262,7 @@ proc callGetOrCreateProcByPk*(
   # Proc definition
   str &= &"  let {model.nameInCamelCase} =\n" &
          &"        {procName}ByPk(\n" &
-         &"          {model.module.nameInCamelCase}DbContext,\n"
+         &"          dbContext,\n"
 
   listModelFieldNames(
     str,
@@ -296,7 +296,7 @@ proc callGetOrCreateProcByUniqueFields*(
     procLine =
       &"  let {model.nameInCamelCase} =\n" &
       &"        {procName}By{uniqueFieldsPascalCaseCase}(\n" &
-      &"          {model.module.nameInCamelCase}DbContext,\n"
+      &"          dbContext,\n"
 
     indent = "          "
 
@@ -331,7 +331,7 @@ proc callUpdateProc*(
     procLine =
       &"  let rowsUpdated =\n" &
       &"        {procName}(\n" &
-      &"          {model.module.nameInCamelCase}DbContext,\n"
+      &"          dbContext,\n"
 
     indent = "          "
 

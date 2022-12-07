@@ -20,22 +20,21 @@ proc addIfNotExistModelRowToCache*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
-        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(addToCacheStr) > 80:
 
     addToCacheStr =
-      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"    dbContext.{cachedRows}[{pkField}] =\n" &
       &"      {model.nameInCamelCase}\n"
 
   # Generate code to add to the row cache
   str &=  "  # Add to the model row cache if it's not there\n" &
-         &"  if not {moduleVar}.{cachedRows}.hasKey({pkField}):\n" &
+         &"  if not dbContext.{cachedRows}.hasKey({pkField}):\n" &
          addToCacheStr &
          "\n"
 
@@ -60,7 +59,6 @@ proc addModelRowToCache*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = withModel,
@@ -68,13 +66,13 @@ proc addModelRowToCache*(
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
-        &"{indent}{moduleVar}.{cachedRows}[{pkField}] = " &
+        &"{indent}dbContext.{cachedRows}[{pkField}] = " &
           &"{model.nameInCamelCase}{optionGet}\n"
 
   if len(addToCacheStr) > 80:
 
     addToCacheStr =
-      &"{indent}{moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"{indent}dbContext.{cachedRows}[{pkField}] =\n" &
       &"{indent}  {model.nameInCamelCase}{optionGet}\n"
 
   # Generate code to add to the row cache
@@ -87,12 +85,10 @@ proc clearFilterCache*(
        str: var string,
        model: Model) =
 
-  let
-    cachedFilter = "cachedFilter" & model.nameInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
+  let cachedFilter = "cachedFilter" & model.nameInPascalCase
 
   str &= "  # Clear filter cache\n" &
-         &"  {moduleVar}.{cachedFilter}.clear()\n" &
+         &"  dbContext.{cachedFilter}.clear()\n" &
          "\n"
 
 
@@ -103,13 +99,12 @@ proc existsModelRowInCacheByPk*(
   let
     # cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)
 
   str &= "  # Check existence in the model row cache\n" &
-         &"  if {moduleVar}.{cachedRows}.hasKey({pkField}):\n" &
+         &"  if dbContext.{cachedRows}.hasKey({pkField}):\n" &
          "    return true\n" &
          "\n"
 
@@ -121,7 +116,6 @@ proc existsModelRowInCacheByUniqueFields*(
 
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
     uniqueFieldsStr = join(uniqueFields, "|")
     uniqueValuesStr = getUniqueFieldValuesStringStr(uniqueFields,
                                                       model)
@@ -131,7 +125,7 @@ proc existsModelRowInCacheByUniqueFields*(
          &"                  \"1|\" & {uniqueValuesStr}\n" &
          "\n" &
          "  # Check existence in the model row cache\n" &
-         &"  if {moduleVar}.{cachedFilter}.hasKey(filterKey):\n" &
+         &"  if dbContext.{cachedFilter}.hasKey(filterKey):\n" &
          "    return true\n" &
          "\n"
 
@@ -157,7 +151,6 @@ proc filterModelGetRowsInCacheWithWhereClause*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
   str &= &"  # Get rows in the model row cache via the filter cache\n" &
          &"  let filterKey = \"0|\" & whereClause &\n" &
@@ -166,11 +159,11 @@ proc filterModelGetRowsInCacheWithWhereClause*(
          "\n" &
          &"  var {cachedRows}: {model.namePluralInPascalCase}\n" &
          "\n" &
-         &"  if {moduleVar}.{cachedFilter}.hasKey(filterKey):\n" &
+         &"  if dbContext.{cachedFilter}.hasKey(filterKey):\n" &
          "\n" &
-         &"    for pk in {moduleVar}.{cachedFilter}[filterKey]:\n" &
+         &"    for pk in dbContext.{cachedFilter}[filterKey]:\n" &
          "\n" &
-         &"      {cachedRows}.add({moduleVar}.{cachedRows}[pk])\n" &
+         &"      {cachedRows}.add(dbContext.{cachedRows}[pk])\n" &
          "\n" &
          &"    return {cachedRows}\n" &
          "\n"
@@ -183,7 +176,6 @@ proc filterModelGetRowsInCacheWithWhereFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
   str &= "  # Get rows in the model row cache via the filter cache\n" &
          &"  let filterKey = \"0|\" & join(whereFields, \"|\") &\n" &
@@ -192,11 +184,11 @@ proc filterModelGetRowsInCacheWithWhereFields*(
          "\n" &
          &"  var {cachedRows}: {model.namePluralInPascalCase}\n" &
          "\n" &
-         &"  if {moduleVar}.{cachedFilter}.hasKey(filterKey):\n" &
+         &"  if dbContext.{cachedFilter}.hasKey(filterKey):\n" &
          "\n" &
-         &"    for pk in {moduleVar}.{cachedFilter}[filterKey]:\n" &
+         &"    for pk in dbContext.{cachedFilter}[filterKey]:\n" &
          "\n" &
-         &"      {cachedRows}.add({moduleVar}.{cachedRows}[pk])\n" &
+         &"      {cachedRows}.add(dbContext.{cachedRows}[pk])\n" &
          "\n" &
          &"    return {cachedRows}\n" &
          "\n"
@@ -209,22 +201,21 @@ proc filterModelSetRowsInCacheWithWhereClause*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
-        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(setInCacheStr) > 80:
 
     setInCacheStr =
-      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"    dbContext.{cachedRows}[{pkField}] =\n" &
       &"      {model.nameInCamelCase}\n"
 
   # Generate code to set to the row cache
   str &= "  # Set rows in filter cache\n" &
-         &"  {moduleVar}.{cachedFilter}[filterKey] = pks\n" &
+         &"  dbContext.{cachedFilter}[filterKey] = pks\n" &
          "\n" &
          "  # Set rows in model row cache\n" &
          &"  for {model.nameInCamelCase} in {model.namePluralInCamelCase}:\n" &
@@ -240,22 +231,21 @@ proc filterModelSetRowsInCacheWithWhereFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
     pkField = getPkString(model)
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
-        &"    {moduleVar}.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(setInCacheStr) > 80:
 
     setInCacheStr =
-      &"    {moduleVar}.{cachedRows}[{pkField}] =\n" &
+      &"    dbContext.{cachedRows}[{pkField}] =\n" &
       &"      {model.nameInCamelCase}\n"
 
   # Generate code to set to the row cache
   str &= &"  # Set rows in filter cache\n" &
-         &"  {moduleVar}.{cachedFilter}[filterKey] = pks\n" &
+         &"  dbContext.{cachedFilter}[filterKey] = pks\n" &
          "\n" &
          &"  # Set rows in model row cache\n" &
          &"  for {model.nameInCamelCase} in {model.namePluralInCamelCase}:\n" &
@@ -271,7 +261,6 @@ proc getModelRowInCacheByPk*(
 
   let
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)
@@ -285,8 +274,8 @@ proc getModelRowInCacheByPk*(
     postRet = ")"
 
   str &= &"  # Get from the model row cache\n" &
-         &"  if {moduleVar}.{cachedRows}.hasKey({pkField}):\n" &
-         &"    return {preRet}{moduleVar}.{cachedRows}[{pkField}]{postRet}\n" &
+         &"  if dbContext.{cachedRows}.hasKey({pkField}):\n" &
+         &"    return {preRet}dbContext.{cachedRows}[{pkField}]{postRet}\n" &
          &"\n"
 
 
@@ -299,7 +288,6 @@ proc getModelRowInCacheByUniqueFields*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
     uniqueFieldsStr = join(uniqueFields, " ")
 
     uniqueValuesStr =
@@ -320,8 +308,8 @@ proc getModelRowInCacheByUniqueFields*(
          &"                  \"1|\" & {uniqueValuesStr}\n" &
          "\n" &
          "  # Get from the model row cache\n" &
-         &"  if {moduleVar}.{cachedFilter}.hasKey(filterKey):\n" &
-         &"    return {preRet}{moduleVar}.{cachedRows}[{moduleVar}.{cachedFilter}[filterKey][0]]{postRet}\n" &
+         &"  if dbContext.{cachedFilter}.hasKey(filterKey):\n" &
+         &"    return {preRet}dbContext.{cachedRows}[dbContext.{cachedFilter}[filterKey][0]]{postRet}\n" &
          &"\n"
 
 
@@ -399,15 +387,14 @@ proc removeModelRowFromCache*(
   let
     cachedFilter = "cachedFilter" & model.nameInPascalCase
     cachedRows = "cached" & model.namePluralInPascalCase
-    moduleVar = model.module.nameInCamelCase & "DbContext"
 
     pkField = getPkString(model,
                           withModel = false)
 
   str &= &"  # Remove from the model row cache\n" &
-         &"  {moduleVar}.{cachedRows}.del({pkField})\n" &
+         &"  dbContext.{cachedRows}.del({pkField})\n" &
          "\n" &
          &"  # Clear the filter cache\n" &
-         &"  {moduleVar}.{cachedFilter}.clear()\n" &
+         &"  dbContext.{cachedFilter}.clear()\n" &
          &"\n"
 

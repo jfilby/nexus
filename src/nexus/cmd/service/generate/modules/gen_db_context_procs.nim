@@ -1,4 +1,4 @@
-import chronicles, os, random, sets, strformat
+import chronicles, os, random, strformat
 import nexus/cmd/types/types
 
 
@@ -20,11 +20,11 @@ proc generateBeginTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"contextDb: {module.nameInPascalCase}DbContext"
+  let param = &"dbContext: {module.nameInPascalCase}DbContext"
 
   str &= &"proc beginTransaction*({param}) =\n" &
          "\n" &
-         &"  contextDb.dbConn.exec(sql\"begin\")\n" &
+         &"  dbContext.dbConn.exec(sql\"begin\")\n" &
          "\n\n"
 
 
@@ -32,11 +32,11 @@ proc generateCommitTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"contextDb: {module.nameInPascalCase}DbContext"
+  let param = &"dbContext: {module.nameInPascalCase}DbContext"
 
   str &= &"proc commitTransaction*({param}) =\n" &
          "\n" &
-         &"  contextDb.dbConn.exec(sql\"commit\")\n" &
+         &"  dbContext.dbConn.exec(sql\"commit\")\n" &
          "\n\n"
 
 
@@ -87,7 +87,7 @@ proc generateDbContextProcs*(
   createDir(modulesPath)
 
   # Write module file
-  let moduleDbFilename = &"{modulesPath}/context_db.nim"
+  let moduleDbFilename = &"{modulesPath}/db_context.nim"
 
   writeFile(moduleDbFilename,
             str)
@@ -108,12 +108,12 @@ proc generateIsInATransaction(
        str: var string,
        module: Module) =
 
-  let param = &"contextDb: {module.nameInPascalCase}DbContext"
+  let param = &"dbContext: {module.nameInPascalCase}DbContext"
 
   str &= &"proc isInATransaction*({param}): bool =\n" &
          "\n" &
          "  let row = getRow(\n" &
-        &"              contextDb.dbConn,\n" &
+        &"              dbContext.dbConn,\n" &
          "              sql\"select pg_current_xact_id_if_assigned()\")\n" &
          "\n" &
          "  if row[0] == \"\":\n" &
@@ -132,7 +132,7 @@ proc generateNewDbContext(
   str &= &"proc new{module.nameInPascalCase}DbContext*(): " &
          &"{module.nameInPascalCase}DbContext =\n" &
          "\n" &
-         &"  var contextDb = " &
+         &"  var dbContext = " &
          &"{module.nameInPascalCase}DbContext()\n" &
          &"\n"
 
@@ -154,10 +154,10 @@ proc generateNewDbContext(
 
     # Generating table set strings
     let
-      mth = &"  contextDb.modelToIntSeqTable" &
+      mth = &"  dbContext.modelToIntSeqTable" &
             &"[\"{model.name}\"] = {modelSeq}\n"
 
-      htm = &"  contextDb.intSeqToModelTable" &
+      htm = &"  dbContext.intSeqToModelTable" &
             &"[{modelSeq}] = \"{model.name}\"\n"
 
     str &= mth &
@@ -178,10 +178,10 @@ proc generateNewDbContext(
       let tableField = model.name & "." & field.name
 
       # Generating table set strings
-      ftis &= &"  contextDb.fieldToIntSeqTable" &
+      ftis &= &"  dbContext.fieldToIntSeqTable" &
               &"[\"{tableField}\"] = {modelFieldSeq}\n"
 
-      istf &= &"  contextDb.intSeqToFieldTable" &
+      istf &= &"  dbContext.intSeqToFieldTable" &
               &"[{modelFieldSeq}] = \"{tableField}\"\n"
 
       modelFieldSeq += 1
@@ -191,7 +191,7 @@ proc generateNewDbContext(
            istf &
            &"\n"
 
-  str &= &"  return contextDb\n" &
+  str &= &"  return dbContext\n" &
          &"\n"
 
 
@@ -199,10 +199,10 @@ proc generateRollbackTransaction(
        str: var string,
        module: Module) =
 
-  let param = &"contextDb: {module.nameInPascalCase}DbContext"
+  let param = &"dbContext: {module.nameInPascalCase}DbContext"
 
   str &= &"proc rollbackTransaction*({param}) =\n" &
          "\n" &
-         &"  contextDb.dbConn.exec(sql\"rollback\")\n" &
+         &"  dbContext.dbConn.exec(sql\"rollback\")\n" &
          "\n\n"
 

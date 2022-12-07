@@ -1,6 +1,5 @@
 import chronicles, os, sets, strformat
 import nexus/cmd/types/types
-import gen_db_context_procs
 
 
 # Forward declarations
@@ -104,10 +103,6 @@ proc generateImports(
 
     importPrefix = &"{module.package}/"
 
-  # Determine stdlib imports
-  stdlibImports.incl("db_postgres")
-  stdlibImports.incl("tables")
-
   if module.isWeb == true or
     module.nameInPascalCase == "NexusCore":
 
@@ -139,7 +134,7 @@ proc generateImports(
     imports.add(&"{importPrefix}{module.srcRelativePath}/types/model_types")
 
   # Context DB import
-  imports.add("context_db")
+  imports.add("db_context")
 
   # Generate stdlib import strings
   var first = true

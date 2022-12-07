@@ -22,8 +22,7 @@ proc countProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
          &"       whereFields: seq[string] = @[],\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -44,7 +43,7 @@ proc countProc*(str: var string,
     "selectStatement")
 
   # Get the records
-  str &= &"  let row = getRow({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+  str &= &"  let row = getRow(dbContext.dbConn,\n" &
          &"                   sql(selectStatement),\n" &
          &"                   whereValues)\n" &
           "\n"
@@ -72,8 +71,7 @@ proc countWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
          &"       whereClause: string,\n" &
          &"       whereValues: seq[string] = @[]){returnDetails} =\n" &
           "\n"
@@ -91,7 +89,7 @@ proc countWhereClauseProc*(
               "selectStatement")
 
   # Get the records
-  str &= &"  let row = getRow({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+  str &= &"  let row = getRow(dbContext.dbConn,\n" &
           "                   sql(selectStatement),\n" &
           "                   whereValues)\n" &
           "\n"
@@ -116,8 +114,7 @@ proc createProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n"
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n"
 
   listModelFieldNames(
     str,
@@ -149,7 +146,7 @@ proc createProc*(str: var string,
 
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  return tryInsertNamedID(\n" &
-           &"    {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+           &"    dbContext.dbConn,\n" &
             "    sql(insertStatement),\n" &
            &"    \"{model.pkNameInSnakeCase}\",\n" &
             "    insertValues)\n"
@@ -157,7 +154,7 @@ proc createProc*(str: var string,
   else:
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  exec(\n" &
-           &"    {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+           &"    dbContext.dbConn,\n" &
             "    sql(insertStatement),\n" &
             "    insertValues)\n" &
             "\n" &
@@ -179,8 +176,7 @@ proc createWithTypeProc*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n"
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n"
 
   listModelFieldNames(
     str,
@@ -226,7 +222,7 @@ proc createWithTypeProc*(
     indent &= "  "
 
   str &= &"{indent}create{model.nameInPascalCase}ReturnsPk(\n" &
-         &"{indent}  {model.module.nameInCamelCase}DbContext,\n"
+         &"{indent}  dbContext,\n"
 
   indent &= "  "
 
@@ -285,7 +281,7 @@ proc deleteProcByPk*(
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
+         &"       dbContext: " &
            &"{model.module.nameInPascalCase}DbContext,\n"
 
   if withStringTypes == false:
@@ -316,7 +312,7 @@ proc deleteProcByPk*(
 
   # Delete the record
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"           dbContext.dbConn,\n" &
           "           sql(deleteStatement),\n"
 
   listFieldNames(str,
@@ -346,8 +342,7 @@ proc deleteWhereClauseProc*(
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
           "       whereClause: string,\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -359,7 +354,7 @@ proc deleteWhereClauseProc*(
 
   # Exec the delete and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"           dbContext.dbConn,\n" &
           "           sql(deleteStatement),\n" &
           "           whereValues)\n" &
           "\n"
@@ -381,8 +376,7 @@ proc deleteWhereEqOnlyProc*(
                                           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
           "       whereFields: seq[string],\n" &
          &"       whereValues: seq[string]){returnDetails} =\n" &
           "\n"
@@ -402,7 +396,7 @@ proc deleteWhereEqOnlyProc*(
 
   # Exec the delete and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"           dbContext.dbConn,\n" &
           "           sql(deleteStatement),\n" &
           "           whereValues)\n" &
           "\n"
@@ -445,8 +439,7 @@ proc existsProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n"
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n"
 
   if withStringTypes == false:
     listFieldNames(str,
@@ -479,7 +472,7 @@ proc existsProc*(str: var string,
 
   # Get the record
   str &=  "  let row = getRow(\n" &
-         &"              {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"              dbContext.dbConn,\n" &
           "              sql(selectStatement),\n"
 
   listFieldNamesWithDbToStringFuncs(
@@ -566,8 +559,7 @@ proc filterProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
           "       whereClause: string = \"\",\n" &
           "       whereValues: seq[string] = @[],\n" &
           "       orderByFields: seq[string] = @[],\n" &
@@ -600,7 +592,7 @@ proc filterProc*(str: var string,
   # Get the records
   str &= &"  var {model.namePluralInCamelCase}: {model.namePluralInPascalCase}\n" &
          "\n" &
-         &"  for row in fastRows({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"  for row in fastRows(dbContext.dbConn,\n" &
           "                      sql(selectStatement),\n" &
           "                      whereValues):\n" &
          "\n" &
@@ -630,8 +622,7 @@ proc filterWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
           "       whereFields: seq[string],\n" &
           "       whereValues: seq[string],\n" &
           "       orderByFields: seq[string] = @[],\n" &
@@ -669,7 +660,7 @@ proc filterWhereEqOnlyProc*(
   # Get the records
   str &= &"  var {model.namePluralInCamelCase}: {model.namePluralInPascalCase}\n" &
           "\n" &
-         &"  for row in fastRows({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"  for row in fastRows(dbContext.dbConn,\n" &
           "                      sql(selectStatement),\n" &
           "                      whereValues):\n" &
           "\n" &
@@ -718,8 +709,7 @@ proc getProc*(str: var string,
 
   # Proc definition
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-         &"{model.module.nameInPascalCase}DbContext,\n"
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n"
 
   if withStringTypes == false:
     listFieldNames(
@@ -754,7 +744,7 @@ proc getProc*(str: var string,
 
   # Get the record
   str &=  "  let row = getRow(\n" &
-         &"              {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"              dbContext.dbConn,\n" &
           "              sql(selectStatement),\n"
 
   listFieldNames(str,
@@ -805,8 +795,7 @@ proc getOrCreateProc*(str: var string,
     procName &= "By" & uniqueFieldsPascalCaseCase
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n"
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n"
 
   listModelFieldNames(
     str,
@@ -839,7 +828,7 @@ proc getOrCreateProc*(str: var string,
   # Select one
   str &= &"  let {model.nameInCamelCase} =\n" &
          &"        get{model.nameInPascalCase}By{getByFields}(\n" &
-         &"          {model.module.nameInCamelCase}DbContext,\n"
+         &"          dbContext,\n"
 
   listFieldNames(str,
                  model,
@@ -862,7 +851,7 @@ proc getOrCreateProc*(str: var string,
 
   # Call create (no record found) and return the type
   str &= &"  return create{model.nameInPascalCase}(\n" &
-         &"           {model.module.nameInCamelCase}DbContext,\n"
+         &"           dbContext,\n"
 
   listModelFieldNames(
     str,
@@ -889,16 +878,15 @@ proc truncate*(str: var string,
   let sql = &"truncate table {model.base_nameInSnakeCase} restart identity"
 
   str &= &"proc {procName}*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
           "       cascade: bool = false) =\n" &
           "\n" &
           "  if cascade == false:\n" &
-         &"    exec({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"    exec(dbContext.dbConn,\n" &
          &"         sql(\"{sql};\"))\n" &
           "\n" &
           "  else:\n" &
-         &"    exec({model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"    exec(dbContext.dbConn,\n" &
          &"         sql(\"{sql} cascade;\"))\n" &
           "\n"
 
@@ -923,8 +911,7 @@ proc updateByPkProc*(str: var string,
           pragmas)
 
   str &= &"proc {procName}ByPk*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
-           &"{model.module.nameInPascalCase}DbContext,\n" &
+         &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
          &"       exceptionOnNRowsUpdated: bool = true){returnDetails} =\n" &
@@ -945,7 +932,7 @@ proc updateByPkProc*(str: var string,
   # Exec the update and return rows affected
   str &=  "  let rowsUpdated = \n" &
           "        execAffectedRows(\n" &
-         &"          {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"          dbContext.dbConn,\n" &
           "          sql(updateStatement),\n" &
           "          updateValues)\n" &
           "\n" &
@@ -1013,7 +1000,7 @@ proc updateWhereClauseProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereClause*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
+         &"       dbContext: " &
            &"{model.module.nameInPascalCase}DbContext,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
@@ -1032,7 +1019,7 @@ proc updateWhereClauseProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"           dbContext.dbConn,\n" &
           "           sql(updateStatement),\n" &
           "           concat(updateValues,\n" &
           "                  whereValues))\n" &
@@ -1057,7 +1044,7 @@ proc updateWhereEqOnlyProc*(
           pragmas)
 
   str &= &"proc {procName}ByWhereEqOnly*(\n" &
-         &"       {model.module.nameInCamelCase}DbContext: " &
+         &"       dbContext: " &
            &"{model.module.nameInPascalCase}DbContext,\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
           "       setFields: seq[string],\n" &
@@ -1079,7 +1066,7 @@ proc updateWhereEqOnlyProc*(
 
   # Exec the update and return rows affected
   str &=  "  return execAffectedRows(\n" &
-         &"           {model.module.nameInCamelCase}DbContext.dbConn,\n" &
+         &"           dbContext.dbConn,\n" &
           "           sql(updateStatement),\n" &
           "           concat(updateValues,\n" &
           "                  whereValues))\n" &
