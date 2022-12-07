@@ -8,17 +8,17 @@ import nexus/core/view/common/common_fields
 import nexus/core/view/base_page
 
 
-proc logoutPage*(nexusCoreContext: NexusCoreContext) =
+proc logoutPage*(context: NexusCoreContext) =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Log out with JWT
-  logoutJWT(nexusCoreContext.web.get.request,
-            nexusCoreContext.db,
+  logoutJWT(context.web.get.request,
+            context.db,
             useCookie = true)
 

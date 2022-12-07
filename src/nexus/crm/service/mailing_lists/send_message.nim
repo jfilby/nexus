@@ -15,7 +15,7 @@ proc sendEmailToMailingList*(
 
 
 proc sendEmailsToMailingList*(
-       nexusCRMModule: NexusCRMModule,
+       context: NexusCRMContext,
        mailingList: MailingList,
        mailingListMessage: MailingListMessage,
        batchSize: Option[int] = none(int)) =
@@ -23,7 +23,7 @@ proc sendEmailsToMailingList*(
   # Get all subscribers
   let mailingListSubscribers =
         filterMailingListSubscriber(
-          nexusCRMModule,
+          context,
           whereClause =
             "mailing_list_id = ? and " &
             "not exists (select 1" &
@@ -45,7 +45,7 @@ proc sendEmailsToMailingList*(
       mailingListMessage)
 
     discard getOrCreateMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMessageId(
-              nexusCRMModule,
+              context,
               none(int64),
               mailingList.mailingListId,
               mailingListSubscriber.mailingListSubscriberId,

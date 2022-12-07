@@ -14,18 +14,18 @@ import send_user_emails
 import verify_reset_password_fields
 
 
-proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
+proc resetPasswordRequestAction*(context: NexusCoreContext):
        DocUIReturn =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  template request: untyped = nexusCoreContext.web.get.request
+  template request: untyped = context.web.get.request
 
   let contentType = getContentType(request)
 
@@ -60,7 +60,7 @@ proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Verify the input
@@ -78,7 +78,7 @@ proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreContext.db,
+            context.db,
             email)
 
     # Get passwordResetCode
@@ -86,7 +86,7 @@ proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
 
     # Update accountUser with the passwordResetCode
     discard updateAccountUserByPk(
-              nexusCoreContext.db,
+              context.db,
               accountUser.get,
               setFields = @[ "password_reset_code"])
 
@@ -100,18 +100,18 @@ proc resetPasswordRequestAction*(nexusCoreContext: NexusCoreContext):
   return newDocUIReturn(true)
 
 
-proc resetPasswordChangeAction*(nexusCoreContext: NexusCoreContext):
+proc resetPasswordChangeAction*(context: NexusCoreContext):
        DocUIReturn =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  template request: untyped = nexusCoreContext.web.get.request
+  template request: untyped = context.web.get.request
 
   let contentType = getContentType(request)
 
@@ -160,7 +160,7 @@ proc resetPasswordChangeAction*(nexusCoreContext: NexusCoreContext):
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Verify the input
@@ -181,7 +181,7 @@ proc resetPasswordChangeAction*(nexusCoreContext: NexusCoreContext):
     # Get accountUser record
     var accountUser =
           getAccountUserByEmail(
-            nexusCoreContext.db,
+            context.db,
             email)
 
     # Update password
@@ -192,7 +192,7 @@ proc resetPasswordChangeAction*(nexusCoreContext: NexusCoreContext):
                    inSalt = "")
 
     discard updateAccountUserByPk(
-              nexusCoreContext.db,
+              context.db,
               accountUser.get,
               setFields = @[ "password_hash",
                              "password_salt" ])

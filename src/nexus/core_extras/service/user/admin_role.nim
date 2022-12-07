@@ -26,7 +26,7 @@ proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): int64 =
 
 
 proc userHasAdminRole*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        accountUser: AccountUser): bool =
 

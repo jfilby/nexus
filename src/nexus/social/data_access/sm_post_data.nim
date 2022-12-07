@@ -12,7 +12,7 @@ proc rowToSMPost*(row: seq[string]):
 
 # Code
 proc countSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countSMPost*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusSocialDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countSMPost*(
 
 
 proc countSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countSMPost*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusSocialDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countSMPost*(
 
 
 proc createSMPostReturnsPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostParentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
@@ -163,14 +163,14 @@ proc createSMPostReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusSocialDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "sm_post_id",
     insertValues)
 
 
 proc createSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostParentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
@@ -192,7 +192,7 @@ proc createSMPost*(
 
   smPost.smPostId =
     createSMPostReturnsPk(
-      nexusSocialDbContext,
+      dbContext,
       smPostParentId,
       accountUserId,
       uniqueHash,
@@ -227,7 +227,7 @@ proc createSMPost*(
 
 
 proc deleteSMPostByPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -236,13 +236,13 @@ proc deleteSMPostByPk*(
     " where sm_post_id = ?"
 
   return execAffectedRows(
-           nexusSocialDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            smPostId)
 
 
 proc deleteSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -252,13 +252,13 @@ proc deleteSMPost*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -281,13 +281,13 @@ proc deleteSMPost*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusSocialDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsSMPostByPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -296,7 +296,7 @@ proc existsSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $smPostId)
 
@@ -307,7 +307,7 @@ proc existsSMPostByPk*(
 
 
 proc existsSMPostByUniqueHash*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        uniqueHash: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -316,7 +316,7 @@ proc existsSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusSocialDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -327,7 +327,7 @@ proc existsSMPostByUniqueHash*(
 
 
 proc filterSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -349,7 +349,7 @@ proc filterSMPost*(
 
   var smPosts: SMPosts
 
-  for row in fastRows(nexusSocialDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -359,7 +359,7 @@ proc filterSMPost*(
 
 
 proc filterSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -392,7 +392,7 @@ proc filterSMPost*(
 
   var smPosts: SMPosts
 
-  for row in fastRows(nexusSocialDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -402,7 +402,7 @@ proc filterSMPost*(
 
 
 proc getSMPostByPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostId: int64): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -412,7 +412,7 @@ proc getSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -423,7 +423,7 @@ proc getSMPostByPk*(
 
 
 proc getSMPostByPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostId: string): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -433,7 +433,7 @@ proc getSMPostByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              nexusSocialDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               smPostId)
 
@@ -444,7 +444,7 @@ proc getSMPostByPk*(
 
 
 proc getSMPostByUniqueHash*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        uniqueHash: string): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -454,7 +454,7 @@ proc getSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              nexusSocialDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               uniqueHash)
 
@@ -465,7 +465,7 @@ proc getSMPostByUniqueHash*(
 
 
 proc getOrCreateSMPostByUniqueHash*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPostParentId: Option[int64],
        accountUserId: int64,
        uniqueHash: string,
@@ -482,14 +482,14 @@ proc getOrCreateSMPostByUniqueHash*(
 
   let smPost =
         getSMPostByUniqueHash(
-          nexusSocialDbContext,
+          dbContext,
           uniqueHash)
 
   if smPost != none(SMPost):
     return smPost.get
 
   return createSMPost(
-           nexusSocialDbContext,
+           dbContext,
            smPostParentId,
            accountUserId,
            uniqueHash,
@@ -558,15 +558,15 @@ proc rowToSMPost*(row: seq[string]):
 
 
 proc truncateSMPost*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusSocialDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table sm_post restart identity;"))
 
   else:
-    exec(nexusSocialDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table sm_post restart identity cascade;"))
 
 
@@ -657,7 +657,7 @@ proc updateSMPostSetClause*(
 
 
 proc updateSMPostByPk*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -678,7 +678,7 @@ proc updateSMPostByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusSocialDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -694,7 +694,7 @@ proc updateSMPostByPk*(
 
 
 proc updateSMPostByWhereClause*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        whereClause: string,
@@ -714,14 +714,14 @@ proc updateSMPostByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusSocialDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateSMPostByWhereEqOnly*(
-       nexusSocialDbContext: NexusSocialDbContext,
+       dbContext: NexusSocialDbContext,
        smPost: SMPost,
        setFields: seq[string],
        whereFields: seq[string],
@@ -752,7 +752,7 @@ proc updateSMPostByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusSocialDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

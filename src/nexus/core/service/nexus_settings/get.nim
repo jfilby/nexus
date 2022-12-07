@@ -4,14 +4,14 @@ import nexus/core/types/model_types
 
 
 proc getNexusSettingValue*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        module: string,
        key: string,
        failOnNotExists: bool = true): Option[string] =
 
   let nexusSetting =
         getNexusSettingByModuleAndKey(
-          nexusCoreDbContext,
+          dbContext,
           module,
           key)
 

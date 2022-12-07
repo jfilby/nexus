@@ -18,7 +18,7 @@ import account_fields
 
 
 proc signUpVerifyPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage = "",
        inEmail = ""): string =
 
@@ -28,14 +28,14 @@ proc signUpVerifyPage*(
     signUpCode = ""
     autoScript = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   elif inEmail != "":
     email = inEmail
 
-  if nexusCoreContext.web.get.request.params.hasKey("code"):
-    signUpCode = nexusCoreContext.web.get.request.params["code"]
+  if context.web.get.request.params.hasKey("code"):
+    signUpCode = context.web.get.request.params["code"]
 
   # Get autoScript if possible
   if errorMessage == "" and
@@ -53,21 +53,21 @@ proc signUpVerifyPage*(
   var pageContext = newPageContext(pageTitle = "Verify Sign Up")
 
   let formDiv = getFormFactorClass(
-                  nexusCoreContext.web.get,
+                  context.web.get,
                   desktopClass = "form_div")
 
   let vnode = buildHtml(tdiv(style =
                 style(StyleAttr.width,
-                      nexusCoreContext.web.get.formWidth))):
+                      context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       nexusCoreContext.web.get.formWidthNarrow)):
+                       context.web.get.formWidthNarrow)):
 
       p(): text "A verification code has been emailed to you. " &
                 "Enter that code into the form below for verification."
@@ -98,21 +98,21 @@ proc signUpVerifyPage*(
                  vnode)
 
 
-proc signUpVerifyPagePost*(nexusCoreContext: NexusCoreContext):
+proc signUpVerifyPagePost*(context: NexusCoreContext):
        (bool, string, string, string, string) =
 
   var
     email = ""
     signUpCode = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
-  if nexusCoreContext.web.get.request.params.hasKey("signUpCode"):
-    signUpCode = nexusCoreContext.web.get.request.params["signUpCode"]
+  if context.web.get.request.params.hasKey("signUpCode"):
+    signUpCode = context.web.get.request.params["signUpCode"]
 
   # Verify sign-up action
-  var docuiReturn = verifySignUpAction(nexusCoreContext)
+  var docuiReturn = verifySignUpAction(context)
 
   # On error go back to the signUp page
   if docuiReturn.isVerified == false:
@@ -126,7 +126,7 @@ proc signUpVerifyPagePost*(nexusCoreContext: NexusCoreContext):
   # Login action
   docUIReturn =
     loginActionByEmailVerified(
-      nexusCoreContext,
+      context,
       email)
 
   # On success
@@ -136,7 +136,7 @@ proc signUpVerifyPagePost*(nexusCoreContext: NexusCoreContext):
 
     nexusSetting =
       getNexusSettingByModuleAndKey(
-        nexusCoreContext.db,
+        context.db,
         module,
         key)
 
@@ -155,7 +155,7 @@ proc signUpVerifyPagePost*(nexusCoreContext: NexusCoreContext):
           &"{nexusSetting.get.value.get}?email={email}")
 
 
-template postSignUpVerifyAction*(nexusCoreContext: NexusCoreContext) =
+template postSignUpVerifyAction*(context: NexusCoreContext) =
 
   var
     email: string
@@ -168,7 +168,7 @@ template postSignUpVerifyAction*(nexusCoreContext: NexusCoreContext) =
    email,
    errorMessage,
    token,
-   redirectToURL) = signUpVerifyPagePost(nexusCoreContext)
+   redirectToURL) = signUpVerifyPagePost(context)
 
   if verified == true:
 
@@ -183,7 +183,7 @@ template postSignUpVerifyAction*(nexusCoreContext: NexusCoreContext) =
     myRedirect redirectToURL
 
   else:
-    resp signUpVerifyPage(nexusCoreContext,
+    resp signUpVerifyPage(context,
                           errorMessage,
                           email)
 

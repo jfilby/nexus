@@ -14,7 +14,7 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
 
 
 proc verifyEmailAddress*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        email: string,
        emailFieldName: string = "Email address",
        checkExists: bool = false): DocUIReturn =
@@ -95,7 +95,7 @@ proc verifyEmailAddress*(
 
   # Verify that the email address doesn't already exist in the account table
   if checkExists == true:
-    if existsAccountUserByEmail(nexusCoreDbContext,
+    if existsAccountUserByEmail(dbContext,
                                 email) == true:
 
       var errorMessage = "The email specified already exists for a user in the system."

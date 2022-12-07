@@ -6,7 +6,7 @@ import verify_account_fields
 
 
 proc verifyMyAccountFields*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        name: string,
        email: string,
        password1: string,
@@ -30,7 +30,7 @@ proc verifyMyAccountFields*(
 
     docUIReturn =
       verifyEmailAddress(
-        nexusCoreDbContext,
+        dbContext,
         email)
 
     if docUIReturn.isVerified == false:

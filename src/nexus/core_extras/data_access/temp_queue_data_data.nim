@@ -12,7 +12,7 @@ proc rowToTempQueueData*(row: seq[string]):
 
 # Code
 proc countTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countTempQueueData*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countTempQueueData*(
 
 
 proc countTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countTempQueueData*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countTempQueueData*(
 
 
 proc createTempQueueDataReturnsPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        format: string,
        dataIn: string,
        dataOut: Option[string] = none(string),
@@ -111,14 +111,14 @@ proc createTempQueueDataReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreExtrasDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "",
     insertValues)
 
 
 proc createTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        format: string,
        dataIn: string,
        dataOut: Option[string] = none(string),
@@ -131,7 +131,7 @@ proc createTempQueueData*(
   var tempQueueData = TempQueueData()
 
   createTempQueueDataReturnsPk(
-    nexusCoreExtrasDbContext,
+    dbContext,
     format,
     dataIn,
     dataOut,
@@ -151,7 +151,7 @@ proc createTempQueueData*(
 
 
 proc deleteTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -161,13 +161,13 @@ proc deleteTempQueueData*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -190,13 +190,13 @@ proc deleteTempQueueData*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc filterTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -217,7 +217,7 @@ proc filterTempQueueData*(
 
   var tempQueueDatas: TempQueueDatas
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -227,7 +227,7 @@ proc filterTempQueueData*(
 
 
 proc filterTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -259,7 +259,7 @@ proc filterTempQueueData*(
 
   var tempQueueDatas: TempQueueDatas
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -289,15 +289,15 @@ proc rowToTempQueueData*(row: seq[string]):
 
 
 proc truncateTempQueueData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table temp_queue_data restart identity;"))
 
   else:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table temp_queue_data restart identity cascade;"))
 
 
@@ -343,7 +343,7 @@ proc updateTempQueueDataSetClause*(
 
 
 proc updateTempQueueDataByWhereClause*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        tempQueueData: TempQueueData,
        setFields: seq[string],
        whereClause: string,
@@ -363,14 +363,14 @@ proc updateTempQueueDataByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateTempQueueDataByWhereEqOnly*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        tempQueueData: TempQueueData,
        setFields: seq[string],
        whereFields: seq[string],
@@ -401,7 +401,7 @@ proc updateTempQueueDataByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

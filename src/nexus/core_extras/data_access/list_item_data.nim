@@ -12,7 +12,7 @@ proc rowToListItem*(row: seq[string]):
 
 # Code
 proc countListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countListItem*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countListItem*(
 
 
 proc countListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countListItem*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countListItem*(
 
 
 proc createListItemReturnsPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
@@ -122,14 +122,14 @@ proc createListItemReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreExtrasDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "list_item_id",
     insertValues)
 
 
 proc createListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
@@ -144,7 +144,7 @@ proc createListItem*(
 
   listItem.listItemId =
     createListItemReturnsPk(
-      nexusCoreExtrasDbContext,
+      dbContext,
       parentListItemId,
       seqNo,
       name,
@@ -165,7 +165,7 @@ proc createListItem*(
 
 
 proc deleteListItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItemId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -174,13 +174,13 @@ proc deleteListItemByPk*(
     " where list_item_id = ?"
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            listItemId)
 
 
 proc deleteListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -190,13 +190,13 @@ proc deleteListItem*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -219,13 +219,13 @@ proc deleteListItem*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsListItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItemId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -234,7 +234,7 @@ proc existsListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $listItemId)
 
@@ -245,7 +245,7 @@ proc existsListItemByPk*(
 
 
 proc existsListItemByName*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        name: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -254,7 +254,7 @@ proc existsListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               name)
 
@@ -265,7 +265,7 @@ proc existsListItemByName*(
 
 
 proc filterListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -286,7 +286,7 @@ proc filterListItem*(
 
   var listItems: ListItems
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -296,7 +296,7 @@ proc filterListItem*(
 
 
 proc filterListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -328,7 +328,7 @@ proc filterListItem*(
 
   var listItems: ListItems
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -338,7 +338,7 @@ proc filterListItem*(
 
 
 proc getListItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItemId: int64): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -347,7 +347,7 @@ proc getListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               listItemId)
 
@@ -358,7 +358,7 @@ proc getListItemByPk*(
 
 
 proc getListItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItemId: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -367,7 +367,7 @@ proc getListItemByPk*(
     " where list_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               listItemId)
 
@@ -378,7 +378,7 @@ proc getListItemByPk*(
 
 
 proc getListItemByName*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        name: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -387,7 +387,7 @@ proc getListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               name)
 
@@ -398,7 +398,7 @@ proc getListItemByName*(
 
 
 proc getOrCreateListItemByName*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentListItemId: Option[int64],
        seqNo: int,
        name: string,
@@ -408,14 +408,14 @@ proc getOrCreateListItemByName*(
 
   let listItem =
         getListItemByName(
-          nexusCoreExtrasDbContext,
+          dbContext,
           name)
 
   if listItem != none(ListItem):
     return listItem.get
 
   return createListItem(
-           nexusCoreExtrasDbContext,
+           dbContext,
            parentListItemId,
            seqNo,
            name,
@@ -451,15 +451,15 @@ proc rowToListItem*(row: seq[string]):
 
 
 proc truncateListItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table list_item restart identity;"))
 
   else:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table list_item restart identity cascade;"))
 
 
@@ -513,7 +513,7 @@ proc updateListItemSetClause*(
 
 
 proc updateListItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -534,7 +534,7 @@ proc updateListItemByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreExtrasDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -550,7 +550,7 @@ proc updateListItemByPk*(
 
 
 proc updateListItemByWhereClause*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        whereClause: string,
@@ -570,14 +570,14 @@ proc updateListItemByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateListItemByWhereEqOnly*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        listItem: ListItem,
        setFields: seq[string],
        whereFields: seq[string],
@@ -608,7 +608,7 @@ proc updateListItemByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

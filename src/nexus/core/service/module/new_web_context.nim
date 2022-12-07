@@ -4,7 +4,7 @@ import nexus/core/types/view_types
 
 proc newWebContext*(
        request: Request,
-       nexusCoreDbContext: NexusCoreDbContext): WebContext {.gcsafe.} =
+       dbContext: NexusCoreDbContext): WebContext {.gcsafe.} =
 
   debug "newWebContext",
     request = $request
@@ -16,7 +16,7 @@ proc newWebContext*(
   var webContext =
         newBaseWebContext(
           request,
-          nexusCoreDbContext)
+          dbContext)
 
   debug "newWebContext",
     webContext = $webContext

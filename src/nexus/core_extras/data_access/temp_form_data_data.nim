@@ -11,7 +11,7 @@ proc rowToTempFormData*(row: seq[string]):
 
 # Code
 proc countTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -32,7 +32,7 @@ proc countTempFormData*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -40,7 +40,7 @@ proc countTempFormData*(
 
 
 proc countTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -51,7 +51,7 @@ proc countTempFormData*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -59,7 +59,7 @@ proc countTempFormData*(
 
 
 proc createTempFormDataReturnsPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string,
        format: string,
        data: string,
@@ -107,7 +107,7 @@ proc createTempFormDataReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   exec(
-    nexusCoreExtrasDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     insertValues)
 
@@ -115,7 +115,7 @@ proc createTempFormDataReturnsPk*(
 
 
 proc createTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string,
        format: string,
        data: string,
@@ -128,7 +128,7 @@ proc createTempFormData*(
 
   tempFormData.token =
     createTempFormDataReturnsPk(
-      nexusCoreExtrasDbContext,
+      dbContext,
       token,
       format,
       data,
@@ -144,7 +144,7 @@ proc createTempFormData*(
 
 
 proc deleteTempFormDataByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -153,13 +153,13 @@ proc deleteTempFormDataByPk*(
     " where token = ?"
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            token)
 
 
 proc deleteTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -169,13 +169,13 @@ proc deleteTempFormData*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -198,13 +198,13 @@ proc deleteTempFormData*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsTempFormDataByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -213,7 +213,7 @@ proc existsTempFormDataByPk*(
     " where token = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               token)
 
@@ -224,7 +224,7 @@ proc existsTempFormDataByPk*(
 
 
 proc filterTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -245,7 +245,7 @@ proc filterTempFormData*(
 
   var tempFormDatas: TempFormDatas
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -255,7 +255,7 @@ proc filterTempFormData*(
 
 
 proc filterTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -287,7 +287,7 @@ proc filterTempFormData*(
 
   var tempFormDatas: TempFormDatas
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -297,7 +297,7 @@ proc filterTempFormData*(
 
 
 proc getTempFormDataByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string): Option[TempFormData] {.gcsafe.} =
 
   var selectStatement =
@@ -306,7 +306,7 @@ proc getTempFormDataByPk*(
     " where token = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               token)
 
@@ -317,7 +317,7 @@ proc getTempFormDataByPk*(
 
 
 proc getOrCreateTempFormDataByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        token: string,
        format: string,
        data: string,
@@ -325,14 +325,14 @@ proc getOrCreateTempFormDataByPk*(
 
   let tempFormData =
         getTempFormDataByPK(
-          nexusCoreExtrasDbContext,
+          dbContext,
           token)
 
   if tempFormData != none(TempFormData):
     return tempFormData.get
 
   return createTempFormData(
-           nexusCoreExtrasDbContext,
+           dbContext,
            token,
            format,
            data,
@@ -353,15 +353,15 @@ proc rowToTempFormData*(row: seq[string]):
 
 
 proc truncateTempFormData*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table temp_form_data restart identity;"))
 
   else:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table temp_form_data restart identity cascade;"))
 
 
@@ -397,7 +397,7 @@ proc updateTempFormDataSetClause*(
 
 
 proc updateTempFormDataByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        tempFormData: TempFormData,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -418,7 +418,7 @@ proc updateTempFormDataByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreExtrasDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -434,7 +434,7 @@ proc updateTempFormDataByPk*(
 
 
 proc updateTempFormDataByWhereClause*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        tempFormData: TempFormData,
        setFields: seq[string],
        whereClause: string,
@@ -454,14 +454,14 @@ proc updateTempFormDataByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateTempFormDataByWhereEqOnly*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        tempFormData: TempFormData,
        setFields: seq[string],
        whereFields: seq[string],
@@ -492,7 +492,7 @@ proc updateTempFormDataByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

@@ -12,7 +12,7 @@ proc rowToMenuItem*(row: seq[string]):
 
 # Code
 proc countMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countMenuItem*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countMenuItem*(
 
 
 proc countMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countMenuItem*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreExtrasDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countMenuItem*(
 
 
 proc createMenuItemReturnsPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentMenuItemId: Option[int64] = none(int64),
        name: string,
        url: string,
@@ -133,14 +133,14 @@ proc createMenuItemReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreExtrasDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "menu_item_id",
     insertValues)
 
 
 proc createMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentMenuItemId: Option[int64] = none(int64),
        name: string,
        url: string,
@@ -157,7 +157,7 @@ proc createMenuItem*(
 
   menuItem.menuItemId =
     createMenuItemReturnsPk(
-      nexusCoreExtrasDbContext,
+      dbContext,
       parentMenuItemId,
       name,
       url,
@@ -182,7 +182,7 @@ proc createMenuItem*(
 
 
 proc deleteMenuItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItemId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -191,13 +191,13 @@ proc deleteMenuItemByPk*(
     " where menu_item_id = ?"
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            menuItemId)
 
 
 proc deleteMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -207,13 +207,13 @@ proc deleteMenuItem*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -236,13 +236,13 @@ proc deleteMenuItem*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsMenuItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItemId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -251,7 +251,7 @@ proc existsMenuItemByPk*(
     " where menu_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $menuItemId)
 
@@ -262,7 +262,7 @@ proc existsMenuItemByPk*(
 
 
 proc existsMenuItemByNameAndURLAndScreen*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        name: string,
        url: string,
        screen: string): bool {.gcsafe.} =
@@ -275,7 +275,7 @@ proc existsMenuItemByNameAndURLAndScreen*(
     "   and screen = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               name,
               url,
@@ -288,7 +288,7 @@ proc existsMenuItemByNameAndURLAndScreen*(
 
 
 proc filterMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -309,7 +309,7 @@ proc filterMenuItem*(
 
   var menuItems: MenuItems
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -319,7 +319,7 @@ proc filterMenuItem*(
 
 
 proc filterMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -351,7 +351,7 @@ proc filterMenuItem*(
 
   var menuItems: MenuItems
 
-  for row in fastRows(nexusCoreExtrasDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -361,7 +361,7 @@ proc filterMenuItem*(
 
 
 proc getMenuItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItemId: int64): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
@@ -370,7 +370,7 @@ proc getMenuItemByPk*(
     " where menu_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               menuItemId)
 
@@ -381,7 +381,7 @@ proc getMenuItemByPk*(
 
 
 proc getMenuItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItemId: string): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
@@ -390,7 +390,7 @@ proc getMenuItemByPk*(
     " where menu_item_id = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               menuItemId)
 
@@ -401,7 +401,7 @@ proc getMenuItemByPk*(
 
 
 proc getMenuItemByNameAndURLAndScreen*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        name: string,
        url: string,
        screen: string): Option[MenuItem] {.gcsafe.} =
@@ -414,7 +414,7 @@ proc getMenuItemByNameAndURLAndScreen*(
     "   and screen = ?"
 
   let row = getRow(
-              nexusCoreExtrasDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               name,
               url,
@@ -427,7 +427,7 @@ proc getMenuItemByNameAndURLAndScreen*(
 
 
 proc getOrCreateMenuItemByNameAndURLAndScreen*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentMenuItemId: Option[int64],
        name: string,
        url: string,
@@ -439,7 +439,7 @@ proc getOrCreateMenuItemByNameAndURLAndScreen*(
 
   let menuItem =
         getMenuItemByNameAndURLAndScreen(
-          nexusCoreExtrasDbContext,
+          dbContext,
           name,
           url,
           screen)
@@ -448,7 +448,7 @@ proc getOrCreateMenuItemByNameAndURLAndScreen*(
     return menuItem.get
 
   return createMenuItem(
-           nexusCoreExtrasDbContext,
+           dbContext,
            parentMenuItemId,
            name,
            url,
@@ -488,15 +488,15 @@ proc rowToMenuItem*(row: seq[string]):
 
 
 proc truncateMenuItem*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table menu_item restart identity;"))
 
   else:
-    exec(nexusCoreExtrasDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table menu_item restart identity cascade;"))
 
 
@@ -557,7 +557,7 @@ proc updateMenuItemSetClause*(
 
 
 proc updateMenuItemByPk*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItem: MenuItem,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -578,7 +578,7 @@ proc updateMenuItemByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreExtrasDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -594,7 +594,7 @@ proc updateMenuItemByPk*(
 
 
 proc updateMenuItemByWhereClause*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItem: MenuItem,
        setFields: seq[string],
        whereClause: string,
@@ -614,14 +614,14 @@ proc updateMenuItemByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateMenuItemByWhereEqOnly*(
-       nexusCoreExtrasDbContext: NexusCoreExtrasDbContext,
+       dbContext: NexusCoreExtrasDbContext,
        menuItem: MenuItem,
        setFields: seq[string],
        whereFields: seq[string],
@@ -652,7 +652,7 @@ proc updateMenuItemByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreExtrasDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

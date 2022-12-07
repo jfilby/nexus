@@ -12,7 +12,7 @@ proc rowToAccountUserRole*(row: seq[string]):
 
 # Code
 proc countAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countAccountUserRole*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countAccountUserRole*(
 
 
 proc countAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countAccountUserRole*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countAccountUserRole*(
 
 
 proc createAccountUserRoleReturnsPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64,
        roleId: int64,
        created: DateTime,
@@ -102,14 +102,14 @@ proc createAccountUserRoleReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "account_user_role_id",
     insertValues)
 
 
 proc createAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64,
        roleId: int64,
        created: DateTime,
@@ -121,7 +121,7 @@ proc createAccountUserRole*(
 
   accountUserRole.accountUserRoleId =
     createAccountUserRoleReturnsPk(
-      nexusCoreDbContext,
+      dbContext,
       accountUserId,
       roleId,
       created,
@@ -136,7 +136,7 @@ proc createAccountUserRole*(
 
 
 proc deleteAccountUserRoleByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRoleId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -145,13 +145,13 @@ proc deleteAccountUserRoleByPk*(
     " where account_user_role_id = ?"
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            accountUserRoleId)
 
 
 proc deleteAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -161,13 +161,13 @@ proc deleteAccountUserRole*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -190,13 +190,13 @@ proc deleteAccountUserRole*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsAccountUserRoleByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRoleId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -205,7 +205,7 @@ proc existsAccountUserRoleByPk*(
     " where account_user_role_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $accountUserRoleId)
 
@@ -216,7 +216,7 @@ proc existsAccountUserRoleByPk*(
 
 
 proc existsAccountUserRoleByAccountUserIdAndRoleId*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64,
        roleId: int64): bool {.gcsafe.} =
 
@@ -227,7 +227,7 @@ proc existsAccountUserRoleByAccountUserIdAndRoleId*(
     "   and role_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $accountUserId,
               $roleId)
@@ -239,7 +239,7 @@ proc existsAccountUserRoleByAccountUserIdAndRoleId*(
 
 
 proc filterAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -260,7 +260,7 @@ proc filterAccountUserRole*(
 
   var accountUserRoles: AccountUserRoles
 
-  for row in fastRows(nexusCoreDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -270,7 +270,7 @@ proc filterAccountUserRole*(
 
 
 proc filterAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -302,7 +302,7 @@ proc filterAccountUserRole*(
 
   var accountUserRoles: AccountUserRoles
 
-  for row in fastRows(nexusCoreDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -312,7 +312,7 @@ proc filterAccountUserRole*(
 
 
 proc getAccountUserRoleByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRoleId: int64): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
@@ -321,7 +321,7 @@ proc getAccountUserRoleByPk*(
     " where account_user_role_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserRoleId)
 
@@ -332,7 +332,7 @@ proc getAccountUserRoleByPk*(
 
 
 proc getAccountUserRoleByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRoleId: string): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
@@ -341,7 +341,7 @@ proc getAccountUserRoleByPk*(
     " where account_user_role_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserRoleId)
 
@@ -352,7 +352,7 @@ proc getAccountUserRoleByPk*(
 
 
 proc getAccountUserRoleByAccountUserIdAndRoleId*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64,
        roleId: int64): Option[AccountUserRole] {.gcsafe.} =
 
@@ -363,7 +363,7 @@ proc getAccountUserRoleByAccountUserIdAndRoleId*(
     "   and role_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserId,
               roleId)
@@ -375,14 +375,14 @@ proc getAccountUserRoleByAccountUserIdAndRoleId*(
 
 
 proc getOrCreateAccountUserRoleByAccountUserIdAndRoleId*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64,
        roleId: int64,
        created: DateTime): AccountUserRole {.gcsafe.} =
 
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
-          nexusCoreDbContext,
+          dbContext,
           accountUserId,
           roleId)
 
@@ -390,7 +390,7 @@ proc getOrCreateAccountUserRoleByAccountUserIdAndRoleId*(
     return accountUserRole.get
 
   return createAccountUserRole(
-           nexusCoreDbContext,
+           dbContext,
            accountUserId,
            roleId,
            created)
@@ -410,15 +410,15 @@ proc rowToAccountUserRole*(row: seq[string]):
 
 
 proc truncateAccountUserRole*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table account_user_role restart identity;"))
 
   else:
-    exec(nexusCoreDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table account_user_role restart identity cascade;"))
 
 
@@ -454,7 +454,7 @@ proc updateAccountUserRoleSetClause*(
 
 
 proc updateAccountUserRoleByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRole: AccountUserRole,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -475,7 +475,7 @@ proc updateAccountUserRoleByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -491,7 +491,7 @@ proc updateAccountUserRoleByPk*(
 
 
 proc updateAccountUserRoleByWhereClause*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRole: AccountUserRole,
        setFields: seq[string],
        whereClause: string,
@@ -511,14 +511,14 @@ proc updateAccountUserRoleByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateAccountUserRoleByWhereEqOnly*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserRole: AccountUserRole,
        setFields: seq[string],
        whereFields: seq[string],
@@ -549,7 +549,7 @@ proc updateAccountUserRoleByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))

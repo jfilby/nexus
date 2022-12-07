@@ -12,7 +12,7 @@ import admin_role
 
 # Code
 proc assignAdminRole*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        accountUserId: int64) =
 
@@ -29,7 +29,7 @@ proc assignAdminRole*(
 
 
 proc assignDefaultAdminRoles*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        nexusCoreExtrasContext: NexusCoreExtrasContext) =
 
   # Get users that should have the admin role by email

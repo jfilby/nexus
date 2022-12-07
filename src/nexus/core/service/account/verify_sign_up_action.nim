@@ -24,17 +24,17 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
               children)
 
 
-proc verifySignUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
+proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  template request: untyped = nexusCoreContext.web.get.request
+  template request: untyped = context.web.get.request
 
   let contentType = getContentType(request)
 
@@ -74,13 +74,13 @@ proc verifySignUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
   # Get accountUser record
   var accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Verify fields
   let docuiReturn =
         verifySignUpCodeFields(
-          nexusCoreContext.db,
+          context.db,
           email,
           signUpCode,
           accountUser)
@@ -95,7 +95,7 @@ proc verifySignUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
 
       var rowsUpdated =
             updateAccountUserByPk(
-              nexusCoreContext.db,
+              context.db,
               accountUser.get,
               setFields = @[ "is_active",
                              "is_verified" ])
@@ -112,23 +112,23 @@ proc verifySignUpAction*(nexusCoreContext: NexusCoreContext): DocUIReturn =
       # Get mailing list
       let
         nexusCrmDbContext =
-          NexusCrmDbContext(dbConn: nexusCoreContext.db.dbConn)
+          NexusCrmDbContext(dbConn: context.db.dbConn)
 
         mailingListName =
           getNexusSettingValue(
-            nexusCoreContext.db,
+            context.db,
             module = "Nexus CRM",
             key = "Announcements Mailing List")
 
         mailingListOwnerEmail =
           getNexusSettingValue(
-            nexusCoreContext.db,
+            context.db,
             module = "Nexus CRM",
             key = "Announcements Mailing List Owner Email")
 
         ownerAccountUser =
           getAccountUserByEmail(
-            nexusCoreContext.db,
+            context.db,
             mailingListOwnerEmail.get)
 
         mailingList =

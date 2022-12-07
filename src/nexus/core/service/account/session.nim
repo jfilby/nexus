@@ -22,16 +22,16 @@ proc createSession*(db: DbConn,
   # Create a session id (random key)
   let sessionId = createSessionId()
 
-  var session_context = SessionContext()
-  session_context.sessionId = sessionId
-  session_context.accountUserId = accountUserId
+  var sessionContext = SessionContext()
+  sessionContext.sessionId = sessionId
+  sessionContext.accountUserId = accountUserId
 
   # Save the session to the db
   session_data.create(db,
                       sessionId,
-                      $$session_context)
+                      $$sessionContext)
 
-  return session_context
+  return sessionContext
 
 
 proc createSessionId*(): string =
@@ -49,7 +49,7 @@ proc getSessionContext*(db: DbConn,
     session = session_data.getBySessionId(db,
                                           sessionId)
 
-    session_context = to[SessionContext](session.get.session_data)
+    sessionContext = to[SessionContext](session.get.session_data)
 
-  return session_context
+  return sessionContext
 

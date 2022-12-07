@@ -3,7 +3,7 @@ import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/types/view_types
 
 
-proc bigLogo*(logo_fullpath: string,
+proc bigLogo*(logoFullpath: string,
               subtitle: string = ""): VNode =
 
   buildHtml():
@@ -13,7 +13,7 @@ proc bigLogo*(logo_fullpath: string,
                        (StyleAttr.marginTop, "1em"),
                        (StyleAttr.marginBottom, "2em"))):
 
-      img(src = logo_fullpath)
+      img(src = logoFullpath)
 
       if subtitle != "":
 

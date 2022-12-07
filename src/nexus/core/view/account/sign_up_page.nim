@@ -13,7 +13,7 @@ import account_fields, login_page
 
 
 proc signUpPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage = "",
        infoMessage = "",
        name = "",
@@ -22,38 +22,38 @@ proc signUpPage*(
   var pageContext = newPageContext(pageTitle = "Sign Up")
 
   # If already logged in
-  if nexusCoreContext.web.get.loggedIn == true:
+  if context.web.get.loggedIn == true:
 
-    return alreadyLoggedInForm(nexusCoreContext)
+    return alreadyLoggedInForm(context)
 
   # Get vars
   var email = inEmail
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Page
   let formDiv = getFormFactorClass(
-                  nexusCoreContext.web.get,
+                  context.web.get,
                   desktopClass = "form_div")
 
   let vnode = buildHtml(tdiv(style =
                 style(StyleAttr.width,
-                      nexusCoreContext.web.get.formWidth))):
+                      context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     if infoMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         infoMessage(infoMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       nexusCoreContext.web.get.formWidthNarrow)):
+                       context.web.get.formWidthNarrow)):
 
       form(`method` = "post"):
         nameField(name,
@@ -67,20 +67,20 @@ proc signUpPage*(
         br()
         signUpButton()
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
 
-proc signUpPagePost*(nexusCoreContext: NexusCoreContext): string =
+proc signUpPagePost*(context: NexusCoreContext): string =
 
   var email = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Sign-up action
-  let docuiReturn = signUpAction(nexusCoreContext)
+  let docuiReturn = signUpAction(context)
 
   # Sign up: new user (if verification succeeded)
   if docuiReturn.isVerified == true:
@@ -91,24 +91,24 @@ proc signUpPagePost*(nexusCoreContext: NexusCoreContext): string =
   else:
     # Get form data
     let
-      name = nexusCoreContext.web.get.request.params["name"]
-      password1 = nexusCoreContext.web.get.request.params["password1"]
-      password2 = nexusCoreContext.web.get.request.params["password2"]
+      name = context.web.get.request.params["name"]
+      password1 = context.web.get.request.params["password1"]
+      password2 = context.web.get.request.params["password2"]
 
     # On error go back to the sign up page
-    return signUpPage(nexusCoreContext,
+    return signUpPage(context,
                       docUIReturn.errorMessage,
                       name = name,
                       inEmail = email)
 
 
-proc signUpSuccessPage*(nexusCoreContext: NexusCoreContext): string =
+proc signUpSuccessPage*(context: NexusCoreContext): string =
 
   # Get vars
   var email = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Setup pageContext
   var pageContext = newPageContext(pageTitle = "Sign Up")
@@ -116,7 +116,7 @@ proc signUpSuccessPage*(nexusCoreContext: NexusCoreContext): string =
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Success message
@@ -152,11 +152,11 @@ proc signUpSuccessPage*(nexusCoreContext: NexusCoreContext): string =
       p()
 
     if login == true:
-      loginForm(nexusCoreContext.web.get,
+      loginForm(context.web.get,
                 errorMessage = "",
                 email)
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 

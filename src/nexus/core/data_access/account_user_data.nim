@@ -12,7 +12,7 @@ proc rowToAccountUser*(row: seq[string]):
 
 # Code
 proc countAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string] = @[],
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -33,7 +33,7 @@ proc countAccountUser*(
 
     selectStatement &= whereClause
 
-  let row = getRow(nexusCoreDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -41,7 +41,7 @@ proc countAccountUser*(
 
 
 proc countAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string] = @[]): int64 {.gcsafe.} =
 
@@ -52,7 +52,7 @@ proc countAccountUser*(
   if whereClause != "":
     selectStatement &= " where " & whereClause
 
-  let row = getRow(nexusCoreDbContext.dbConn,
+  let row = getRow(dbContext.dbConn,
                    sql(selectStatement),
                    whereValues)
 
@@ -60,7 +60,7 @@ proc countAccountUser*(
 
 
 proc createAccountUserReturnsPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountId: Option[int64] = none(int64),
        name: string,
        email: string,
@@ -194,14 +194,14 @@ proc createAccountUserReturnsPk*(
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
-    nexusCoreDbContext.dbConn,
+    dbContext.dbConn,
     sql(insertStatement),
     "account_user_id",
     insertValues)
 
 
 proc createAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountId: Option[int64] = none(int64),
        name: string,
        email: string,
@@ -228,7 +228,7 @@ proc createAccountUser*(
 
   accountUser.accountUserId =
     createAccountUserReturnsPk(
-      nexusCoreDbContext,
+      dbContext,
       accountId,
       name,
       email,
@@ -273,7 +273,7 @@ proc createAccountUser*(
 
 
 proc deleteAccountUserByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
@@ -282,13 +282,13 @@ proc deleteAccountUserByPk*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            accountUserId)
 
 
 proc deleteAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string,
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -298,13 +298,13 @@ proc deleteAccountUser*(
     " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc deleteAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string]): int64 {.gcsafe.} =
 
@@ -327,13 +327,13 @@ proc deleteAccountUser*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(deleteStatement),
            whereValues)
 
 
 proc existsAccountUserByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64): bool {.gcsafe.} =
 
   var selectStatement =
@@ -342,7 +342,7 @@ proc existsAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               $accountUserId)
 
@@ -353,7 +353,7 @@ proc existsAccountUserByPk*(
 
 
 proc existsAccountUserByEmail*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        email: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -362,7 +362,7 @@ proc existsAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               email)
 
@@ -373,7 +373,7 @@ proc existsAccountUserByEmail*(
 
 
 proc existsAccountUserByAPIKey*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        apiKey: string): bool {.gcsafe.} =
 
   var selectStatement =
@@ -382,7 +382,7 @@ proc existsAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               apiKey)
 
@@ -393,7 +393,7 @@ proc existsAccountUserByAPIKey*(
 
 
 proc existsAccountUserByLastToken*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        lastToken: Option[string]): bool {.gcsafe.} =
 
   var selectStatement =
@@ -402,7 +402,7 @@ proc existsAccountUserByLastToken*(
     " where last_token = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               lastToken)
 
@@ -413,7 +413,7 @@ proc existsAccountUserByLastToken*(
 
 
 proc filterAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereClause: string = "",
        whereValues: seq[string] = @[],
        orderByFields: seq[string] = @[],
@@ -436,7 +436,7 @@ proc filterAccountUser*(
 
   var accountUsers: AccountUsers
 
-  for row in fastRows(nexusCoreDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -446,7 +446,7 @@ proc filterAccountUser*(
 
 
 proc filterAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        whereFields: seq[string],
        whereValues: seq[string],
        orderByFields: seq[string] = @[],
@@ -480,7 +480,7 @@ proc filterAccountUser*(
 
   var accountUsers: AccountUsers
 
-  for row in fastRows(nexusCoreDbContext.dbConn,
+  for row in fastRows(dbContext.dbConn,
                       sql(selectStatement),
                       whereValues):
 
@@ -490,7 +490,7 @@ proc filterAccountUser*(
 
 
 proc getAccountUserByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -501,7 +501,7 @@ proc getAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -512,7 +512,7 @@ proc getAccountUserByPk*(
 
 
 proc getAccountUserByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -523,7 +523,7 @@ proc getAccountUserByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -534,7 +534,7 @@ proc getAccountUserByPk*(
 
 
 proc getAccountUserByEmail*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        email: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -545,7 +545,7 @@ proc getAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               email)
 
@@ -556,7 +556,7 @@ proc getAccountUserByEmail*(
 
 
 proc getAccountUserByAPIKey*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        apiKey: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -567,7 +567,7 @@ proc getAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               apiKey)
 
@@ -578,7 +578,7 @@ proc getAccountUserByAPIKey*(
 
 
 proc getAccountUserByLastToken*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        lastToken: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
@@ -589,7 +589,7 @@ proc getAccountUserByLastToken*(
     " where last_token = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               lastToken)
 
@@ -600,7 +600,7 @@ proc getAccountUserByLastToken*(
 
 
 proc getAPIKeyFromAccountUserByPK*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUserId: int64): Option[string] =
 
   var selectStatement =
@@ -609,7 +609,7 @@ proc getAPIKeyFromAccountUserByPK*(
     " where account_user_id = ?"
 
   let row = getRow(
-              nexusCoreDbContext.dbConn,
+              dbContext.dbConn,
               sql(selectStatement),
               accountUserId)
 
@@ -619,7 +619,7 @@ proc getAPIKeyFromAccountUserByPK*(
   return some(row[0])
 
 proc getOrCreateAccountUserByEmail*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -641,14 +641,14 @@ proc getOrCreateAccountUserByEmail*(
 
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreDbContext,
+          dbContext,
           email)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreDbContext,
+           dbContext,
            accountId,
            name,
            email,
@@ -670,7 +670,7 @@ proc getOrCreateAccountUserByEmail*(
 
 
 proc getOrCreateAccountUserByAPIKey*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -692,14 +692,14 @@ proc getOrCreateAccountUserByAPIKey*(
 
   let accountUser =
         getAccountUserByAPIKey(
-          nexusCoreDbContext,
+          dbContext,
           apiKey)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreDbContext,
+           dbContext,
            accountId,
            name,
            email,
@@ -721,7 +721,7 @@ proc getOrCreateAccountUserByAPIKey*(
 
 
 proc getOrCreateAccountUserByLastToken*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountId: Option[int64],
        name: string,
        email: string,
@@ -743,14 +743,14 @@ proc getOrCreateAccountUserByLastToken*(
 
   let accountUser =
         getAccountUserByLastToken(
-          nexusCoreDbContext,
+          dbContext,
           lastToken)
 
   if accountUser != none(AccountUser):
     return accountUser.get
 
   return createAccountUser(
-           nexusCoreDbContext,
+           dbContext,
            accountId,
            name,
            email,
@@ -832,15 +832,15 @@ proc rowToAccountUser*(row: seq[string]):
 
 
 proc truncateAccountUser*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        cascade: bool = false) =
 
   if cascade == false:
-    exec(nexusCoreDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table account_user restart identity;"))
 
   else:
-    exec(nexusCoreDbContext.dbConn,
+    exec(dbContext.dbConn,
          sql("truncate table account_user restart identity cascade;"))
 
 
@@ -950,7 +950,7 @@ proc updateAccountUserSetClause*(
 
 
 proc updateAccountUserByPk*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        exceptionOnNRowsUpdated: bool = true): int64 {.gcsafe.} =
@@ -971,7 +971,7 @@ proc updateAccountUserByPk*(
 
   let rowsUpdated = 
         execAffectedRows(
-          nexusCoreDbContext.dbConn,
+          dbContext.dbConn,
           sql(updateStatement),
           updateValues)
 
@@ -987,7 +987,7 @@ proc updateAccountUserByPk*(
 
 
 proc updateAccountUserByWhereClause*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        whereClause: string,
@@ -1007,14 +1007,14 @@ proc updateAccountUserByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateAccountUserByWhereEqOnly*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        accountUser: AccountUser,
        setFields: seq[string],
        whereFields: seq[string],
@@ -1045,14 +1045,14 @@ proc updateAccountUserByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            concat(updateValues,
                   whereValues))
 
 
 proc updateAccountUserSetLastLoginByPK*(
-       nexusCoreDbContext: NexusCoreDbContext,
+       dbContext: NexusCoreDbContext,
        lastLogin: Option[DateTime],
        accountUserId: int64): int64 =
 
@@ -1062,7 +1062,7 @@ proc updateAccountUserSetLastLoginByPK*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           nexusCoreDbContext.dbConn,
+           dbContext.dbConn,
            sql(updateStatement),
            last_login.get,
            account_user_id)

@@ -11,7 +11,7 @@ import assign_admin_role
 
 
 proc getOrCreateAdminUser*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        email: string,
        password: string): AccountUser =

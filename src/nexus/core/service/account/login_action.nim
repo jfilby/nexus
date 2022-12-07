@@ -18,7 +18,7 @@ import nexus/core_extras/service/format/hash
 
 # Forward declarations
 proc loginActionVerified*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn
 
@@ -62,18 +62,18 @@ template myRedirect*(url: string): typed =
 
 
 # Used by the Nexus Admin web-service
-proc loginAction*(nexusCoreContext: NexusCoreContext,
+proc loginAction*(context: NexusCoreContext,
                   json: Option[JsonNode]): DocUIReturn =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  let contentType = getContentType(nexusCoreContext.web.get.request)
+  let contentType = getContentType(context.web.get.request)
 
   debug "loginAction()",
     contentType = contentType
@@ -84,7 +84,7 @@ proc loginAction*(nexusCoreContext: NexusCoreContext,
     loginHash = ""
     formValues: JsonNode
 
-  template request: untyped = nexusCoreContext.web.get.request
+  template request: untyped = context.web.get.request
 
   # Handle form post
   if contentType == ContentType.Form:
@@ -124,7 +124,7 @@ proc loginAction*(nexusCoreContext: NexusCoreContext,
     # Get AccountUserToken record
     let accountUserToken =
           getAccountUserTokenByUniqueHash(
-            nexusCoreContext.db,
+            context.db,
             loginHash)
 
     if accountUserToken == none(AccountUserToken):
@@ -140,7 +140,7 @@ proc loginAction*(nexusCoreContext: NexusCoreContext,
 
     # Successfully found
     return loginActionVerified(
-             nexusCoreContext,
+             context,
              accountUserToken.get.accountUserId,
              loginHash)
 
@@ -160,7 +160,7 @@ proc loginAction*(nexusCoreContext: NexusCoreContext,
 
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   if accountUser == none(AccountUser):
@@ -208,19 +208,19 @@ proc loginAction*(nexusCoreContext: NexusCoreContext,
 
   # Login
   return loginActionVerified(
-           nexusCoreContext,
+           context,
            accountUserId,
            loginHash)
 
 
 proc loginActionByEmailVerified*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        email: string): DocUIReturn =
 
   # Get Account User by email
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   if accountUser == none(AccountUser):
@@ -230,22 +230,22 @@ proc loginActionByEmailVerified*(
             &"AccountUser record not found for email: {email}")
 
   return loginActionVerified(
-           nexusCoreContext,
+           context,
            accountUser.get.accountUserId,
            "")
 
 
 proc loginActionVerified*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        accountUserId: int64,
        loginHash: string): DocUIReturn =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Login OK
   debug "loginAction(): login verified OK"
@@ -253,14 +253,14 @@ proc loginActionVerified*(
   # Set lastLogin
   let rowsUpdated =
         updateAccountUserSetLastLoginByPk(
-          nexusCoreContext.db,
+          context.db,
           lastLogin = some(now()),
           accountUserId)
 
   # Get API key
   let apiKey =
         getAPIKeyFromAccountUserByPk(
-          nexusCoreContext.db,
+          context.db,
           accountUserId)
 
   # New DocUIReturn
@@ -269,7 +269,7 @@ proc loginActionVerified*(
   # Get AccountUserToken record
   var accountUserToken =
         getAccountUserTokenByPk(
-          nexusCoreContext.db,
+          context.db,
           accountUserId)
 
   # TODO: if loginHash is specified, then try to use the existing token
@@ -278,16 +278,16 @@ proc loginActionVerified*(
   # Create token
   docUIReturn.token =
     createJWT(
-      nexusCoreContext.db,
+      context.db,
       $accountUserId,
       apiKey.get,
-      mobile = $nexusCoreContext.web.get.mobileDefault)
+      mobile = $context.web.get.mobileDefault)
 
   # New AccountUserToken record required
   if accountUserToken == none(AccountUserToken):
 
     discard createAccountUserToken(
-              nexusCoreContext.db,
+              context.db,
               accountUserId,
               getUniqueHash(@[ docUIReturn.token ]),
               docUIReturn.token,
@@ -300,7 +300,7 @@ proc loginActionVerified*(
     accountUserToken.get.deleted = none(DateTime)
 
     discard updateAccountUserTokenByPk(
-              nexusCoreContext.db,
+              context.db,
               accountUserToken.get,
               setFields = @[ "token",
                              "deleted" ])
@@ -308,7 +308,7 @@ proc loginActionVerified*(
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreContext.db,
+          context.db,
           accountUserId)
 
   if accountUser == none(AccountUser):
@@ -321,7 +321,7 @@ proc loginActionVerified*(
   accountUser.get.lastToken = some(docUIReturn.token)
 
   discard updateAccountUserByPk(
-            nexusCoreContext.db,
+            context.db,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -338,24 +338,24 @@ proc loginActionVerified*(
   return docuiReturn
 
 
-template logoutAction*(nexusCoreContext: NexusCoreContext,
+template logoutAction*(context: NexusCoreContext,
                        redirect: string = "") =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Logout page
-  logoutPage(nexusCoreContext)
+  logoutPage(context)
 
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreContext.db,
-          nexusCoreContext.web.get.accountUserId)
+          context.db,
+          context.web.get.accountUserId)
 
   if accountUser == none(AccountUser):
 
@@ -368,7 +368,7 @@ template logoutAction*(nexusCoreContext: NexusCoreContext,
   accountUser.get.lastToken = none(string)
 
   discard updateAccountUserByPk(
-            nexusCoreContext.db,
+            context.db,
             accountUser.get,
             setFields = @[ "last_token" ])
 
@@ -386,7 +386,7 @@ template logoutAction*(nexusCoreContext: NexusCoreContext,
   # resp Http307, @[("Location", "/")], ""
 
 
-template postLoginAction*(nexusCoreContext: NexusCoreContext) =
+template postLoginAction*(context: NexusCoreContext) =
 
   var
     verified: bool
@@ -395,7 +395,7 @@ template postLoginAction*(nexusCoreContext: NexusCoreContext) =
 
   (verified,
    loginURL,
-   token) = loginPagePost(nexusCoreContext)
+   token) = loginPagePost(context)
 
   if verified == true:
 
@@ -410,7 +410,7 @@ template postLoginAction*(nexusCoreContext: NexusCoreContext) =
     # Get 'Nexus Pay subscriptions enabled' setting
     let nexusPaySubscriptionsEnabled =
           getNexusSettingValue(
-            nexusCoreContext.db,
+            context.db,
             module = "Nexus Core",
             key = "Nexus Pay subscriptions enabled")
 
@@ -419,12 +419,12 @@ template postLoginAction*(nexusCoreContext: NexusCoreContext) =
       email = ""
       redirectToURL = "/?first_homepage=t"
 
-    if nexusCoreContext.web.get.request.params.hasKey("email"):
-      email = nexusCoreContext.web.get.request.params["email"]
+    if context.web.get.request.params.hasKey("email"):
+      email = context.web.get.request.params["email"]
 
     let accountUser =
           getAccountUserByEmail(
-            nexusCoreContext.db,
+            context.db,
             email)
 
     if accountUser != none(AccountUser):

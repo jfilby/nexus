@@ -15,49 +15,49 @@ import account_fields
 
 
 proc signUpResendSignUpCodePage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage: string = "",
        email: string = ""): string =
 
   var pageContext = newPageContext(pageTitle = "Resend Sign Up Code")
 
   let formDiv = getFormFactorClass(
-                  nexusCoreContext.web.get,
+                  context.web.get,
                   desktopClass = "form_div")
 
   let vnode = buildHtml(tdiv()):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       nexusCoreContext.web.get.formWidth)):
+                       context.web.get.formWidth)):
       form(`method` = "post"):
         emailAddressField(email,
                           autofocus = true)
         br()
         resendSignUpCodeButton()
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
 
 proc signUpResendSignUpCodePagePost*(
-       nexusCoreContext: NexusCoreContext): string =
+       context: NexusCoreContext): string =
 
   var email = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Generate a new sign up code
@@ -69,7 +69,7 @@ proc signUpResendSignUpCodePagePost*(
   # Verify fields
   let docuiReturn =
         verifySignUpCodeFields(
-          nexusCoreContext.db,
+          context.db,
           email,
           signUpCode,
           accountUser)
@@ -77,7 +77,7 @@ proc signUpResendSignUpCodePagePost*(
   # Update the user's sign up code
   let rowsAffected =
         updateAccountUserByPk(
-          nexusCoreContext.db,
+          context.db,
           accountUser.get,
           setFields = @[ "sign_up_code" ])
 
@@ -91,12 +91,12 @@ proc signUpResendSignUpCodePagePost*(
 
 
 proc signupResendCodeVerifyPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage: string = "",
        email: string = ""): string =
 
   signUpResendSignUpCodePage(
-    nexusCoreContext,
+    context,
     errorMessage,
     email)
 

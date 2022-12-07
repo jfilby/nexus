@@ -15,7 +15,7 @@ import account_fields, login_page
 
 
 proc resetPasswordRequestPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage: string = "",
        email: string = ""): string =
 
@@ -25,22 +25,22 @@ proc resetPasswordRequestPage*(
 
   let formDiv =
         getFormFactorClass(
-          nexusCoreContext.web.get,
+          context.web.get,
           desktopClass = "form_div")
 
   # Render form
   let vnode = buildHtml(tdiv(style =
                 style(StyleAttr.width,
-                      nexusCoreContext.web.get.formWidth))):
+                      context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       nexusCoreContext.web.get.formWidthNarrow)):
+                       context.web.get.formWidthNarrow)):
 
       form(`method` = "post"):
         emailAddressField(email,
@@ -48,22 +48,22 @@ proc resetPasswordRequestPage*(
         br()
         resetPasswordButton()
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
 
 proc resetPasswordRequestPagePost*(
-       nexusCoreContext: NexusCoreContext): string =
+       context: NexusCoreContext): string =
 
   # Get email
   var email = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Reset password request action
-  let docUiReturn = resetPasswordRequestAction(nexusCoreContext)
+  let docUiReturn = resetPasswordRequestAction(context)
 
   if docUiReturn.isVerified == true:
 
@@ -72,13 +72,13 @@ proc resetPasswordRequestPagePost*(
 
   # Error
   resetPasswordRequestPage(
-    nexusCoreContext,
+    context,
     docUiReturn.errorMessage,
     email)
 
 
 proc resetPasswordVerifyPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        errorMessage: string = "",
        email: string = ""): string =
 
@@ -88,22 +88,22 @@ proc resetPasswordVerifyPage*(
 
   let formDiv =
         getFormFactorClass(
-          nexusCoreContext.web.get,
+          context.web.get,
           desktopClass = "form_div")
 
   # Render form
   let vnode = buildHtml(tdiv(style =
                 style(StyleAttr.width,
-                nexusCoreContext.web.get.formWidth))):
+                context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
-                         nexusCoreContext.web.get.formWidthNarrow)):
+                         context.web.get.formWidthNarrow)):
         errorMessage(errorMessage)
 
     tdiv(class = formDiv,
          style = style(StyleAttr.width,
-                       nexusCoreContext.web.get.formWidthNarrow)):
+                       context.web.get.formWidthNarrow)):
 
       p(): text "A verification code has been emailed to you. " &
                 "Enter that code into the form below for verification."
@@ -116,26 +116,26 @@ proc resetPasswordVerifyPage*(
         br()
         resetPasswordButton()
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
 
 proc resetPasswordPageVerifyPost*(
-       nexusCoreContext: NexusCoreContext): string =
+       context: NexusCoreContext): string =
 
   # Get email and password1
   var
     email = ""
     password1 = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
-  if nexusCoreContext.web.get.request.params.hasKey("password1"):
-    password1 = nexusCoreContext.web.get.request.params["password1"]
+  if context.web.get.request.params.hasKey("password1"):
+    password1 = context.web.get.request.params["password1"]
 
-  let docuiReturn = resetPasswordChangeAction(nexusCoreContext)
+  let docuiReturn = resetPasswordChangeAction(context)
 
   if docuiReturn.isVerified == true:
 
@@ -147,13 +147,13 @@ proc resetPasswordPageVerifyPost*(
 
   else:
     resetPasswordVerifyPage(
-      nexusCoreContext,
+      context,
       docUIReturn.errorMessage,
       email)
 
 
 proc resetPasswordSuccessPage*(
-       nexusCoreContext: NexusCoreContext,
+       context: NexusCoreContext,
        email: string = ""): string =
 
   # Setup pageContext
@@ -163,7 +163,7 @@ proc resetPasswordSuccessPage*(
   # Get accountUser record
   let accountUser =
         getAccountUserByEmail(
-          nexusCoreContext.db,
+          context.db,
           email)
 
   # Success message
@@ -192,11 +192,11 @@ proc resetPasswordSuccessPage*(
       p()
 
     if login == true:
-      loginForm(nexusCoreContext.web.get,
+      loginForm(context.web.get,
                 errorMessage = "",
                 email)
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 

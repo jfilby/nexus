@@ -12,21 +12,21 @@ import nexus/core/types/model_types
 import nexus/core/types/view_types
 
 
-proc loginJSONPost*(nexusCoreContext: NexusCoreContext): string =
+proc loginJSONPost*(context: NexusCoreContext): string =
 
   debug "loginJSONPost(): request",
     body = request.body,
     headers = request.headers
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  template request: untyped = nexusCoreContext.web.get.request
+  template request: untyped = context.web.get.request
 
   # Decode JSON
   let jsonRequest = parseJson(request.body)
@@ -34,7 +34,7 @@ proc loginJSONPost*(nexusCoreContext: NexusCoreContext): string =
   # Login action
   let
     docuiReturn =
-      loginAction(nexusCoreContext,
+      loginAction(context,
                   some(jsonRequest))
 
     returnJson = $toJson(docuiReturn)
@@ -47,22 +47,22 @@ proc loginJSONPost*(nexusCoreContext: NexusCoreContext): string =
   return returnJson
 
 
-proc logoutJSON*(nexusCoreContext: NexusCoreContext): string =
+proc logoutJSON*(context: NexusCoreContext): string =
 
   # Validate
-  if nexusCoreContext.web == none(WebContext):
+  if context.web == none(WebContext):
 
     raise newException(
             ValueError,
-            "nexusCoreContext.web == none")
+            "context.web == none")
 
   # Initial vars
-  template webContext: untyped = nexusCoreContext.web.get
+  template webContext: untyped = context.web.get
 
   # Get AccountUser record
   var accountUser =
         getAccountUserByPk(
-          nexusCoreContext.db,
+          context.db,
           webContext.accountUserId)
 
   if accountUser == none(AccountUser):
@@ -76,13 +76,13 @@ proc logoutJSON*(nexusCoreContext: NexusCoreContext): string =
   accountUser.get.lastToken = none(string)
 
   discard updateAccountUserByPk(
-            nexusCoreContext.db,
+            context.db,
             accountUser.get,
             setFields = @[ "last_token" ])
 
   # Log out with JWT
   logoutJWT(webContext.request,
-            nexusCoreContext.db,
+            context.db,
             useCookie = true)
 
   # Return values as JSON
@@ -91,7 +91,7 @@ proc logoutJSON*(nexusCoreContext: NexusCoreContext): string =
   return $toJson(docuiReturn)
 
 
-proc profileJSON*(nexusCoreContext: NexusCoreContext): string =
+proc profileJSON*(context: NexusCoreContext): string =
 
   let docuiReturn =
         newDocUIReturn(
@@ -103,7 +103,7 @@ proc profileJSON*(nexusCoreContext: NexusCoreContext): string =
   return $toJson(docuiReturn)
 
 
-proc profileJSONPost*(nexusCoreContext: NexusCoreContext): string =
+proc profileJSONPost*(context: NexusCoreContext): string =
 
   let docuiReturn =
         newDocUIReturn(
@@ -116,36 +116,36 @@ proc profileJSONPost*(nexusCoreContext: NexusCoreContext): string =
 
 
 proc resetPasswordRequestJSONPost*(
-       nexusCoreContext: NexusCoreContext): string =
+       context: NexusCoreContext): string =
 
-  var docuiReturn = resetPasswordRequestAction(nexusCoreContext)
+  var docuiReturn = resetPasswordRequestAction(context)
 
   # Return values as JSON
   return $toJson(docuiReturn)
 
 
 proc resetPasswordChangeJSONPost*(
-       nexusCoreContext: NexusCoreContext): string =
+       context: NexusCoreContext): string =
 
-  var docuiReturn = resetPasswordChangeAction(nexusCoreContext)
+  var docuiReturn = resetPasswordChangeAction(context)
 
   # Return values as JSON
   return $toJson(docuiReturn)
 
 
-proc signUpJSONPost*(nexusCoreContext: NexusCoreContext): string =
+proc signUpJSONPost*(context: NexusCoreContext): string =
 
   # Sign-up action
-  let docuiReturn = signUpAction(nexusCoreContext)
+  let docuiReturn = signUpAction(context)
 
   # Return values as JSON
   return $toJson(docuiReturn)
 
 
-proc signUpVerifyJSONPost*(nexusCoreContext: NexusCoreContext): string =
+proc signUpVerifyJSONPost*(context: NexusCoreContext): string =
 
   # Verify sign-up
-  let docuiReturn = verifySignUpAction(nexusCoreContext)
+  let docuiReturn = verifySignUpAction(context)
 
   # Return values as JSON
   return $toJson(docuiReturn)

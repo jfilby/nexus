@@ -29,9 +29,9 @@ proc mailingListUnsubscribePage*(
   else:
     return "Error"
 
-  # Get NexusCRMModule module
+  # Get NexusCRMContext module
   let nexusCRMModule =
-        NexusCRMModule(
+        NexusCRMContext(
           db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record
@@ -92,9 +92,9 @@ proc mailingListUnsubscribePagePost*(
   else:
     return "Error"
 
-  # Get NexusCRMModule module
+  # Get NexusCRMContext module
   let nexusCRMModule =
-        NexusCRMModule(
+        NexusCRMContext(
           db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record

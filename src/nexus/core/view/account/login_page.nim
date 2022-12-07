@@ -16,27 +16,27 @@ import nexus/core/types/view_types
 import account_fields
 
 
-proc alreadyLoggedInForm*(nexusCoreContext: NexusCoreContext): string =
+proc alreadyLoggedInForm*(context: NexusCoreContext): string =
 
   debug "alreadyLoggedInForm()",
     token = webContext.token
 
   let
     formDiv = getFormFactorClass(
-                nexusCoreContext.web.get,
+                context.web.get,
                 desktopClass = "form_div")
 
     vnode =
       buildHtml(tdiv(class = formDiv,
                      style = style(StyleAttr.width,
-                                   nexusCoreContext.web.get.formWidthNarrow))):
+                                   context.web.get.formWidthNarrow))):
         br()
         p(): text "Already logged in."
 
   var pageContext = newPageContext(pageTitle = "Already logged in")
 
   return baseForContent(
-           nexusCoreContext.web.get,
+           context.web.get,
            pageContext,
            vnode)
 
@@ -151,16 +151,16 @@ proc loginMinimalForm*(
             a(href = "/account/reset-password"): text "Reset Password"
 
 
-proc loginPage*(nexusCoreContext: NexusCoreContext,
+proc loginPage*(context: NexusCoreContext,
                 inErrorMessage: string = "",
                 inEmail: string = ""): string =
 
   var pageContext = newPageContext(pageTitle = "Login")
 
   # If already logged in
-  if nexusCoreContext.web.get.loggedIn == true:
+  if context.web.get.loggedIn == true:
 
-    return alreadyLoggedInForm(nexusCoreContext)
+    return alreadyLoggedInForm(context)
 
   # Get vars
   var
@@ -172,19 +172,19 @@ proc loginPage*(nexusCoreContext: NexusCoreContext,
     errorMessage = inErrorMessage
 
   else:
-    if nexusCoreContext.web.get.request.params.hasKey("errorMessage"):
-      errorMessage = nexusCoreContext.web.get.request.params["errorMessage"]
+    if context.web.get.request.params.hasKey("errorMessage"):
+      errorMessage = context.web.get.request.params["errorMessage"]
 
   if inEmail != "":
     email = inEmail
 
   else:
-    if nexusCoreContext.web.get.request.params.hasKey("email"):
-      email = nexusCoreContext.web.get.request.params["email"]
+    if context.web.get.request.params.hasKey("email"):
+      email = context.web.get.request.params["email"]
 
-  if nexusCoreContext.web.get.request.params.hasKey("isVerified"):
+  if context.web.get.request.params.hasKey("isVerified"):
 
-    if nexusCoreContext.web.get.request.params["isVerified"] == "f":
+    if context.web.get.request.params["isVerified"] == "f":
       isVerified = false
 
   debug "loginPage()",
@@ -193,27 +193,27 @@ proc loginPage*(nexusCoreContext: NexusCoreContext,
 
   let vnode =
         buildHtml(tdiv()):
-          loginForm(nexusCoreContext.web.get,
+          loginForm(context.web.get,
                     errorMessage,
                     email,
                     isVerified)
 
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
 
-proc loginPagePost*(nexusCoreContext: NexusCoreContext):
+proc loginPagePost*(context: NexusCoreContext):
                       (bool, string, string) =
 
   # Get email
   var email = ""
 
-  if nexusCoreContext.web.get.request.params.hasKey("email"):
-    email = nexusCoreContext.web.get.request.params["email"]
+  if context.web.get.request.params.hasKey("email"):
+    email = context.web.get.request.params["email"]
 
   # Check for resend sign up code button
-  if nexusCoreContext.web.get.request.params.hasKey("resendSignUpCode"):
+  if context.web.get.request.params.hasKey("resendSignUpCode"):
 
     return (false,
             redirectToURL("/account/sign_up/resend_code?email=" & email),
@@ -221,7 +221,7 @@ proc loginPagePost*(nexusCoreContext: NexusCoreContext):
 
   # Attempt login and get a JWT token
   let docUIReturn =
-        loginAction(nexusCoreContext,
+        loginAction(context,
                     none(JsonNode))
 
   debug "loginPagePost()",
@@ -252,7 +252,7 @@ proc loginPagePost*(nexusCoreContext: NexusCoreContext):
       # Get AccountUser record
       let accountUser =
             getAccountUserByEmail(
-              nexusCoreContext.db,
+              context.db,
               email)
 
       if accountUser != none(AccountUser):

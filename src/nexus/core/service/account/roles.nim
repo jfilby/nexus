@@ -3,20 +3,20 @@ import nexus/core/data_access/account_user_role_data
 import nexus/core/types/model_types
 
 
-proc checkModifyDataRole*(nexusCoreDbContext: NexusCoreDbContext,
+proc checkModifyDataRole*(dbContext: NexusCoreDbContext,
                           accountUserId: int64,
                           modifyDataRole: string):
                             (bool, string) =
 
 #[
   let modifyDataRoleId =
-        getRoleByName(nexusCoreDbContext,
+        getRoleByName(context,
                       modifyDataRole)
 
   # Check Modify data role
   var roleExists =
       existsAccountUserRoleByAccountUserIdAndRoleId(
-        nexusCoreDbContext,
+        dbContext,
         accountUserId,
         modifyDataRoleId)
 
@@ -24,7 +24,7 @@ proc checkModifyDataRole*(nexusCoreDbContext: NexusCoreDbContext,
 
     roleExists =
       existsAccountUserRoleByAccountUserIDAndRoleId(
-        nexusCoreDbContext,
+        dbContext,
         accountUserId,
         role = "Demo user")
 

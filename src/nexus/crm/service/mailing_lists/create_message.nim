@@ -5,7 +5,7 @@ import nexus/crm/types/model_types
 
 
 proc createMailingListMessage*(
-       nexusCRMModule: NexusCRMModule,
+       context: NexusCRMContext,
        accountUserId: int64,
        subject: string,
        body: string) =
@@ -16,7 +16,7 @@ proc createMailingListMessage*(
 
   let mailingListMessage =
         getOrCreateMailingListMessageByUniqueHash(
-          nexusCRMModule,
+          context,
           accountUserId,
           uniqueHash,
           subject,

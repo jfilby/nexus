@@ -4,13 +4,13 @@ import nexus/core/service/email/send_email
 
 proc sendResetPasswordRequestEmail*(
        email: string,
-       reset_password_code: string,
+       resetPasswordCode: string,
        siteName: string) =
 
   let
     subject = &"Confirm password reset request at {siteName}"
     body = &"Please verify that you have requested a password reset at {siteName} by entering the following code on " &
-           &"the verification page:\n\n{reset_password_code}"
+           &"the verification page:\n\n{resetPasswordCode}"
 
   sendEmail(toAddress = email,
             subject,

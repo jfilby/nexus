@@ -3,7 +3,7 @@ import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/view/common/common_fields
 
 
-proc fromNameFieldAutofocus*(from_name: string): VNode =
+proc fromNameFieldAutofocus*(fromName: string): VNode =
 
 
   buildHtml(tdiv(class = "field")):
@@ -14,12 +14,12 @@ proc fromNameFieldAutofocus*(from_name: string): VNode =
       tdiv(class = "control"):
         input(class = "input",
               type = "text",
-              name = "from_name",
-              value = from_name,
+              name = "fromName",
+              value = fromName,
               autofocus = "")
 
 
-proc fromEmailAddressField*(from_email: string): VNode =
+proc fromEmailAddressField*(fromEmail: string): VNode =
 
   buildHtml(tdiv(class = "field")):
     tdiv(class = "field"):
@@ -29,8 +29,8 @@ proc fromEmailAddressField*(from_email: string): VNode =
       tdiv(class = "control"):
         input(class = "input",
               type = "text",
-              name = "from_email",
-              value = from_email)
+              name = "fromEmail",
+              value = fromEmail)
 
 
 proc sendInviteButton*(): VNode =
@@ -39,7 +39,7 @@ proc sendInviteButton*(): VNode =
                name = "Send Invite")
 
 
-proc toNameField*(to_name: string): VNode =
+proc toNameField*(toName: string): VNode =
 
   buildHtml(tdiv(class = "field")):
     tdiv(class = "field"):
@@ -49,11 +49,11 @@ proc toNameField*(to_name: string): VNode =
       tdiv(class = "control"):
         input(class = "input",
               type = "text",
-              name = "to_name",
-              value = to_name)
+              name = "toName",
+              value = toName)
 
 
-proc toEmailAddressField*(to_email: string): VNode =
+proc toEmailAddressField*(toEmail: string): VNode =
 
   buildHtml(tdiv(class = "field")):
     tdiv(class = "field"):
@@ -63,6 +63,6 @@ proc toEmailAddressField*(to_email: string): VNode =
       tdiv(class = "control"):
         input(class = "input",
               type = "text",
-              name = "to_email",
-              value = to_email)
+              name = "toEmail",
+              value = toEmail)
 
