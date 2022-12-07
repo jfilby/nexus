@@ -36,7 +36,7 @@ proc userHasAdminRole*(
   # Check for user/role
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
-          nexusCoreContext.db,
+          context.db,
           accountUser.accountUserId,
           adminRoleId)
 

@@ -11,8 +11,8 @@ import assign_admin_role
 
 
 proc getOrCreateAdminUser*(
-       context: NexusCoreContext,
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       coreContext: NexusCoreContext,
+       coreExtrasContext: NexusCoreExtrasContext,
        email: string,
        password: string): AccountUser =
 
@@ -20,7 +20,7 @@ proc getOrCreateAdminUser*(
   var accountUser: Option[AccountUser]
 
   if existsAccountUserByEmail(
-       nexusCoreContext.db,
+       coreContext.db,
        email) == false:
 
     # Get the passwordHash and salt
@@ -39,7 +39,7 @@ proc getOrCreateAdminUser*(
     # Insert into accountUser
     accountUser =
       some(createAccountUser(
-             nexusCoreContext.db,
+             coreContext.db,
              accountId = none(int64),
              name = "Admin User",
              email = email,
@@ -60,7 +60,7 @@ proc getOrCreateAdminUser*(
   else:
     accountUser =
       getAccountUserByEmail(
-        nexusCoreContext.db,
+        coreContext.db,
         email)
 
   # Verify the user
@@ -71,15 +71,15 @@ proc getOrCreateAdminUser*(
 
   rowsUpdated =
     updateAccountUserByPk(
-      nexusCoreContext.db,
+      coreContext.db,
       accountUser.get,
       setFields = @[ "is_active",
                      "is_verified" ])
 
   # Create the Admin role for the user
   assignAdminRole(
-    nexusCoreContext,
-    nexusCoreExtrasContext,
+    coreContext,
+    coreExtrasContext,
     accountUser.get.accountUserId)
 
   return accountUser.get
