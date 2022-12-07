@@ -81,9 +81,9 @@ proc generateDeleteContextProc(
 
   str &=
     &"proc delete{module.nameInPascalCase}Context*(\n" &
-    &"       {module.nameInCamelCase}Context: var {module.nameInPascalCase}Context) =\n" &
+    &"       context: var {module.nameInPascalCase}Context) =\n" &
      "\n" &
-    &"  closeDbConn({module.nameInCamelCase}Context.db.dbConn)\n" &
+    &"  closeDbConn(context.db.dbConn)\n" &
      "\n" &
      "\n"
 
@@ -154,24 +154,24 @@ proc generateNewContextProc(
 
   # Declare context objects
   str &=
-    &"  var {module.nameInCamelCase}Context =\n" &
+    &"  var context =\n" &
     &"        {module.nameInPascalCase}Context(db: {module.nameInPascalCase}DbContext())\n"
 
   if module.nameInPascalCase != "NexusCore":
     str &=
        "\n" &
-      &"  {module.nameInCamelCase}Context.nexusCoreContext =\n" &
+      &"  context.nexusCoreContext =\n" &
       &"    NexusCoreContext(db: NexusCoreDbContext())\n"
 
   str &= "\n"
 
   # Generate: Init .db per context (with a lock)
   str &=
-    &"  {module.nameInCamelCase}Context.db.dbConn = getDbConn()\n"
+    &"  context.db.dbConn = getDbConn()\n"
 
   if module.nameInPascalCase != "NexusCore":
     str &=
-      &"  {module.nameInCamelCase}Context.nexusCoreContext.db.dbConn = {module.nameInCamelCase}Context.db.dbConn\n"
+      &"  context.nexusCoreContext.db.dbConn = context.db.dbConn\n"
 
   # Generate: Init .web
   # For web-enabled modules or Nexus Core (which is a include web library procs)
@@ -180,7 +180,7 @@ proc generateNewContextProc(
 
     str &=
        "\n" &
-      &"  {module.nameInCamelCase}Context.web =\n" &
+      &"  context.web =\n" &
        "    some(\n" &
        "      newWebContext(request.get,\n"
 
@@ -188,7 +188,7 @@ proc generateNewContextProc(
       str &= "                    nexusCoreContext.db))\n"
 
     else:
-      str &= &"                    {module.nameInCamelCase}Context.nexusCoreContext.db))\n"
+      str &= &"                    context.nexusCoreContext.db))\n"
 
   # For modules other than Nexus Core, create a Nexus Core context
   if module.nameInPascalCase != "NexusCore":
@@ -198,11 +198,11 @@ proc generateNewContextProc(
 
       str &=
          "\n" &
-        &"  {module.nameInCamelCase}Context.nexusCoreContext.web = {module.nameInCamelCase}Context.web\n"
+        &"  context.nexusCoreContext.web = context.web\n"
 
   # Generate: return
   str &=
      "\n" &
-    &"  return {module.nameInCamelCase}Context\n" &
+    &"  return context\n" &
      "\n"
 

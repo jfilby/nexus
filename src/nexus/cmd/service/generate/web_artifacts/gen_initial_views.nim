@@ -20,7 +20,7 @@ proc createGetViewProc(
        route: Route) =
 
   str &= &"proc {route.nameInCamelCase}View*(\n" &
-         &"       {module.nameInCamelCase}Context: {module.nameInPascalCase}Context): string =\n" &
+         &"       context: {module.nameInPascalCase}Context): string =\n" &
           "\n" &
          &"  return \"Starter GET view for: {route.name}\"\n" &
           "\n"

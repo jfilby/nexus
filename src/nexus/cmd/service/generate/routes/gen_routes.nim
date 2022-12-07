@@ -86,7 +86,7 @@ proc generateRoute(
 
     # Route and proc call
     str &= &"  {`method`} \"{route.jesterRoute}\":\n" &
-           &"    var {module.nameInCamelCase}Context = new{module.nameInPascalCase}Context(request)\n" &
+           &"    var context = new{module.nameInPascalCase}Context(request)\n" &
             "\n"
 
     responseCall(
@@ -131,7 +131,7 @@ proc responseCall(
 
   # Non-resp calls (e.g. some templates)
   if procName == "logoutAction":
-    procCallLine = &"    {procName}({module.nameInCamelCase}Context)\n"
+    procCallLine = &"    {procName}(context)\n"
 
   # Resp calls (the default)
   elif webArtifact.artifact == WebServiceArtifact:
@@ -139,10 +139,10 @@ proc responseCall(
     str &= &"    resp Http200,\n" &
            &"         {{\"Access-Control-Allow-Origin\": \"*\"}},\n"
 
-    procCallLine = &"         {procName}({module.nameInCamelCase}Context)\n"
+    procCallLine = &"         {procName}(context)\n"
 
   elif webArtifact.artifact == WebAppArtifact:
-    procCallLine = &"    resp {procName}({module.nameInCamelCase}Context)\n"
+    procCallLine = &"    resp {procName}(context)\n"
 
   str &= procCallLine &
         "\n" &
