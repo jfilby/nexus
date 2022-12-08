@@ -34,7 +34,7 @@ proc myAccountPage*(
     email = ""
 
   myAccountPageMain(
-    nexusCoreContext,
+    context,
     "",
     name,
     email,

@@ -93,7 +93,7 @@ proc signUpVerifyPage*(
       verbatim(autoScript)
 
   # Render
-  baseForContent(nexusCoreContext.web.get,
+  baseForContent(context.web.get,
                  pageContext,
                  vnode)
 
