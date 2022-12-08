@@ -34,6 +34,7 @@ proc generate*(artifact: string,
         readNexusYaml(&"{basePath}{DirSep}conf")
 
   # Settings
+  generatorInfo.artifact = artifact
   generatorInfo.overwrite = overwrite
 
   # Generate an app (only)

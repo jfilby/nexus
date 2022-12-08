@@ -492,6 +492,7 @@ type
 
 
   GeneratorInfo* = ref object of RootObj
+    artifact*: string
     refresh*: bool
     overwrite*: bool
     status*: char
