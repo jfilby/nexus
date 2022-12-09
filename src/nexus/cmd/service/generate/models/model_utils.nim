@@ -93,8 +93,27 @@ proc getDefaultValueAsString*(
 proc getFieldByName*(fieldName: string,
                      model: Model): Field =
 
+  debug "getFieldByName()",
+    modelName = model.name,
+    byFieldNameQuoted = &"\"{fieldName}\""
+
   for field in model.fields:
 
+    debug "getFieldByName(): iter try match",
+      tryfieldNameQuoted = &"\"{field.name}\"",
+      result = (field.name == fieldName)
+
+    # Identify a case insensitive match
+    if fieldName != field.name and
+       toLowerAscii(fieldName) == toLowerAscii(field.name):
+
+      raise newException(
+              ValueError,
+              &"Field search for: \"{fieldName}\" has a case insensitive " &
+              &"match for field: \"{field.name}\" on model: {model.name}.\n" &
+              "Please fix the case to match exactly.")
+
+    # Return on exact match
     if field.name == fieldName:
       return field
 
