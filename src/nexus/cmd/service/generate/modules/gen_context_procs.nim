@@ -137,20 +137,22 @@ proc generateImports(
   imports.add("db_context")
 
   # Generate stdlib import strings
-  var first = true
-  str &= "import "
+  if len(stdlibImports) > 0:
 
-  for stdlibImport in stdlibImports:
+    var first = true
+    str &= "import "
 
-    if first == false:
-      str &= ", "
+    for stdlibImport in stdlibImports:
 
-    else:
-      first = false
+      if first == false:
+        str &= ", "
 
-    str &= stdlibImport
+      else:
+        first = false
 
-  str &= "\n"
+      str &= stdlibImport
+
+    str &= "\n"
 
   # Generate import strings
   for `import` in imports:
