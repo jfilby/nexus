@@ -108,7 +108,10 @@ proc newBaseWebContext*(
   webContext.request = request
   webContext.contentType = getContentType(request)
 
-  if webContext.contentType == ContentType.JSON:
+  # If JSON then skip empty strings, or those less than 1 in length
+  if webContext.contentType == ContentType.JSON and
+     len(request.body) > 1:
+
     webContext.json = parseJson(request.body)
 
     if webContext.json.hasKey(DocUI_Token):
@@ -131,6 +134,9 @@ proc newBaseWebContext*(
 
     elif request.params["m"] == "f":
       webContext.mobile = some(false)
+
+  debug "newBaseWebContext()",
+    inToken = inToken
 
   #  Default settings
   webContext.bulmaPathName = "bulma"
