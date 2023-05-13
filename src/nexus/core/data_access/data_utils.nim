@@ -79,6 +79,25 @@ proc getPgArrayStringAsSeqChar*(pgArrayStr: string): seq[char] {.gcsafe.} =
   return seqChar
 
 
+proc getPgArrayStringAsSeqInt*(pgArrayStr: string): seq[int] {.gcsafe.} =
+
+  # Get as seq of string
+  let seqString = getPgArrayStringAsSeqString(pgArrayStr)
+
+  # Convert to seq of int
+  var seqInt: seq[int]
+
+  for str in seqString:
+    seqInt.add(parseInt(str))
+
+  # debug "getPgArrayStringAsSeqInt64()",
+  #   seqInt = seqInt,
+  #   lenSeqInt = len(seqInt),
+  #   pgArrayStr = pgArrayStr
+
+  return seqInt
+
+
 proc getPgArrayStringAsSeqInt64*(pgArrayStr: string): seq[int64] {.gcsafe.} =
 
   # Get as seq of string

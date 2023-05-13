@@ -4,6 +4,7 @@ import nexus/core/service/format/type_utils
 import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/service/generate/models/model_utils
 import nexus/cmd/types/types
+import naming_utils
 
 
 # Forward declarations
@@ -96,7 +97,7 @@ proc buildInsertSQLFromModelFieldNames*(
   str &= &"{indent}# Formulate insertStatement and insertValues\n" &
          &"{indent}var\n" &
          &"{indent}  insertValues: seq[string]\n" &
-         &"{indent}  insertStatement = \"insert into {model.baseNameInSnakeCase} (\"\n" &
+         &"{indent}  insertStatement = \"insert into {getTableName(model)} (\"\n" &
          &"{indent}  valuesClause = \"\"\n"
 
   var
@@ -144,7 +145,7 @@ proc buildInsertSQLFromModelFieldNames*(
       str &= &"{aIndent}insertStatement &= \"uuid_generate_v1(), \"\n"
 
     else:
-      str &= &"{aIndent}insertStatement &= \"{field.nameInSnakeCase}, \"\n"
+      str &= &"{aIndent}insertStatement &= \"{getColumnName(field)}, \"\n"
 
     # Define field, which may be quoted
     var valueStr = &"{field.nameInCamelCase}{getOption}"
@@ -233,7 +234,7 @@ proc deleteFromOnly*(
   # Create select SQL statement
   str &=  "  var deleteStatement =\n" &
           "    \"delete\" & \n" &
-         &"    \"  from {model.baseNameInSnakeCase}\"\n" &
+         &"    \"  from {getTableName(model)}\"\n" &
           "\n"
 
 
@@ -252,7 +253,7 @@ proc deleteQuery*(
   # Create select SQL statement
   str &= &"  var deleteStatement =\n" &
          &"    \"delete\" & \n" &
-         &"    \"  from {model.baseNameInSnakeCase}\""
+         &"    \"  from {getTableName(model)}\""
 
   if len(whereFields) == 0:
     str &= "\n"
@@ -275,7 +276,7 @@ proc deleteQueryWhereClause*(
   # Create select SQL statement
   str &= &"  var deleteStatement =\n" &
          &"    \"delete\" & \n" &
-         &"    \"  from {model.baseNameInSnakeCase}\" &\n" &
+         &"    \"  from {getTableName(model)}\" &\n" &
          &"    \" where \" & whereClause\n"
 
   str &= "\n"
@@ -665,7 +666,7 @@ proc getAllSelectFields*(model: Model): seq[string] =
     else:
       firstSelectField = false
 
-    curSelectFields &= field.nameInSnakeCase
+    curSelectFields &= getColumnName(field)
 
     if len(curSelectFields) > 80:
 
@@ -698,7 +699,7 @@ proc getWherePredicates*(
     let field = getFieldByName(whereField,
                                model)
 
-    wherePredicates.add(&"{field.nameInSnakeCase} = ?")
+    wherePredicates.add(&"{getColumnName(field)} = ?")
 
   return wherePredicates
 
@@ -731,7 +732,7 @@ proc selectCountQuery*(str: var string,
   # Create select SQL statement
   str &= &"  var selectStatement =\n" &
          &"    \"select count(1)\" & \n" &
-         &"    \"  from {model.baseNameInSnakeCase}\""
+         &"    \"  from {getTableName(model)}\""
 
 
 proc selectQuery*(str: var string,
@@ -771,7 +772,7 @@ proc selectQuery*(str: var string,
   for i in 1 .. len(selectFinalFields) - 1:
     str &= &"    \"       {selectFinalFields[i]}\" &\n"
 
-  str &= &"    \"  from {model.baseNameInSnakeCase}\""
+  str &= &"    \"  from {getTableName(model)}\""
 
   if len(whereFields) == 0:
     str &= "\n"
@@ -842,7 +843,7 @@ proc setClause*(str: var string,
       getOption = ".get"
       option = true
 
-    str &= &"    {el}if field == \"{field.nameInSnakeCase}\":\n"
+    str &= &"    {el}if field == \"{getColumnName(field)}\":\n"
 
     let modelField = &"{model.nameInCamelCase}.{field.nameInCamelCase}"
 
@@ -853,7 +854,7 @@ proc setClause*(str: var string,
             some(&"{modelField}{getOption}"))
 
     # If a function is used the put in the statement
-    let fieldName = field.nameInSnakeCase
+    let fieldName = getColumnName(field)
 
     if valueToAdd[^1] == ')':
 
@@ -1007,10 +1008,10 @@ proc wherePkClause*(str: var string,
                                model)
 
     if first == false:
-      str &= &"  {whereStr} &= \"   and {field.nameInSnakeCase} = ?\"\n"
+      str &= &"  {whereStr} &= \"   and {getColumnName(field)} = ?\"\n"
     else:
       first = false
-      str &= &"  {whereStr} &= \" where {field.nameInSnakeCase} = ?\"\n"
+      str &= &"  {whereStr} &= \" where {getColumnName(field)} = ?\"\n"
 
   str &= "\n"
 

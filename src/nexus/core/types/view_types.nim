@@ -195,6 +195,7 @@ proc newBaseWebContext*(
   var createToken = false
 
   if foundToken == true:
+#    if @[ "", "false" ].contains(mobileFromToken) and
     if mobileFromToken == "" and
        webContext.mobile != none(bool):
 
@@ -232,7 +233,8 @@ proc newBaseWebContext*(
 
   # Set accountUserId
   debug "newBaseWebContext(): set final accountUserId",
-    accountUserId = $accountUserId
+    accountUserId = $accountUserId,
+    loggedIn = $webContext.loggedIn
 
   if accountUserId != "":
     webContext.accountUserId = parseBiggestInt(accountUserId)

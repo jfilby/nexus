@@ -26,7 +26,8 @@ proc setupQuery(db: DbConn, query: SqlQuery,
   if pqResultStatus(result) != PGRES_TUPLES_OK: dbError(db)
 
 
-proc tryInsertNamedID*(db: DbConn, query: SqlQuery,pkName: string,
+## FIX: replace with a call to the now implemented tryInsertID() that uses pkName
+proc tryInsertNamedID*(db: DbConn, query: SqlQuery, pkName: string,
                        args: varargs[string, `$`]): int64
                        {.tags: [WriteDbEffect].}=
   ## executes the query (typically "INSERT") and returns the
@@ -38,6 +39,25 @@ proc tryInsertNamedID*(db: DbConn, query: SqlQuery,pkName: string,
 
   if not isNil(x):
     id = parseBiggestInt($x)
+
+  pqclear(pgResult)
+
+  return id
+
+
+proc tryInsertNamedIDReturningInt32*(
+       db: DbConn, query: SqlQuery, pkName: string,
+       args: varargs[string, `$`]): int
+       {.tags: [WriteDbEffect].}=
+  ## executes the query (typically "INSERT") and returns the
+  ## generated ID for the row or -1 in case of an error. 
+  let pgResult = setupQuery(db, SqlQuery(string(query) & " RETURNING " & pkName), args)
+
+  var id: int = -1
+  var x = pqgetvalue(pgResult, 0, 0)
+
+  if not isNil(x):
+    id = parseInt($x)
 
   pqclear(pgResult)
 

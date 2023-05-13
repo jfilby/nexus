@@ -2,6 +2,7 @@ import chronicles, strformat
 import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/types/types
 import data_access_helpers
+import naming_utils
 
 
 # Code
@@ -144,12 +145,25 @@ proc createProc*(str: var string,
   if model.fields[0].isAutoValue == true:
     pgTryInsertId = true
 
-    str &=  "  # Execute the insert statement and return the sequence values\n" &
-            "  return tryInsertNamedID(\n" &
-           &"    dbContext.dbConn,\n" &
-            "    sql(insertStatement),\n" &
-           &"    \"{model.pkNameInSnakeCase}\",\n" &
-            "    insertValues)\n"
+    case model.pkNimType:
+
+      of "int":
+
+        str &=  "  # Execute the insert statement and return the sequence values\n" &
+                "  return tryInsertNamedIDReturningInt32(\n" &
+               &"           dbContext.dbConn,\n" &
+                "           sql(insertStatement),\n" &
+               &"           \"{model.pkNameInSnakeCase}\",\n" &
+                "           insertValues)\n"
+
+      of "int64":
+
+        str &=  "  # Execute the insert statement and return the sequence values\n" &
+                "  return tryInsertNamedID(\n" &
+               &"           dbContext.dbConn,\n" &
+                "           sql(insertStatement),\n" &
+               &"           \"{model.pkNameInSnakeCase}\",\n" &
+                "           insertValues)\n"
 
   else:
     str &=  "  # Execute the insert statement and return the sequence values\n" &
@@ -875,7 +889,7 @@ proc truncate*(str: var string,
   if model.longNames == true:
     procName &= model.nameInPascalCase
 
-  let sql = &"truncate table {model.base_nameInSnakeCase} restart identity"
+  let sql = &"truncate table {model.baseNameInSnakeCase} restart identity"
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -973,7 +987,7 @@ proc updateSetClause*(str: var string,
          &"       updateValues: var seq[string]){returnDetails} =\n" &
           "\n" &
           "  updateStatement =\n" &
-         &"    \"update {model.baseNameInSnakeCase}\" &\n"
+         &"    \"update {getTableName(model)}\" &\n"
 
   setClause(str,
             "update",

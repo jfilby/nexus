@@ -133,6 +133,8 @@ type
 
   ModelYAML* = object
     name*: string
+    # sqlName* {.defaultVal: "".}: string
+    # sqlName*: Option[string]
     description*: string
     module*: string
     modelOptions*: seq[string]

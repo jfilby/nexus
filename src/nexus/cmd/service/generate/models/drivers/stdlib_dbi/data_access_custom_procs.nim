@@ -3,6 +3,7 @@ import nexus/core/service/format/type_utils
 import nexus/cmd/service/generate/models/gen_model_utils
 import nexus/cmd/types/types
 import data_access_helpers
+import naming_utils
 
 
 # Code
@@ -232,7 +233,7 @@ proc updateCustomProc*(
 
   # Update statement
   str &=  "  var updateStatement =\n" &
-         &"    \"update {model.baseNameInSnakeCase}\" &\n"
+         &"    \"update {getTableName(model)}\" &\n"
 
   # Set and where clauses
   setClauseByCustomFields(

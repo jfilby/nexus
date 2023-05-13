@@ -206,7 +206,7 @@ proc getModel*(modelYaml: ModelYAML,
       model.pkNameInCamelCase = fieldCamelCaseName
 
       model.pkNimType = getNimType(modelField,
-                                    withOption = true)
+                                   withOption = true)
 
       # PK: model.field
       model.pkModelDNamesInCamelCase =
@@ -233,7 +233,7 @@ proc getModel*(modelYaml: ModelYAML,
       model.pkModelDNamesInCamelCase &= &"{model.nameInCamelCase}.{fieldCamelCaseName}"
 
       model.pkNimType = getNimType(pkFields,
-                                     withOption = true)
+                                   withOption = true)
 
   # Brackets pkModelDNamesInCamelCase for multi-PK fields
   if len(model.pkFields) > 1:
@@ -446,6 +446,9 @@ proc getConvertStringToNimTypeFunction*(field: Field): string =
     of "int":
       return "parseInt"
 
+    of "int[]":
+      return "getPgArrayStringAsSeqInt"
+
     of "int64":
       return "parseBiggestInt"
 
@@ -605,45 +608,45 @@ proc getModelTypeAsPgType*(
        fieldType: string,
        dmlInfo: bool = false): string =
 
-  var pg_type = toUpperAscii(fieldType)
+  var pgType = toUpperAscii(fieldType)
 
   if fieldType == "date":
-    pg_type = "DATE"
+    pgType = "DATE"
 
   elif fieldType == "date[]":
-    pg_type = "DATE[]"
+    pgType = "DATE[]"
 
   elif fieldType == "datetime":
-    pg_type = "TIMESTAMP WITH TIME ZONE"
+    pgType = "TIMESTAMP WITH TIME ZONE"
 
   elif fieldType == "datetime[]":
-    pg_type = "TIMESTAMP[] WITH TIME ZONE"
+    pgType = "TIMESTAMP[] WITH TIME ZONE"
 
   elif fieldType == "int64":
-    pg_type = "BIGINT"
+    pgType = "BIGINT"
 
   elif fieldType == "int64[]":
-    pg_type = "BIGINT[]"
+    pgType = "BIGINT[]"
 
   elif fieldType == "json":
-    pg_type = "JSON"
+    pgType = "JSON"
 
   elif fieldType == "jsonb":
-    pg_type = "JSONB"
+    pgType = "JSONB"
 
   elif fieldType == "string":
-    pg_type = "CHARACTER VARYING"
+    pgType = "CHARACTER VARYING"
 
     if dmlInfo == true:
-      pg_type &= &" COLLATE pg_catalog.\"default\""
+      pgType &= &" COLLATE pg_catalog.\"default\""
 
   elif fieldType == "string[]":
-    pg_type = "CHARACTER VARYING[]"
+    pgType = "CHARACTER VARYING[]"
 
     if dmlInfo == true:
-      pg_type &= &" COLLATE pg_catalog.\"default\""
+      pgType &= &" COLLATE pg_catalog.\"default\""
 
-  return pg_type
+  return pgType
 
 
 proc getNimType*(field: Field,
