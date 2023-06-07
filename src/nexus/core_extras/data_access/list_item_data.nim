@@ -61,7 +61,7 @@ proc countListItem*(
 
 proc createListItemReturnsPk*(
        dbContext: NexusCoreExtrasDbContext,
-       parentListItemId: Option[int64] = none(int64),
+       parentId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
        displayName: string,
@@ -75,11 +75,11 @@ proc createListItemReturnsPk*(
     insertStatement = "insert into list_item ("
     valuesClause = ""
 
-  # Field: Parent List Item Id
-  if parentListItemId != none(int64):
-    insertStatement &= "parent_list_item_id, "
+  # Field: Parent Id
+  if parentId != none(int64):
+    insertStatement &= "parent_id, "
     valuesClause &= "?, "
-    insertValues.add($parentListItemId.get)
+    insertValues.add($parentId.get)
 
   # Field: Seq No
   insertStatement &= "seq_no, "
@@ -118,19 +118,19 @@ proc createListItemReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (list_item_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "list_item_id",
+    "id",
     insertValues)
 
 
 proc createListItem*(
        dbContext: NexusCoreExtrasDbContext,
-       parentListItemId: Option[int64] = none(int64),
+       parentId: Option[int64] = none(int64),
        seqNo: int,
        name: string,
        displayName: string,
@@ -142,10 +142,10 @@ proc createListItem*(
 
   var listItem = ListItem()
 
-  listItem.listItemId =
+  listItem.id =
     createListItemReturnsPk(
       dbContext,
-      parentListItemId,
+      parentId,
       seqNo,
       name,
       displayName,
@@ -154,7 +154,7 @@ proc createListItem*(
       ignoreExistingPk)
 
   # Copy all fields as strings
-  listItem.parentListItemId = parentListItemId
+  listItem.parentId = parentId
   listItem.seqNo = seqNo
   listItem.name = name
   listItem.displayName = displayName
@@ -166,17 +166,17 @@ proc createListItem*(
 
 proc deleteListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       listItemId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from list_item" &
-    " where list_item_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           listItemId)
+           id)
 
 
 proc deleteListItem*(
@@ -226,17 +226,17 @@ proc deleteListItem*(
 
 proc existsListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       listItemId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from list_item" &
-    " where list_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $listItemId)
+              $id)
 
   if row[0] == "":
     return false
@@ -272,7 +272,7 @@ proc filterListItem*(
        limit: Option[int] = none(int)): ListItems {.gcsafe.} =
 
   var selectStatement =
-    "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
+    "select id, parent_id, seq_no, name, display_name, description, created" & 
     "  from list_item"
 
   if whereClause != "":
@@ -303,7 +303,7 @@ proc filterListItem*(
        limit: Option[int] = none(int)): ListItems {.gcsafe.} =
 
   var selectStatement =
-    "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
+    "select id, parent_id, seq_no, name, display_name, description, created" & 
     "  from list_item"
 
   var first = true
@@ -339,17 +339,17 @@ proc filterListItem*(
 
 proc getListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       listItemId: int64): Option[ListItem] {.gcsafe.} =
+       id: int64): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
-    "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
+    "select id, parent_id, seq_no, name, display_name, description, created" & 
     "  from list_item" &
-    " where list_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              listItemId)
+              id)
 
   if row[0] == "":
     return none(ListItem)
@@ -359,17 +359,17 @@ proc getListItemByPk*(
 
 proc getListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       listItemId: string): Option[ListItem] {.gcsafe.} =
+       id: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
-    "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
+    "select id, parent_id, seq_no, name, display_name, description, created" & 
     "  from list_item" &
-    " where list_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              listItemId)
+              id)
 
   if row[0] == "":
     return none(ListItem)
@@ -382,7 +382,7 @@ proc getListItemByName*(
        name: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
-    "select list_item_id, parent_list_item_id, seq_no, name, display_name, description, created" & 
+    "select id, parent_id, seq_no, name, display_name, description, created" & 
     "  from list_item" &
     " where name = ?"
 
@@ -399,7 +399,7 @@ proc getListItemByName*(
 
 proc getOrCreateListItemByName*(
        dbContext: NexusCoreExtrasDbContext,
-       parentListItemId: Option[int64],
+       parentId: Option[int64],
        seqNo: int,
        name: string,
        displayName: string,
@@ -416,7 +416,7 @@ proc getOrCreateListItemByName*(
 
   return createListItem(
            dbContext,
-           parentListItemId,
+           parentId,
            seqNo,
            name,
            displayName,
@@ -429,12 +429,12 @@ proc rowToListItem*(row: seq[string]):
 
   var listItem = ListItem()
 
-  listItem.listItemId = parseBiggestInt(row[0])
+  listItem.id = parseBiggestInt(row[0])
 
   if row[1] != "":
-    listItem.parentListItemId = some(parseBiggestInt(row[1]))
+    listItem.parentId = some(parseBiggestInt(row[1]))
   else:
-    listItem.parentListItemId = none(int64)
+    listItem.parentId = none(int64)
 
   listItem.seqNo = parseInt(row[2])
   listItem.name = row[3]
@@ -475,16 +475,16 @@ proc updateListItemSetClause*(
 
   for field in setFields:
 
-    if field == "list_item_id":
-      updateStatement &= "       list_item_id = ?,"
-      updateValues.add($listItem.listItemId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($listItem.id)
 
-    elif field == "parent_list_item_id":
-      if listItem.parentListItemId != none(int64):
-        updateStatement &= "       parent_list_item_id = ?,"
-        updateValues.add($listItem.parentListItemId.get)
+    elif field == "parent_id":
+      if listItem.parentId != none(int64):
+        updateStatement &= "       parent_id = ?,"
+        updateValues.add($listItem.parentId.get)
       else:
-        updateStatement &= "       parent_list_item_id = null,"
+        updateStatement &= "       parent_id = null,"
 
     elif field == "seq_no":
       updateStatement &= "       seq_no = ?,"
@@ -528,9 +528,9 @@ proc updateListItemByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where list_item_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($listItem.listItemId)
+  updateValues.add($listItem.id)
 
   let rowsUpdated = 
         execAffectedRows(

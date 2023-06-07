@@ -37,7 +37,7 @@ proc userHasAdminRole*(
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
           context.db,
-          accountUser.accountUserId,
+          accountUser.id,
           adminRoleId)
 
   var hasAdminRole = false
@@ -46,7 +46,7 @@ proc userHasAdminRole*(
     hasAdminRole = true
 
   info "userHasAdminRole()",
-    accountUserId = accountUser.accountUserId,
+    accountUserId = accountUser.id,
     hasAdminRole = $hasAdminRole
 
   return hasAdminRole

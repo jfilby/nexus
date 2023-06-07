@@ -143,13 +143,13 @@ proc createMailingListSubscriberReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (mailing_list_subscriber_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "mailing_list_subscriber_id",
+    "id",
     insertValues)
 
 
@@ -171,7 +171,7 @@ proc createMailingListSubscriber*(
 
   var mailingListSubscriber = MailingListSubscriber()
 
-  mailingListSubscriber.mailingListSubscriberId =
+  mailingListSubscriber.id =
     createMailingListSubscriberReturnsPk(
       dbContext,
       accountUserId,
@@ -203,17 +203,17 @@ proc createMailingListSubscriber*(
 
 proc deleteMailingListSubscriberByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListSubscriberId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from mailing_list_subscriber" &
-    " where mailing_list_subscriber_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           mailingListSubscriberId)
+           id)
 
 
 proc deleteMailingListSubscriber*(
@@ -263,17 +263,17 @@ proc deleteMailingListSubscriber*(
 
 proc existsMailingListSubscriberByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListSubscriberId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from mailing_list_subscriber" &
-    " where mailing_list_subscriber_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $mailingListSubscriberId)
+              $id)
 
   if row[0] == "":
     return false
@@ -355,8 +355,8 @@ proc filterMailingListSubscriber*(
        limit: Option[int] = none(int)): MailingListSubscribers {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber"
 
   if whereClause != "":
@@ -387,8 +387,8 @@ proc filterMailingListSubscriber*(
        limit: Option[int] = none(int)): MailingListSubscribers {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber"
 
   var first = true
@@ -424,18 +424,18 @@ proc filterMailingListSubscriber*(
 
 proc getMailingListSubscriberByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListSubscriberId: int64): Option[MailingListSubscriber] {.gcsafe.} =
+       id: int64): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber" &
-    " where mailing_list_subscriber_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              mailingListSubscriberId)
+              id)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -445,18 +445,18 @@ proc getMailingListSubscriberByPk*(
 
 proc getMailingListSubscriberByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListSubscriberId: string): Option[MailingListSubscriber] {.gcsafe.} =
+       id: string): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber" &
-    " where mailing_list_subscriber_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              mailingListSubscriberId)
+              id)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -469,8 +469,8 @@ proc getMailingListSubscriberByUniqueHash*(
        uniqueHash: string): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber" &
     " where unique_hash = ?"
 
@@ -491,8 +491,8 @@ proc getMailingListSubscriberByMailingListIdAndAccountUserId*(
        accountUserId: int64): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber" &
     " where mailing_list_id = ?" &
     "   and account_user_id = ?"
@@ -515,8 +515,8 @@ proc getMailingListSubscriberByMailingListIdAndEmail*(
        email: string): Option[MailingListSubscriber] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_subscriber_id, account_user_id, mailing_list_id, unique_hash, is_active," & 
-    "       email, name, verification_code, is_verified, created, deleted" &
+    "select id, account_user_id, mailing_list_id, unique_hash, is_active, email, name, verification_code," & 
+    "       is_verified, created, deleted" &
     "  from mailing_list_subscriber" &
     " where mailing_list_id = ?" &
     "   and email = ?"
@@ -645,7 +645,7 @@ proc rowToMailingListSubscriber*(row: seq[string]):
 
   var mailingListSubscriber = MailingListSubscriber()
 
-  mailingListSubscriber.mailingListSubscriberId = parseBiggestInt(row[0])
+  mailingListSubscriber.id = parseBiggestInt(row[0])
 
   if row[1] != "":
     mailingListSubscriber.accountUserId = some(parseBiggestInt(row[1]))
@@ -704,9 +704,9 @@ proc updateMailingListSubscriberSetClause*(
 
   for field in setFields:
 
-    if field == "mailing_list_subscriber_id":
-      updateStatement &= "       mailing_list_subscriber_id = ?,"
-      updateValues.add($mailingListSubscriber.mailingListSubscriberId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($mailingListSubscriber.id)
 
     elif field == "account_user_id":
       if mailingListSubscriber.accountUserId != none(int64):
@@ -776,9 +776,9 @@ proc updateMailingListSubscriberByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where mailing_list_subscriber_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($mailingListSubscriber.mailingListSubscriberId)
+  updateValues.add($mailingListSubscriber.id)
 
   let rowsUpdated = 
         execAffectedRows(

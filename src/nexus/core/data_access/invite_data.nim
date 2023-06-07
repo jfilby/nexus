@@ -122,13 +122,13 @@ proc createInviteReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (invite_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "invite_id",
+    "id",
     insertValues)
 
 
@@ -147,7 +147,7 @@ proc createInvite*(
 
   var invite = Invite()
 
-  invite.inviteId =
+  invite.id =
     createInviteReturnsPk(
       dbContext,
       fromAccountUserId,
@@ -173,17 +173,17 @@ proc createInvite*(
 
 proc deleteInviteByPk*(
        dbContext: NexusCoreDbContext,
-       inviteId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from invite" &
-    " where invite_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           inviteId)
+           id)
 
 
 proc deleteInvite*(
@@ -233,17 +233,17 @@ proc deleteInvite*(
 
 proc existsInviteByPk*(
        dbContext: NexusCoreDbContext,
-       inviteId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from invite" &
-    " where invite_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $inviteId)
+              $id)
 
   if row[0] == "":
     return false
@@ -279,7 +279,7 @@ proc filterInvite*(
        limit: Option[int] = none(int)): Invites {.gcsafe.} =
 
   var selectStatement =
-    "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
+    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
     "  from invite"
 
   if whereClause != "":
@@ -310,7 +310,7 @@ proc filterInvite*(
        limit: Option[int] = none(int)): Invites {.gcsafe.} =
 
   var selectStatement =
-    "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
+    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
     "  from invite"
 
   var first = true
@@ -346,17 +346,17 @@ proc filterInvite*(
 
 proc getInviteByPk*(
        dbContext: NexusCoreDbContext,
-       inviteId: int64): Option[Invite] {.gcsafe.} =
+       id: int64): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
-    "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
+    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
     "  from invite" &
-    " where invite_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              inviteId)
+              id)
 
   if row[0] == "":
     return none(Invite)
@@ -366,17 +366,17 @@ proc getInviteByPk*(
 
 proc getInviteByPk*(
        dbContext: NexusCoreDbContext,
-       inviteId: string): Option[Invite] {.gcsafe.} =
+       id: string): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
-    "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
+    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
     "  from invite" &
-    " where invite_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              inviteId)
+              id)
 
   if row[0] == "":
     return none(Invite)
@@ -389,7 +389,7 @@ proc getInviteByToEmail*(
        toEmail: string): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
-    "select invite_id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
+    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
     "  from invite" &
     " where to_email = ?"
 
@@ -438,7 +438,7 @@ proc rowToInvite*(row: seq[string]):
 
   var invite = Invite()
 
-  invite.inviteId = parseBiggestInt(row[0])
+  invite.id = parseBiggestInt(row[0])
   invite.fromAccountUserId = parseBiggestInt(row[1])
   invite.fromEmail = row[2]
   invite.fromName = row[3]
@@ -480,9 +480,9 @@ proc updateInviteSetClause*(
 
   for field in setFields:
 
-    if field == "invite_id":
-      updateStatement &= "       invite_id = ?,"
-      updateValues.add($invite.inviteId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($invite.id)
 
     elif field == "from_account_user_id":
       updateStatement &= "       from_account_user_id = ?,"
@@ -533,9 +533,9 @@ proc updateInviteByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where invite_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($invite.inviteId)
+  updateValues.add($invite.id)
 
   let rowsUpdated = 
         execAffectedRows(

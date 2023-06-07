@@ -105,13 +105,13 @@ proc createNexusSettingReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (nexus_setting_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "nexus_setting_id",
+    "id",
     insertValues)
 
 
@@ -127,7 +127,7 @@ proc createNexusSetting*(
 
   var nexusSetting = NexusSetting()
 
-  nexusSetting.nexusSettingId =
+  nexusSetting.id =
     createNexusSettingReturnsPk(
       dbContext,
       module,
@@ -147,17 +147,17 @@ proc createNexusSetting*(
 
 proc deleteNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       nexusSettingId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from nexus_setting" &
-    " where nexus_setting_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           nexusSettingId)
+           id)
 
 
 proc deleteNexusSetting*(
@@ -207,17 +207,17 @@ proc deleteNexusSetting*(
 
 proc existsNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       nexusSettingId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from nexus_setting" &
-    " where nexus_setting_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $nexusSettingId)
+              $id)
 
   if row[0] == "":
     return false
@@ -256,7 +256,7 @@ proc filterNexusSetting*(
        limit: Option[int] = none(int)): NexusSettings {.gcsafe.} =
 
   var selectStatement =
-    "select nexus_setting_id, module, key, value, created" & 
+    "select id, module, key, value, created" & 
     "  from nexus_setting"
 
   if whereClause != "":
@@ -287,7 +287,7 @@ proc filterNexusSetting*(
        limit: Option[int] = none(int)): NexusSettings {.gcsafe.} =
 
   var selectStatement =
-    "select nexus_setting_id, module, key, value, created" & 
+    "select id, module, key, value, created" & 
     "  from nexus_setting"
 
   var first = true
@@ -323,17 +323,17 @@ proc filterNexusSetting*(
 
 proc getNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       nexusSettingId: int64): Option[NexusSetting] {.gcsafe.} =
+       id: int64): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
-    "select nexus_setting_id, module, key, value, created" & 
+    "select id, module, key, value, created" & 
     "  from nexus_setting" &
-    " where nexus_setting_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              nexusSettingId)
+              id)
 
   if row[0] == "":
     return none(NexusSetting)
@@ -343,17 +343,17 @@ proc getNexusSettingByPk*(
 
 proc getNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       nexusSettingId: string): Option[NexusSetting] {.gcsafe.} =
+       id: string): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
-    "select nexus_setting_id, module, key, value, created" & 
+    "select id, module, key, value, created" & 
     "  from nexus_setting" &
-    " where nexus_setting_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              nexusSettingId)
+              id)
 
   if row[0] == "":
     return none(NexusSetting)
@@ -367,7 +367,7 @@ proc getNexusSettingByModuleAndKey*(
        key: string): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
-    "select nexus_setting_id, module, key, value, created" & 
+    "select id, module, key, value, created" & 
     "  from nexus_setting" &
     " where module = ?" &
     "   and key = ?"
@@ -413,7 +413,7 @@ proc rowToNexusSetting*(row: seq[string]):
 
   var nexusSetting = NexusSetting()
 
-  nexusSetting.nexusSettingId = parseBiggestInt(row[0])
+  nexusSetting.id = parseBiggestInt(row[0])
   nexusSetting.module = row[1]
   nexusSetting.key = row[2]
 
@@ -452,9 +452,9 @@ proc updateNexusSettingSetClause*(
 
   for field in setFields:
 
-    if field == "nexus_setting_id":
-      updateStatement &= "       nexus_setting_id = ?,"
-      updateValues.add($nexusSetting.nexusSettingId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($nexusSetting.id)
 
     elif field == "module":
       updateStatement &= "       module = ?,"
@@ -494,9 +494,9 @@ proc updateNexusSettingByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where nexus_setting_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($nexusSetting.nexusSettingId)
+  updateValues.add($nexusSetting.id)
 
   let rowsUpdated = 
         execAffectedRows(

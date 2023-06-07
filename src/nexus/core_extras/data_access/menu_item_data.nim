@@ -61,7 +61,7 @@ proc countMenuItem*(
 
 proc createMenuItemReturnsPk*(
        dbContext: NexusCoreExtrasDbContext,
-       parentMenuItemId: Option[int64] = none(int64),
+       parentId: Option[int64] = none(int64),
        name: string,
        url: string,
        screen: string,
@@ -77,11 +77,11 @@ proc createMenuItemReturnsPk*(
     insertStatement = "insert into menu_item ("
     valuesClause = ""
 
-  # Field: Parent Menu Item Id
-  if parentMenuItemId != none(int64):
-    insertStatement &= "parent_menu_item_id, "
+  # Field: Parent Id
+  if parentId != none(int64):
+    insertStatement &= "parent_id, "
     valuesClause &= "?, "
-    insertValues.add($parentMenuItemId.get)
+    insertValues.add($parentId.get)
 
   # Field: Name
   insertStatement &= "name, "
@@ -129,19 +129,19 @@ proc createMenuItemReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (menu_item_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "menu_item_id",
+    "id",
     insertValues)
 
 
 proc createMenuItem*(
        dbContext: NexusCoreExtrasDbContext,
-       parentMenuItemId: Option[int64] = none(int64),
+       parentId: Option[int64] = none(int64),
        name: string,
        url: string,
        screen: string,
@@ -155,10 +155,10 @@ proc createMenuItem*(
 
   var menuItem = MenuItem()
 
-  menuItem.menuItemId =
+  menuItem.id =
     createMenuItemReturnsPk(
       dbContext,
-      parentMenuItemId,
+      parentId,
       name,
       url,
       screen,
@@ -169,7 +169,7 @@ proc createMenuItem*(
       ignoreExistingPk)
 
   # Copy all fields as strings
-  menuItem.parentMenuItemId = parentMenuItemId
+  menuItem.parentId = parentId
   menuItem.name = name
   menuItem.url = url
   menuItem.screen = screen
@@ -183,17 +183,17 @@ proc createMenuItem*(
 
 proc deleteMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       menuItemId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from menu_item" &
-    " where menu_item_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           menuItemId)
+           id)
 
 
 proc deleteMenuItem*(
@@ -243,17 +243,17 @@ proc deleteMenuItem*(
 
 proc existsMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       menuItemId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from menu_item" &
-    " where menu_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $menuItemId)
+              $id)
 
   if row[0] == "":
     return false
@@ -295,7 +295,7 @@ proc filterMenuItem*(
        limit: Option[int] = none(int)): MenuItems {.gcsafe.} =
 
   var selectStatement =
-    "select menu_item_id, parent_menu_item_id, name, url, screen, level, position, role_ids, created" & 
+    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
     "  from menu_item"
 
   if whereClause != "":
@@ -326,7 +326,7 @@ proc filterMenuItem*(
        limit: Option[int] = none(int)): MenuItems {.gcsafe.} =
 
   var selectStatement =
-    "select menu_item_id, parent_menu_item_id, name, url, screen, level, position, role_ids, created" & 
+    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
     "  from menu_item"
 
   var first = true
@@ -362,17 +362,17 @@ proc filterMenuItem*(
 
 proc getMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       menuItemId: int64): Option[MenuItem] {.gcsafe.} =
+       id: int64): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
-    "select menu_item_id, parent_menu_item_id, name, url, screen, level, position, role_ids, created" & 
+    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
     "  from menu_item" &
-    " where menu_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              menuItemId)
+              id)
 
   if row[0] == "":
     return none(MenuItem)
@@ -382,17 +382,17 @@ proc getMenuItemByPk*(
 
 proc getMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       menuItemId: string): Option[MenuItem] {.gcsafe.} =
+       id: string): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
-    "select menu_item_id, parent_menu_item_id, name, url, screen, level, position, role_ids, created" & 
+    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
     "  from menu_item" &
-    " where menu_item_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              menuItemId)
+              id)
 
   if row[0] == "":
     return none(MenuItem)
@@ -407,7 +407,7 @@ proc getMenuItemByNameAndURLAndScreen*(
        screen: string): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
-    "select menu_item_id, parent_menu_item_id, name, url, screen, level, position, role_ids, created" & 
+    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
     "  from menu_item" &
     " where name = ?" &
     "   and url = ?" &
@@ -428,7 +428,7 @@ proc getMenuItemByNameAndURLAndScreen*(
 
 proc getOrCreateMenuItemByNameAndURLAndScreen*(
        dbContext: NexusCoreExtrasDbContext,
-       parentMenuItemId: Option[int64],
+       parentId: Option[int64],
        name: string,
        url: string,
        screen: string,
@@ -449,7 +449,7 @@ proc getOrCreateMenuItemByNameAndURLAndScreen*(
 
   return createMenuItem(
            dbContext,
-           parentMenuItemId,
+           parentId,
            name,
            url,
            screen,
@@ -464,12 +464,12 @@ proc rowToMenuItem*(row: seq[string]):
 
   var menuItem = MenuItem()
 
-  menuItem.menuItemId = parseBiggestInt(row[0])
+  menuItem.id = parseBiggestInt(row[0])
 
   if row[1] != "":
-    menuItem.parentMenuItemId = some(parseBiggestInt(row[1]))
+    menuItem.parentId = some(parseBiggestInt(row[1]))
   else:
-    menuItem.parentMenuItemId = none(int64)
+    menuItem.parentId = none(int64)
 
   menuItem.name = row[2]
   menuItem.url = row[3]
@@ -512,16 +512,16 @@ proc updateMenuItemSetClause*(
 
   for field in setFields:
 
-    if field == "menu_item_id":
-      updateStatement &= "       menu_item_id = ?,"
-      updateValues.add($menuItem.menuItemId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($menuItem.id)
 
-    elif field == "parent_menu_item_id":
-      if menuItem.parentMenuItemId != none(int64):
-        updateStatement &= "       parent_menu_item_id = ?,"
-        updateValues.add($menuItem.parentMenuItemId.get)
+    elif field == "parent_id":
+      if menuItem.parentId != none(int64):
+        updateStatement &= "       parent_id = ?,"
+        updateValues.add($menuItem.parentId.get)
       else:
-        updateStatement &= "       parent_menu_item_id = null,"
+        updateStatement &= "       parent_id = null,"
 
     elif field == "name":
       updateStatement &= "       name = ?,"
@@ -572,9 +572,9 @@ proc updateMenuItemByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where menu_item_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($menuItem.menuItemId)
+  updateValues.add($menuItem.id)
 
   let rowsUpdated = 
         execAffectedRows(

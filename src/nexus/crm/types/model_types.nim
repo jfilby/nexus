@@ -4,7 +4,7 @@ import db_postgres, options, tables, times
 
 type
   MailingList* = object
-    mailingListId*: int64
+    id*: int64
     accountUserId*: int64
     uniqueHash*: string
     name*: string
@@ -15,7 +15,7 @@ type
 
 
   MailingListMessage* = object
-    mailingListMessageId*: int64
+    id*: int64
     accountUserId*: int64
     uniqueHash*: string
     subject*: string
@@ -28,7 +28,7 @@ type
 
 
   MailingListSubscriber* = object
-    mailingListSubscriberId*: int64
+    id*: int64
     accountUserId*: Option[int64]
     mailingListId*: int64
     uniqueHash*: string
@@ -44,7 +44,7 @@ type
 
 
   MailingListSubscriberMessage* = object
-    mailingListSubscriberMessageId*: int64
+    id*: int64
     accountUserId*: Option[int64]
     mailingListId*: int64
     mailingListSubscriberId*: int64

@@ -42,7 +42,7 @@ proc getOrCreateTestAccountUser(nexusCRMContext: NexusCRMContext): int64 =
           lastUpdate = none(DateTime),
           created = now())
 
-  return accountUser.accountUserId
+  return accountUser.id
 
 
 proc createTestMailingList(

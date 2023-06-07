@@ -170,7 +170,7 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
       mailingList =
         getMailingListByAccountUserIdAndName(
           nexusCrmDbContext,
-          ownerAccountUser.get.accountUserId,
+          ownerAccountUser.get.id,
           mailingListName.get)
 
     if mailingList == none(MailingList):
@@ -178,14 +178,14 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
       raise newException(
               ValueError,
               "MailingList record not found for owner with accountUserId: " &
-              &"{ownerAccountUser.get.accountUserId} and mailing list name: " &
+              &"{ownerAccountUser.get.id} and mailing list name: " &
               mailingListName.get)
 
     # Get/create MailingListSubscriber record
     discard getOrCreateMailingListSubscriberByMailingListIdAndEmail(
               nexusCrmDbContext,
-              accountUserId = some(accountUser.accountUserId),
-              mailingList.get.mailingListId,
+              accountUserId = some(accountUser.id),
+              mailingList.get.id,
               getUniqueHash(@[ mailingListName.get,
                                email ]),
               isActive = false,

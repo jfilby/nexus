@@ -38,8 +38,8 @@ proc newNexusSocialDbContext*(): NexusSocialDbContext =
 
   dbContext.intSeqToModelTable[0] = "SM Post"
 
-  dbContext.fieldToIntSeqTable["SM Post.SM Post Id"] = 0
-  dbContext.fieldToIntSeqTable["SM Post.SM Post Parent Id"] = 1
+  dbContext.fieldToIntSeqTable["SM Post.Id"] = 0
+  dbContext.fieldToIntSeqTable["SM Post.Parent Id"] = 1
   dbContext.fieldToIntSeqTable["SM Post.Account User Id"] = 2
   dbContext.fieldToIntSeqTable["SM Post.Unique Hash"] = 3
   dbContext.fieldToIntSeqTable["SM Post.Post Type"] = 4
@@ -53,8 +53,8 @@ proc newNexusSocialDbContext*(): NexusSocialDbContext =
   dbContext.fieldToIntSeqTable["SM Post.Updated"] = 12
   dbContext.fieldToIntSeqTable["SM Post.Deleted"] = 13
 
-  dbContext.intSeqToFieldTable[0] = "SM Post.SM Post Id"
-  dbContext.intSeqToFieldTable[1] = "SM Post.SM Post Parent Id"
+  dbContext.intSeqToFieldTable[0] = "SM Post.Id"
+  dbContext.intSeqToFieldTable[1] = "SM Post.Parent Id"
   dbContext.intSeqToFieldTable[2] = "SM Post.Account User Id"
   dbContext.intSeqToFieldTable[3] = "SM Post.Unique Hash"
   dbContext.intSeqToFieldTable[4] = "SM Post.Post Type"

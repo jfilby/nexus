@@ -126,6 +126,6 @@ proc verifyLoginFields*(
   debug "verifyLoginFields(): returning OK"
 
   return (docUiReturn,
-          accountUser.get.accountUserId,
+          accountUser.get.id,
           "")
 

@@ -9,7 +9,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Account User Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account Id
@@ -67,7 +67,7 @@
     type: datetime
     constraints: [ not null, value = now() ]
   defaults: []
-  pkFields: [ Account User Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
     - fields: [ Email ]
     - fields: [ API Key ]
@@ -97,7 +97,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Account User Role Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account User Id
@@ -110,13 +110,14 @@
     type: datetime
     constraints: [ not null, value = now() ]
   defaults: []
-  pkFields: [ Account User Role Id ]
+  pkFields: [Id ]
   uniqueFieldSets:
-  - fields: [ Account User Id, Role Id ]
+  - fields: [ Account User Id,
+              Role Id ]
   relationships:
   - type: many to 1
     from: Account User Id
-    to: Account User.Account User Id
+    to: Account User.Id
   indexes: []
   getFunctions: []
   updateFunctions: []
@@ -169,7 +170,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Invite Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: From Account User Id
@@ -194,13 +195,13 @@
     type: datetime
     constraints: [ not null, value = now() ]
   defaults: []
-  pkFields: [ Invite Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ To Email ]
   relationships:
   - type: many to 1
     from: From Account User Id
-    to: Account User.Account User Id
+    to: Account User.Id
   indexes: []
   getFunctions: []
   updateFunctions: []
@@ -213,7 +214,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Nexus Setting Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Module
@@ -229,7 +230,7 @@
     type: datetime
     constraints: [ not null, value = now() ]
   defaults: []
-  pkFields: [ Nexus Setting Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Module, Key ]
   relationships: []

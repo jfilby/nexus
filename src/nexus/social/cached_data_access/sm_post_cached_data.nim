@@ -7,7 +7,7 @@ import nexus/social/types/model_types
 # Code
 proc cachedCreateSMPost*(
        dbContext: var NexusSocialDbContext,
-       smPostParentId: Option[int64] = none(int64),
+       parentId: Option[int64] = none(int64),
        accountUserId: int64,
        uniqueHash: string,
        postType: char,
@@ -27,7 +27,7 @@ proc cachedCreateSMPost*(
   let smPost =
         createSMPost(
            dbContext,
-           smPostParentId,
+           parentId,
            accountUserId,
            uniqueHash,
            postType,
@@ -42,7 +42,7 @@ proc cachedCreateSMPost*(
            deleted)
 
   # Add to the model row cache
-  dbContext.cachedSMPosts[smPost.smPostId] = smPost
+  dbContext.cachedSMPosts[smPost.id] = smPost
 
   # Clear filter cache
   dbContext.cachedFilterSMPost.clear()
@@ -52,16 +52,16 @@ proc cachedCreateSMPost*(
 
 proc cachedDeleteSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       smPostId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   # Call the model's delete proc
   let rowsDeleted = 
         deleteSMPostByPk(
           dbContext,
-          smPostId)
+          id)
 
   # Remove from the model row cache
-  dbContext.cachedSMPosts.del(smPostId)
+  dbContext.cachedSMPosts.del(id)
 
   # Clear the filter cache
   dbContext.cachedFilterSMPost.clear()
@@ -74,16 +74,16 @@ proc cachedDeleteSMPostByPk*(
 
 proc cachedExistsSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       smPostId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   # Check existence in the model row cache
-  if dbContext.cachedSMPosts.hasKey(smPostId):
+  if dbContext.cachedSMPosts.hasKey(id):
     return true
 
   # Call the model's exists proc
   return existsSMPostByPk(
            dbContext,
-           smPostId)
+           id)
 
 
 proc cachedExistsSMPostByUniqueHash*(
@@ -139,7 +139,7 @@ proc cachedFilterSMPost*(
   var pks: seq[int64]
 
   for smPost in smPosts:
-    pks.add(smPost.smPostId)
+    pks.add(smPost.id)
 
   # Set rows in filter cache
   dbContext.cachedFilterSMPost[filterKey] = pks
@@ -147,7 +147,7 @@ proc cachedFilterSMPost*(
   # Set rows in model row cache
   for smPost in smPosts:
 
-    dbContext.cachedSMPosts[smPost.smPostId] = smPost
+    dbContext.cachedSMPosts[smPost.id] = smPost
 
   return smPosts
 
@@ -187,7 +187,7 @@ proc cachedFilterSMPost*(
   var pks: seq[int64]
 
   for smPost in smPosts:
-    pks.add(smPost.smPostId)
+    pks.add(smPost.id)
 
   # Set rows in filter cache
   dbContext.cachedFilterSMPost[filterKey] = pks
@@ -195,29 +195,29 @@ proc cachedFilterSMPost*(
   # Set rows in model row cache
   for smPost in smPosts:
 
-    dbContext.cachedSMPosts[smPost.smPostId] = smPost
+    dbContext.cachedSMPosts[smPost.id] = smPost
 
   return smPosts
 
 
 proc cachedGetSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       smPostId: int64): Option[SMPost] {.gcsafe.} =
+       id: int64): Option[SMPost] {.gcsafe.} =
 
   # Get from the model row cache
-  if dbContext.cachedSMPosts.hasKey(smPostId):
-    return some(dbContext.cachedSMPosts[smPostId])
+  if dbContext.cachedSMPosts.hasKey(id):
+    return some(dbContext.cachedSMPosts[id])
 
   # Call the model's get proc
   let smPost =
         getSMPostByPk(
           dbContext,
-          smPostId)
+          id)
 
   if smPost != none(SMPost):
 
     # Add to the model row cache
-    dbContext.cachedSMPosts[smPost.get.smPostId] = smPost.get
+    dbContext.cachedSMPosts[smPost.get.id] = smPost.get
 
   return smPost
 
@@ -243,14 +243,14 @@ proc cachedGetSMPostByUniqueHash*(
   if smPost != none(SMPost):
 
     # Add to the model row cache
-    dbContext.cachedSMPosts[smPost.get.smPostId] = smPost.get
+    dbContext.cachedSMPosts[smPost.get.id] = smPost.get
 
   return smPost
 
 
 proc cachedGetOrCreateSMPostByUniqueHash*(
        dbContext: var NexusSocialDbContext,
-       smPostParentId: Option[int64],
+       parentId: Option[int64],
        accountUserId: int64,
        uniqueHash: string,
        postType: char,
@@ -275,7 +275,7 @@ proc cachedGetOrCreateSMPostByUniqueHash*(
   let smPost =
         getOrCreateSMPostByUniqueHash(
           dbContext,
-          smPostParentId,
+          parentId,
           accountUserId,
           uniqueHash,
           postType,
@@ -290,8 +290,8 @@ proc cachedGetOrCreateSMPostByUniqueHash*(
           deleted)
 
   # Add to the model row cache if it's not there
-  if not dbContext.cachedSMPosts.hasKey(smPost.smPostId):
-    dbContext.cachedSMPosts[smPost.smPostId] = smPost
+  if not dbContext.cachedSMPosts.hasKey(smPost.id):
+    dbContext.cachedSMPosts[smPost.id] = smPost
 
   return smPost
 
@@ -309,7 +309,7 @@ proc cachedUpdateSMPostByPk*(
           setFields)
 
   # Add to the model row cache
-  dbContext.cachedSMPosts[smPost.smPostId] = smPost
+  dbContext.cachedSMPosts[smPost.id] = smPost
 
   # Clear filter cache
   dbContext.cachedFilterSMPost.clear()

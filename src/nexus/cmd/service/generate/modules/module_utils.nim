@@ -114,7 +114,16 @@ proc findAndLoadLibraryYAMLFile(
     library: LibraryYAML
     s = newFileStream(filename)
 
-  load(s, library)
+  try:
+    load(s, library)
+
+  except CatchableError:
+    error "findAndLoadLibraryYAMLFile(): load() call failed",
+      exception = getCurrentExceptionMsg(),
+      filename = filename
+
+    quit(1)
+
   s.close()
 
   return library

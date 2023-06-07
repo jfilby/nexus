@@ -7,10 +7,10 @@
   modelOptions: [ object ]
   tableOptions: [ generate ]
   fields:
-  - name: List Item Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
-  - name: Parent List Item Id
+  - name: Parent Id
     type: int64
     constraints: []
   - name: Seq No
@@ -29,13 +29,13 @@
     type: datetime
     constraints: [ not null ]
   defaults: []
-  pkFields: [ List Item Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Name ]
   relationships:
   - type: many to 1
-    from: Parent List Item Id
-    to: List Item.List Item Id
+    from: Parent Id
+    to: List Item.Id
   indexes: []
   getFunctions: []
   updateFunctions: []
@@ -49,10 +49,10 @@
   modelOptions: [ object ]
   tableOptions: [ generate ]
   fields:
-  - name: Menu Item Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
-  - name: Parent Menu Item Id
+  - name: Parent Id
     type: int64
     constraints: []
   - name: Name
@@ -77,13 +77,13 @@
     type: datetime
     constraints: [ not null ]
   defaults: []
-  pkFields: [ Menu Item Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Name, URL, Screen ]
   relationships:
   - type: many to 1
-    from: Parent Menu Item Id
-    to: Menu Item.Menu Item Id
+    from: Parent Id
+    to: Menu Item.Id
   indexes: []
   getFunctions: []
   updateFunctions: []

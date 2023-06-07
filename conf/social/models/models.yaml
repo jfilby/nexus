@@ -12,10 +12,10 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: SM Post Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
-  - name: SM Post Parent Id
+  - name: Parent Id
     type: int64
     constraints: []
   - name: Account User Id
@@ -63,13 +63,13 @@
     default: now
   - field: Update Count
     default: 0
-  pkFields: [ SM Post Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Unique Hash ]
   relationships:
   - type: Hierarchy
-    from: SM Post Id
-    to: SM Post.SM Post Parent Id
+    from: Id
+    to: SM Post.Parent Id
   indexes: []
   getFunctions: []
   updateFunctions: []
@@ -97,7 +97,7 @@
   relationships:
   - type: 1 to 1
     from: SM Post Id
-    to: SM Post.SM Post Id
+    to: SM Post.Id
   indexes: []
   getFunctions: []
   updateFunctions: []
@@ -129,10 +129,10 @@
   relationships:
   - type: many to 1
     from: SM Post Id
-    to: SM Post.SM Post Id
+    to: SM Post.Id
   - type: many to 1
     from: Account User Id
-    to: Account User.Account User Id
+    to: Account User.Id
   indexes: []
   getFunctions: []
   updateFunctions: []

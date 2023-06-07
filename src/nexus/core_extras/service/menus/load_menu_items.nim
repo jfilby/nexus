@@ -25,7 +25,7 @@ proc loadMenuItems*(
   # Load from Menu Item in the order it was loaded
   let listItems =
         filterMenuItem(nexusCoreExtrasContext.db,
-                       orderByFields = @[ "menu_item_id" ])
+                       orderByFields = @[ "id" ])
 
   var menuItemsJsonNodes: seq[JsonNode]
 

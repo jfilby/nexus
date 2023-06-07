@@ -51,5 +51,5 @@ proc assignDefaultAdminRoles*(
 
     assignAdminRole(coreContext,
                     coreExtrasContext,
-                    accountUser.accountUserId)
+                    accountUser.id)
 

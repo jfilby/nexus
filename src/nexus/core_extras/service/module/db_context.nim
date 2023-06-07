@@ -38,16 +38,16 @@ proc newNexusCoreExtrasDbContext*(): NexusCoreExtrasDbContext =
 
   dbContext.intSeqToModelTable[0] = "List Item"
 
-  dbContext.fieldToIntSeqTable["List Item.List Item Id"] = 0
-  dbContext.fieldToIntSeqTable["List Item.Parent List Item Id"] = 1
+  dbContext.fieldToIntSeqTable["List Item.Id"] = 0
+  dbContext.fieldToIntSeqTable["List Item.Parent Id"] = 1
   dbContext.fieldToIntSeqTable["List Item.Seq No"] = 2
   dbContext.fieldToIntSeqTable["List Item.Name"] = 3
   dbContext.fieldToIntSeqTable["List Item.Display Name"] = 4
   dbContext.fieldToIntSeqTable["List Item.Description"] = 5
   dbContext.fieldToIntSeqTable["List Item.Created"] = 6
 
-  dbContext.intSeqToFieldTable[0] = "List Item.List Item Id"
-  dbContext.intSeqToFieldTable[1] = "List Item.Parent List Item Id"
+  dbContext.intSeqToFieldTable[0] = "List Item.Id"
+  dbContext.intSeqToFieldTable[1] = "List Item.Parent Id"
   dbContext.intSeqToFieldTable[2] = "List Item.Seq No"
   dbContext.intSeqToFieldTable[3] = "List Item.Name"
   dbContext.intSeqToFieldTable[4] = "List Item.Display Name"
@@ -58,8 +58,8 @@ proc newNexusCoreExtrasDbContext*(): NexusCoreExtrasDbContext =
 
   dbContext.intSeqToModelTable[1] = "Menu Item"
 
-  dbContext.fieldToIntSeqTable["Menu Item.Menu Item Id"] = 7
-  dbContext.fieldToIntSeqTable["Menu Item.Parent Menu Item Id"] = 8
+  dbContext.fieldToIntSeqTable["Menu Item.Id"] = 7
+  dbContext.fieldToIntSeqTable["Menu Item.Parent Id"] = 8
   dbContext.fieldToIntSeqTable["Menu Item.Name"] = 9
   dbContext.fieldToIntSeqTable["Menu Item.URL"] = 10
   dbContext.fieldToIntSeqTable["Menu Item.Screen"] = 11
@@ -68,8 +68,8 @@ proc newNexusCoreExtrasDbContext*(): NexusCoreExtrasDbContext =
   dbContext.fieldToIntSeqTable["Menu Item.Role Ids"] = 14
   dbContext.fieldToIntSeqTable["Menu Item.Created"] = 15
 
-  dbContext.intSeqToFieldTable[7] = "Menu Item.Menu Item Id"
-  dbContext.intSeqToFieldTable[8] = "Menu Item.Parent Menu Item Id"
+  dbContext.intSeqToFieldTable[7] = "Menu Item.Id"
+  dbContext.intSeqToFieldTable[8] = "Menu Item.Parent Id"
   dbContext.intSeqToFieldTable[9] = "Menu Item.Name"
   dbContext.intSeqToFieldTable[10] = "Menu Item.URL"
   dbContext.intSeqToFieldTable[11] = "Menu Item.Screen"

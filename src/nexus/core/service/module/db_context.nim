@@ -38,7 +38,7 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
 
   dbContext.intSeqToModelTable[0] = "Account User"
 
-  dbContext.fieldToIntSeqTable["Account User.Account User Id"] = 0
+  dbContext.fieldToIntSeqTable["Account User.Id"] = 0
   dbContext.fieldToIntSeqTable["Account User.Account Id"] = 1
   dbContext.fieldToIntSeqTable["Account User.Name"] = 2
   dbContext.fieldToIntSeqTable["Account User.Email"] = 3
@@ -58,7 +58,7 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
   dbContext.fieldToIntSeqTable["Account User.Last Update"] = 17
   dbContext.fieldToIntSeqTable["Account User.Created"] = 18
 
-  dbContext.intSeqToFieldTable[0] = "Account User.Account User Id"
+  dbContext.intSeqToFieldTable[0] = "Account User.Id"
   dbContext.intSeqToFieldTable[1] = "Account User.Account Id"
   dbContext.intSeqToFieldTable[2] = "Account User.Name"
   dbContext.intSeqToFieldTable[3] = "Account User.Email"
@@ -82,12 +82,12 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
 
   dbContext.intSeqToModelTable[1] = "Account User Role"
 
-  dbContext.fieldToIntSeqTable["Account User Role.Account User Role Id"] = 19
+  dbContext.fieldToIntSeqTable["Account User Role.Id"] = 19
   dbContext.fieldToIntSeqTable["Account User Role.Account User Id"] = 20
   dbContext.fieldToIntSeqTable["Account User Role.Role Id"] = 21
   dbContext.fieldToIntSeqTable["Account User Role.Created"] = 22
 
-  dbContext.intSeqToFieldTable[19] = "Account User Role.Account User Role Id"
+  dbContext.intSeqToFieldTable[19] = "Account User Role.Id"
   dbContext.intSeqToFieldTable[20] = "Account User Role.Account User Id"
   dbContext.intSeqToFieldTable[21] = "Account User Role.Role Id"
   dbContext.intSeqToFieldTable[22] = "Account User Role.Created"
@@ -112,7 +112,7 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
 
   dbContext.intSeqToModelTable[3] = "Invite"
 
-  dbContext.fieldToIntSeqTable["Invite.Invite Id"] = 28
+  dbContext.fieldToIntSeqTable["Invite.Id"] = 28
   dbContext.fieldToIntSeqTable["Invite.From Account User Id"] = 29
   dbContext.fieldToIntSeqTable["Invite.From Email"] = 30
   dbContext.fieldToIntSeqTable["Invite.From Name"] = 31
@@ -121,7 +121,7 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
   dbContext.fieldToIntSeqTable["Invite.Sent"] = 34
   dbContext.fieldToIntSeqTable["Invite.Created"] = 35
 
-  dbContext.intSeqToFieldTable[28] = "Invite.Invite Id"
+  dbContext.intSeqToFieldTable[28] = "Invite.Id"
   dbContext.intSeqToFieldTable[29] = "Invite.From Account User Id"
   dbContext.intSeqToFieldTable[30] = "Invite.From Email"
   dbContext.intSeqToFieldTable[31] = "Invite.From Name"
@@ -134,13 +134,13 @@ proc newNexusCoreDbContext*(): NexusCoreDbContext =
 
   dbContext.intSeqToModelTable[4] = "Nexus Setting"
 
-  dbContext.fieldToIntSeqTable["Nexus Setting.Nexus Setting Id"] = 36
+  dbContext.fieldToIntSeqTable["Nexus Setting.Id"] = 36
   dbContext.fieldToIntSeqTable["Nexus Setting.Module"] = 37
   dbContext.fieldToIntSeqTable["Nexus Setting.Key"] = 38
   dbContext.fieldToIntSeqTable["Nexus Setting.Value"] = 39
   dbContext.fieldToIntSeqTable["Nexus Setting.Created"] = 40
 
-  dbContext.intSeqToFieldTable[36] = "Nexus Setting.Nexus Setting Id"
+  dbContext.intSeqToFieldTable[36] = "Nexus Setting.Id"
   dbContext.intSeqToFieldTable[37] = "Nexus Setting.Module"
   dbContext.intSeqToFieldTable[38] = "Nexus Setting.Key"
   dbContext.intSeqToFieldTable[39] = "Nexus Setting.Value"

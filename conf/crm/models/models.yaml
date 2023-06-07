@@ -8,7 +8,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Mailing List Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account User Id
@@ -27,7 +27,7 @@
     type: datetime
     constraints: []
   defaults: []
-  pkFields: [ Mailing List Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Unique Hash ]
   - fields: [ Account User Id,
@@ -50,7 +50,7 @@
                   object ]
   tableOptions: [ generate ]
   fields:
-  - name: Mailing List Message Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account User Id
@@ -75,7 +75,7 @@
     type: datetime
     constraints: []
   defaults: []
-  pkFields: [ Mailing List Message Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Unique Hash ]
   relationships:
@@ -96,7 +96,7 @@
                    object ]
   tableOptions: [ generate ]
   fields:
-  - name: Mailing List Subscriber Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account User Id
@@ -130,7 +130,7 @@
     type: datetime
     constraints: []
   defaults: []
-  pkFields: [ Mailing List Subscriber Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Unique Hash ]
   - fields: [ Mailing List Id,
@@ -140,10 +140,10 @@
   relationships:
   - type: many to 1
     from: Mailing List Id
-    to: Mailing List.Mailing List Id
+    to: Mailing List.Id
   - type: many to 1
     from: Account User Id
-    to: Account User.Account User Id
+    to: Account User.Id
   indexes:
   - unique: true
     fields: [ Account User Id ]
@@ -162,7 +162,7 @@
                    object ]
   tableOptions: [ generate ]
   fields:
-  - name: Mailing List Subscriber Message Id
+  - name: Id
     type: int64
     constraints: [ auto-value, not null ]
   - name: Account User Id
@@ -181,17 +181,17 @@
     type: datetime
     constraints: [ not null ]
   defaults: []
-  pkFields: [ Mailing List Subscriber Message Id ]
+  pkFields: [ Id ]
   uniqueFieldSets:
   - fields: [ Mailing List Subscriber Id,
               Mailing List Message Id ]
   relationships:
   - type: many to 1
     from: Mailing List Id
-    to: Mailing List.Mailing List Id
+    to: Mailing List.Id
   - type: many to 1
     from: Account User Id
-    to: Account User.Account User Id
+    to: Account User.Id
   indexes: []
   getFunctions: []
   updateFunctions: []

@@ -4,7 +4,7 @@ import db_postgres, options, tables, times
 
 type
   AccountUser* = object
-    accountUserId*: int64
+    id*: int64
     accountId*: Option[int64]
     name*: string
     email*: string
@@ -28,7 +28,7 @@ type
 
 
   AccountUserRole* = object
-    accountUserRoleId*: int64
+    id*: int64
     accountUserId*: int64
     roleId*: int64
     created*: DateTime
@@ -47,7 +47,7 @@ type
 
 
   Invite* = object
-    inviteId*: int64
+    id*: int64
     fromAccountUserId*: int64
     fromEmail*: string
     fromName*: string
@@ -60,7 +60,7 @@ type
 
 
   NexusSetting* = object
-    nexusSettingId*: int64
+    id*: int64
     module*: string
     key*: string
     value*: Option[string]

@@ -4,8 +4,8 @@ import db_postgres, options, tables, times
 
 type
   SMPost* = object
-    smPostId*: int64
-    smPostParentId*: Option[int64]
+    id*: int64
+    parentId*: Option[int64]
     accountUserId*: int64
     uniqueHash*: string
     postType*: char

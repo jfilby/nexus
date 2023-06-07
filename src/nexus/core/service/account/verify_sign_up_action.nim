@@ -134,19 +134,19 @@ proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
         mailingList =
           getMailingListByAccountUserIdAndName(
             nexusCrmDbContext,
-            ownerAccountUser.get.accountUserId,
+            ownerAccountUser.get.id,
             mailingListName.get)
 
       # Activate mailing list for subscriber
       let uniqueHash =
-            getUniqueHash(@[ $mailingList.get.mailingListId,
+            getUniqueHash(@[ $mailingList.get.id,
                              email ])
 
       var mailingListSubscriber =
             getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId(
               nexusCrmDbContext,
-              accountUser.get.accountUserId,
-              mailingList.get.mailingListId,
+              accountUser.get.id,
+              mailingList.get.id,
               uniqueHash,
               isActive = true,
               email = email,

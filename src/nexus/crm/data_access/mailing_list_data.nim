@@ -110,13 +110,13 @@ proc createMailingListReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (mailing_list_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "mailing_list_id",
+    "id",
     insertValues)
 
 
@@ -133,7 +133,7 @@ proc createMailingList*(
 
   var mailingList = MailingList()
 
-  mailingList.mailingListId =
+  mailingList.id =
     createMailingListReturnsPk(
       dbContext,
       accountUserId,
@@ -155,17 +155,17 @@ proc createMailingList*(
 
 proc deleteMailingListByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from mailing_list" &
-    " where mailing_list_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           mailingListId)
+           id)
 
 
 proc deleteMailingList*(
@@ -215,17 +215,17 @@ proc deleteMailingList*(
 
 proc existsMailingListByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from mailing_list" &
-    " where mailing_list_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $mailingListId)
+              $id)
 
   if row[0] == "":
     return false
@@ -284,7 +284,7 @@ proc filterMailingList*(
        limit: Option[int] = none(int)): MailingLists {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list"
 
   if whereClause != "":
@@ -315,7 +315,7 @@ proc filterMailingList*(
        limit: Option[int] = none(int)): MailingLists {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list"
 
   var first = true
@@ -351,17 +351,17 @@ proc filterMailingList*(
 
 proc getMailingListByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListId: int64): Option[MailingList] {.gcsafe.} =
+       id: int64): Option[MailingList] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list" &
-    " where mailing_list_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              mailingListId)
+              id)
 
   if row[0] == "":
     return none(MailingList)
@@ -371,17 +371,17 @@ proc getMailingListByPk*(
 
 proc getMailingListByPk*(
        dbContext: NexusCRMDbContext,
-       mailingListId: string): Option[MailingList] {.gcsafe.} =
+       id: string): Option[MailingList] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list" &
-    " where mailing_list_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              mailingListId)
+              id)
 
   if row[0] == "":
     return none(MailingList)
@@ -394,7 +394,7 @@ proc getMailingListByUniqueHash*(
        uniqueHash: string): Option[MailingList] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list" &
     " where unique_hash = ?"
 
@@ -415,7 +415,7 @@ proc getMailingListByAccountUserIdAndName*(
        name: string): Option[MailingList] {.gcsafe.} =
 
   var selectStatement =
-    "select mailing_list_id, account_user_id, unique_hash, name, created, deleted" & 
+    "select id, account_user_id, unique_hash, name, created, deleted" & 
     "  from mailing_list" &
     " where account_user_id = ?" &
     "   and name = ?"
@@ -488,7 +488,7 @@ proc rowToMailingList*(row: seq[string]):
 
   var mailingList = MailingList()
 
-  mailingList.mailingListId = parseBiggestInt(row[0])
+  mailingList.id = parseBiggestInt(row[0])
   mailingList.accountUserId = parseBiggestInt(row[1])
   mailingList.uniqueHash = row[2]
   mailingList.name = row[3]
@@ -528,9 +528,9 @@ proc updateMailingListSetClause*(
 
   for field in setFields:
 
-    if field == "mailing_list_id":
-      updateStatement &= "       mailing_list_id = ?,"
-      updateValues.add($mailingList.mailingListId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($mailingList.id)
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
@@ -573,9 +573,9 @@ proc updateMailingListByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where mailing_list_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($mailingList.mailingListId)
+  updateValues.add($mailingList.id)
 
   let rowsUpdated = 
         execAffectedRows(

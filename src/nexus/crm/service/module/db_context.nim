@@ -38,14 +38,14 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
 
   dbContext.intSeqToModelTable[0] = "Mailing List"
 
-  dbContext.fieldToIntSeqTable["Mailing List.Mailing List Id"] = 0
+  dbContext.fieldToIntSeqTable["Mailing List.Id"] = 0
   dbContext.fieldToIntSeqTable["Mailing List.Account User Id"] = 1
   dbContext.fieldToIntSeqTable["Mailing List.Unique Hash"] = 2
   dbContext.fieldToIntSeqTable["Mailing List.Name"] = 3
   dbContext.fieldToIntSeqTable["Mailing List.Created"] = 4
   dbContext.fieldToIntSeqTable["Mailing List.Deleted"] = 5
 
-  dbContext.intSeqToFieldTable[0] = "Mailing List.Mailing List Id"
+  dbContext.intSeqToFieldTable[0] = "Mailing List.Id"
   dbContext.intSeqToFieldTable[1] = "Mailing List.Account User Id"
   dbContext.intSeqToFieldTable[2] = "Mailing List.Unique Hash"
   dbContext.intSeqToFieldTable[3] = "Mailing List.Name"
@@ -56,7 +56,7 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
 
   dbContext.intSeqToModelTable[1] = "Mailing List Message"
 
-  dbContext.fieldToIntSeqTable["Mailing List Message.Mailing List Message Id"] = 6
+  dbContext.fieldToIntSeqTable["Mailing List Message.Id"] = 6
   dbContext.fieldToIntSeqTable["Mailing List Message.Account User Id"] = 7
   dbContext.fieldToIntSeqTable["Mailing List Message.Unique Hash"] = 8
   dbContext.fieldToIntSeqTable["Mailing List Message.Subject"] = 9
@@ -65,7 +65,7 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
   dbContext.fieldToIntSeqTable["Mailing List Message.Updated"] = 12
   dbContext.fieldToIntSeqTable["Mailing List Message.Deleted"] = 13
 
-  dbContext.intSeqToFieldTable[6] = "Mailing List Message.Mailing List Message Id"
+  dbContext.intSeqToFieldTable[6] = "Mailing List Message.Id"
   dbContext.intSeqToFieldTable[7] = "Mailing List Message.Account User Id"
   dbContext.intSeqToFieldTable[8] = "Mailing List Message.Unique Hash"
   dbContext.intSeqToFieldTable[9] = "Mailing List Message.Subject"
@@ -78,7 +78,7 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
 
   dbContext.intSeqToModelTable[2] = "Mailing List Subscriber"
 
-  dbContext.fieldToIntSeqTable["Mailing List Subscriber.Mailing List Subscriber Id"] = 14
+  dbContext.fieldToIntSeqTable["Mailing List Subscriber.Id"] = 14
   dbContext.fieldToIntSeqTable["Mailing List Subscriber.Account User Id"] = 15
   dbContext.fieldToIntSeqTable["Mailing List Subscriber.Mailing List Id"] = 16
   dbContext.fieldToIntSeqTable["Mailing List Subscriber.Unique Hash"] = 17
@@ -90,7 +90,7 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
   dbContext.fieldToIntSeqTable["Mailing List Subscriber.Created"] = 23
   dbContext.fieldToIntSeqTable["Mailing List Subscriber.Deleted"] = 24
 
-  dbContext.intSeqToFieldTable[14] = "Mailing List Subscriber.Mailing List Subscriber Id"
+  dbContext.intSeqToFieldTable[14] = "Mailing List Subscriber.Id"
   dbContext.intSeqToFieldTable[15] = "Mailing List Subscriber.Account User Id"
   dbContext.intSeqToFieldTable[16] = "Mailing List Subscriber.Mailing List Id"
   dbContext.intSeqToFieldTable[17] = "Mailing List Subscriber.Unique Hash"
@@ -106,14 +106,14 @@ proc newNexusCRMDbContext*(): NexusCRMDbContext =
 
   dbContext.intSeqToModelTable[3] = "Mailing List Subscriber Message"
 
-  dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Mailing List Subscriber Message Id"] = 25
+  dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Id"] = 25
   dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Account User Id"] = 26
   dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Mailing List Id"] = 27
   dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Mailing List Subscriber Id"] = 28
   dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Mailing List Message Id"] = 29
   dbContext.fieldToIntSeqTable["Mailing List Subscriber Message.Created"] = 30
 
-  dbContext.intSeqToFieldTable[25] = "Mailing List Subscriber Message.Mailing List Subscriber Message Id"
+  dbContext.intSeqToFieldTable[25] = "Mailing List Subscriber Message.Id"
   dbContext.intSeqToFieldTable[26] = "Mailing List Subscriber Message.Account User Id"
   dbContext.intSeqToFieldTable[27] = "Mailing List Subscriber Message.Mailing List Id"
   dbContext.intSeqToFieldTable[28] = "Mailing List Subscriber Message.Mailing List Subscriber Id"

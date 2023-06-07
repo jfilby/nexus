@@ -187,7 +187,7 @@ proc loadFullListYAML(
     loadFullListYAML(
       nexusCoreExtrasContext,
       listFullYAML.items,
-      some(listItem.listItemId))
+      some(listItem.id))
 
     seq_no += 1
 

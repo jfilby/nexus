@@ -64,12 +64,12 @@ proc getListItemByNameAndParentName*(
 
     for listItem in listItems:
 
-      if listItem.parentListItemId != none(int64):
+      if listItem.parentId != none(int64):
 
         let parentlistItem =
               getListItemByPk(
                 nexusCoreExtrasContext.db,
-                listItem.parentListItemId.get)
+                listItem.parentId.get)
 
         if parentlistItem != none(ListItem):
           filteredListItems.add(listItem)
@@ -99,7 +99,7 @@ proc getListItemsByListItemId*(
           nexusCoreExtrasContext.db,
           whereFields = @[ "list_item_id" ],
           whereValues = @[ $listItemId ],
-          orderByFields = @[ "list_item_id" ])
+          orderByFields = @[ "display_name" ])
 
   return listItems
 
@@ -136,9 +136,9 @@ proc getListItemsByParentListId*(
   # Filter list items
   return filterListItem(
            nexusCoreExtrasContext.db,
-           whereFields = @[ "parent_list_item_id" ],
+           whereFields = @[ "parent_id" ],
            whereValues = @[ $parentListId ],
-           orderByFields = @[ "list_item_id" ])
+           orderByFields = @[ "display_name" ])
 
 
 proc getListItemsByParentListName*(
@@ -160,7 +160,7 @@ proc getListItemsByParentListName*(
   # Filter list items
   return getListItemsByParentListId(
            nexusCoreExtrasContext,
-           parentListItem.get.listItemId)
+           parentListItem.get.id)
 
 
 proc getIdsAndDisplayNames*(
@@ -188,7 +188,7 @@ proc getIdsAndDisplayNames*(
 
   for listItem in listItems:
 
-    optionIds.add(listItem.listItemId)
+    optionIds.add(listItem.id)
     options.add(getIndentByLen(indent) &
                 listItem.displayName)
 
@@ -203,7 +203,7 @@ proc getIdsAndDisplayNames*(
            childOptions) =
             getIdsAndDisplayNames(
               nexusCoreExtrasContext,
-              parentListId = listItem.listItemId,
+              parentListId = listItem.id,
               cascade,
               indents,
               newIndent)
@@ -242,7 +242,7 @@ proc getIdsAsStringsAndDisplayNames*(
 
   for listItem in listItems:
 
-    optionIds.add($listItem.listItemId)
+    optionIds.add($listItem.id)
     options.add(getIndentByLen(indent) &
                 listItem.displayName)
 
@@ -252,7 +252,7 @@ proc getIdsAsStringsAndDisplayNames*(
            childOptions) =
             getIdsAsStringsAndDisplayNames(
               nexusCoreExtrasContext,
-              parentListId = listItem.listItemId,
+              parentListId = listItem.id,
               cascade,
               indent + 2)
 
@@ -286,7 +286,7 @@ proc getIdsAsStringsAndDisplayNames*(
 
   for listItem in listItems:
 
-    optionIds.add($listItem.listItemId)
+    optionIds.add($listItem.id)
     options.add(listItem.displayName)
 
     if cascade == true:
@@ -295,7 +295,7 @@ proc getIdsAsStringsAndDisplayNames*(
            childOptions) =
             getIdsAsStringsAndDisplayNames(
               nexusCoreExtrasContext,
-              parentListId = listItem.listItemId,
+              parentListId = listItem.id,
               cascade,
               indent + 4)
 
@@ -325,7 +325,7 @@ proc getListItemIdsCascade*(
     let listItemIdsToAdd =
           getListItemIdsCascade(
             nexusCoreExtrasContext,
-            listItem.listItemId)
+            listItem.id)
 
     listItemIds.add(listItemIdsToAdd)
 
@@ -372,7 +372,7 @@ proc getListItemByParentNameAndDisplayNameCascade*(
   let (ids,
        displayNames) = getIdsAndDisplayNames(
                          nexusCoreExtrasContext,
-                         parentListItem.get.listItemId,
+                         parentListItem.get.id,
                          indents = false,
                          cascade = true)
 
@@ -407,7 +407,7 @@ proc getListItemIdByParentNameAndDisplayName*(
 
   if listItem != none(ListItem):
 
-    return some(listItem.get.listItemId)
+    return some(listItem.get.id)
 
   # Finally return none
   return none(int64)
@@ -425,7 +425,7 @@ proc getListItemIdByParentNameAndDisplayNameCascade*(
 
   if listItem != none(ListItem):
 
-    return some(listItem.get.listItemId)
+    return some(listItem.get.id)
 
   # Finally return none
   return none(int64)
@@ -461,7 +461,7 @@ proc getListItemIdAsStringAndDisplayNameMap*(
 
   for listItem in listItems:
 
-    options[$listItem.listItemId] = listItem.displayName
+    options[$listItem.id] = listItem.displayName
 
   return options
 

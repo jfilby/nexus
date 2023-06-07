@@ -231,7 +231,7 @@ proc loginActionByEmailVerified*(
 
   return loginActionVerified(
            context,
-           accountUser.get.accountUserId,
+           accountUser.get.id,
            "")
 
 
@@ -362,7 +362,7 @@ template logoutAction*(context: NexusCoreContext,
     raise newException(
             ValueError,
             "AccountUser record not found for accountUserId: " &
-            $accountUser.get.accountUserId)
+            $accountUser.get.id)
 
   # Update AccountUser.lastToken
   accountUser.get.lastToken = none(string)

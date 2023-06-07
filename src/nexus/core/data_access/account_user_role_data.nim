@@ -98,13 +98,13 @@ proc createAccountUserRoleReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (account_user_role_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "account_user_role_id",
+    "id",
     insertValues)
 
 
@@ -119,7 +119,7 @@ proc createAccountUserRole*(
 
   var accountUserRole = AccountUserRole()
 
-  accountUserRole.accountUserRoleId =
+  accountUserRole.id =
     createAccountUserRoleReturnsPk(
       dbContext,
       accountUserId,
@@ -137,17 +137,17 @@ proc createAccountUserRole*(
 
 proc deleteAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserRoleId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from account_user_role" &
-    " where account_user_role_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           accountUserRoleId)
+           id)
 
 
 proc deleteAccountUserRole*(
@@ -197,17 +197,17 @@ proc deleteAccountUserRole*(
 
 proc existsAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserRoleId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from account_user_role" &
-    " where account_user_role_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $accountUserRoleId)
+              $id)
 
   if row[0] == "":
     return false
@@ -246,7 +246,7 @@ proc filterAccountUserRole*(
        limit: Option[int] = none(int)): AccountUserRoles {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_role_id, account_user_id, role_id, created" & 
+    "select id, account_user_id, role_id, created" & 
     "  from account_user_role"
 
   if whereClause != "":
@@ -277,7 +277,7 @@ proc filterAccountUserRole*(
        limit: Option[int] = none(int)): AccountUserRoles {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_role_id, account_user_id, role_id, created" & 
+    "select id, account_user_id, role_id, created" & 
     "  from account_user_role"
 
   var first = true
@@ -313,17 +313,17 @@ proc filterAccountUserRole*(
 
 proc getAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserRoleId: int64): Option[AccountUserRole] {.gcsafe.} =
+       id: int64): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_role_id, account_user_id, role_id, created" & 
+    "select id, account_user_id, role_id, created" & 
     "  from account_user_role" &
-    " where account_user_role_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              accountUserRoleId)
+              id)
 
   if row[0] == "":
     return none(AccountUserRole)
@@ -333,17 +333,17 @@ proc getAccountUserRoleByPk*(
 
 proc getAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserRoleId: string): Option[AccountUserRole] {.gcsafe.} =
+       id: string): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_role_id, account_user_id, role_id, created" & 
+    "select id, account_user_id, role_id, created" & 
     "  from account_user_role" &
-    " where account_user_role_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              accountUserRoleId)
+              id)
 
   if row[0] == "":
     return none(AccountUserRole)
@@ -357,7 +357,7 @@ proc getAccountUserRoleByAccountUserIdAndRoleId*(
        roleId: int64): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_role_id, account_user_id, role_id, created" & 
+    "select id, account_user_id, role_id, created" & 
     "  from account_user_role" &
     " where account_user_id = ?" &
     "   and role_id = ?"
@@ -401,7 +401,7 @@ proc rowToAccountUserRole*(row: seq[string]):
 
   var accountUserRole = AccountUserRole()
 
-  accountUserRole.accountUserRoleId = parseBiggestInt(row[0])
+  accountUserRole.id = parseBiggestInt(row[0])
   accountUserRole.accountUserId = parseBiggestInt(row[1])
   accountUserRole.roleId = parseBiggestInt(row[2])
   accountUserRole.created = parsePgTimestamp(row[3])
@@ -434,9 +434,9 @@ proc updateAccountUserRoleSetClause*(
 
   for field in setFields:
 
-    if field == "account_user_role_id":
-      updateStatement &= "       account_user_role_id = ?,"
-      updateValues.add($accountUserRole.accountUserRoleId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($accountUserRole.id)
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
@@ -469,9 +469,9 @@ proc updateAccountUserRoleByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where account_user_role_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($accountUserRole.accountUserRoleId)
+  updateValues.add($accountUserRole.id)
 
   let rowsUpdated = 
         execAffectedRows(

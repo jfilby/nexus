@@ -4,8 +4,8 @@ import db_postgres, options, tables, times
 
 type
   ListItem* = object
-    listItemId*: int64
-    parentListItemId*: Option[int64]
+    id*: int64
+    parentId*: Option[int64]
     seqNo*: int
     name*: string
     displayName*: string
@@ -16,8 +16,8 @@ type
 
 
   MenuItem* = object
-    menuItemId*: int64
-    parentMenuItemId*: Option[int64]
+    id*: int64
+    parentId*: Option[int64]
     name*: string
     url*: string
     screen*: string

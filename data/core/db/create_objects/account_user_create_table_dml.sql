@@ -1,7 +1,7 @@
 REM Nexus generated DML file
 
 CREATE TABLE public.account_user (
-  account_user_id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
+  id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
   account_id BIGINT,
   name CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   email CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE public.account_user (
   last_login TIMESTAMP WITH TIME ZONE,
   last_update TIMESTAMP WITH TIME ZONE,
   created TIMESTAMP WITH TIME ZONE NOT NULL,
-  CONSTRAINT account_user_pkey PRIMARY KEY (account_user_id)
+  CONSTRAINT account_user_pkey PRIMARY KEY (id)
 )
 TABLESPACE pg_default;
 

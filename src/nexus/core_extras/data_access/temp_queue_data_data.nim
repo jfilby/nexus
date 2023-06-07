@@ -109,12 +109,6 @@ proc createTempQueueDataReturnsPk*(
   insertStatement &=
     ") values (" & valuesClause & ")"
 
-  # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
-    dbContext.dbConn,
-    sql(insertStatement),
-    "",
-    insertValues)
 
 
 proc createTempQueueData*(

@@ -190,13 +190,13 @@ proc createAccountUserReturnsPk*(
     ") values (" & valuesClause & ")"
 
   if ignoreExistingPk == true:
-    insertStatement &= " on conflict (account_user_id) do nothing"
+    insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
   return tryInsertNamedID(
     dbContext.dbConn,
     sql(insertStatement),
-    "account_user_id",
+    "id",
     insertValues)
 
 
@@ -226,7 +226,7 @@ proc createAccountUser*(
 
   var accountUser = AccountUser()
 
-  accountUser.accountUserId =
+  accountUser.id =
     createAccountUserReturnsPk(
       dbContext,
       accountId,
@@ -274,17 +274,17 @@ proc createAccountUser*(
 
 proc deleteAccountUserByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): int64 {.gcsafe.} =
+       id: int64): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
     "  from account_user" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(deleteStatement),
-           accountUserId)
+           id)
 
 
 proc deleteAccountUser*(
@@ -334,17 +334,17 @@ proc deleteAccountUser*(
 
 proc existsAccountUserByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): bool {.gcsafe.} =
+       id: int64): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
     "  from account_user" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $accountUserId)
+              $id)
 
   if row[0] == "":
     return false
@@ -420,9 +420,9 @@ proc filterAccountUser*(
        limit: Option[int] = none(int)): AccountUsers {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user"
 
   if whereClause != "":
@@ -453,9 +453,9 @@ proc filterAccountUser*(
        limit: Option[int] = none(int)): AccountUsers {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user"
 
   var first = true
@@ -491,19 +491,19 @@ proc filterAccountUser*(
 
 proc getAccountUserByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): Option[AccountUser] {.gcsafe.} =
+       id: int64): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              accountUserId)
+              id)
 
   if row[0] == "":
     return none(AccountUser)
@@ -513,19 +513,19 @@ proc getAccountUserByPk*(
 
 proc getAccountUserByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: string): Option[AccountUser] {.gcsafe.} =
+       id: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              accountUserId)
+              id)
 
   if row[0] == "":
     return none(AccountUser)
@@ -538,9 +538,9 @@ proc getAccountUserByEmail*(
        email: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user" &
     " where email = ?"
 
@@ -560,9 +560,9 @@ proc getAccountUserByAPIKey*(
        apiKey: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user" &
     " where api_key = ?"
 
@@ -582,9 +582,9 @@ proc getAccountUserByLastToken*(
        lastToken: string): Option[AccountUser] {.gcsafe.} =
 
   var selectStatement =
-    "select account_user_id, account_id, name, email, password_hash, password_salt, api_key, last_token," & 
-    "       sign_up_code, sign_up_date, password_reset_code, password_reset_date, is_active, is_admin," &
-    "       is_verified, subscription_status, last_login, last_update, created" &
+    "select id, account_id, name, email, password_hash, password_salt, api_key, last_token, sign_up_code," & 
+    "       sign_up_date, password_reset_code, password_reset_date, is_active, is_admin, is_verified," &
+    "       subscription_status, last_login, last_update, created" &
     "  from account_user" &
     " where last_token = ?"
 
@@ -601,17 +601,17 @@ proc getAccountUserByLastToken*(
 
 proc getAPIKeyFromAccountUserByPK*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): Option[string] =
+       id: int64): Option[string] =
 
   var selectStatement =
     "select api_key" & 
     "  from account_user" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              accountUserId)
+              id)
 
   if row[0] == "":
     return none(string)
@@ -776,7 +776,7 @@ proc rowToAccountUser*(row: seq[string]):
 
   var accountUser = AccountUser()
 
-  accountUser.accountUserId = parseBiggestInt(row[0])
+  accountUser.id = parseBiggestInt(row[0])
 
   if row[1] != "":
     accountUser.accountId = some(parseBiggestInt(row[1]))
@@ -856,9 +856,9 @@ proc updateAccountUserSetClause*(
 
   for field in setFields:
 
-    if field == "account_user_id":
-      updateStatement &= "       account_user_id = ?,"
-      updateValues.add($accountUser.accountUserId)
+    if field == "id":
+      updateStatement &= "       id = ?,"
+      updateValues.add($accountUser.id)
 
     elif field == "account_id":
       if accountUser.accountId != none(int64):
@@ -965,9 +965,9 @@ proc updateAccountUserByPk*(
     updateStatement,
     updateValues)
 
-  updateStatement &= " where account_user_id = ?"
+  updateStatement &= " where id = ?"
 
-  updateValues.add($accountUser.accountUserId)
+  updateValues.add($accountUser.id)
 
   let rowsUpdated = 
         execAffectedRows(
@@ -1054,15 +1054,15 @@ proc updateAccountUserByWhereEqOnly*(
 proc updateAccountUserSetLastLoginByPK*(
        dbContext: NexusCoreDbContext,
        lastLogin: Option[DateTime],
-       accountUserId: int64): int64 =
+       id: int64): int64 =
 
   var updateStatement =
     "update account_user" &
     "   set last_login = ?" &
-    " where account_user_id = ?"
+    " where id = ?"
 
   return execAffectedRows(
            dbContext.dbConn,
            sql(updateStatement),
            last_login.get,
-           account_user_id)
+           id)

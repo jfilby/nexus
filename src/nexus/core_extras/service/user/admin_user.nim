@@ -80,7 +80,7 @@ proc getOrCreateAdminUser*(
   assignAdminRole(
     coreContext,
     coreExtrasContext,
-    accountUser.get.accountUserId)
+    accountUser.get.id)
 
   return accountUser.get
 

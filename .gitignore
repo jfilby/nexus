@@ -1,3 +1,4 @@
+env.local.sh
 nimcache/
 nimblecache/
 htmldocs/
