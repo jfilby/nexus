@@ -128,7 +128,7 @@ proc loadBasicListYAML(
     # Create list
     let list = getOrCreateListItemByName(
                  nexusCoreExtrasContext.db,
-                 parentListItemId = none(int64),
+                 parentId = none(int64),
                  seqNo = 1,
                  listBasicYAML.name,
                  listBasicYAML.displayName,
@@ -148,7 +148,7 @@ proc loadBasicListYAML(
 
       discard getOrCreateListItemByName(
                 nexusCoreExtrasContext.db,
-                some(list.listItemId),
+                some(list.id),
                 seqNo,
                 &"{listBasicYAML.name}: {listItemName}",
                 listItemName,
@@ -161,7 +161,7 @@ proc loadBasicListYAML(
 proc loadFullListYAML(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        listsFullYAML: ListsFullYAML,
-       parentListItemId: Option[int64] = none(int64)) =
+       parentId: Option[int64] = none(int64)) =
 
   var seq_no = 1
 
@@ -176,7 +176,7 @@ proc loadFullListYAML(
     let listItem =
           getOrCreateListItemByName(
             nexusCoreExtrasContext.db,
-            parentListItemId,
+            parentId,
             seqNo = 1,
             listFullYAML.name,
             listFullYAML.displayName,

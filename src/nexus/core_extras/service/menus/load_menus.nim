@@ -122,20 +122,21 @@ proc loadMenusYAML(
         roleIds.add(roleListItemId.get)
 
     # Create menu
-    let menu = getOrCreateMenuItemByNameAndURLAndScreen(
-                 nexusCoreExtrasContext.db,
-                 parentMenuItemId,
-                 menuYAML.name,
-                 menuYAML.url,
-                 menuYAML.screen,
-                 level,
-                 position,
-                 int64sWithOption(roleIds),
-                 now())
+    let menuItem =
+          getOrCreateMenuItemByNameAndURLAndScreen(
+            nexusCoreExtrasContext.db,
+            parentMenuItemId,
+            menuYAML.name,
+            menuYAML.url,
+            menuYAML.screen,
+            level,
+            position,
+            int64sWithOption(roleIds),
+            now())
 
     # Create menu items
     loadMenusYAML(nexusCoreExtrasContext,
-                  some(menu.menu_itemId),
+                  some(menuItem.id),
                   menuYaml.items,
                   level = level + 1)
 
