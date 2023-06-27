@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core/types/model_types
 
 
@@ -61,14 +60,14 @@ proc countInvite*(
 
 proc createInviteReturnsPk*(
        dbContext: NexusCoreDbContext,
-       fromAccountUserId: int64,
+       fromAccountUserId: string,
        fromEmail: string,
        fromName: string,
        toEmail: string,
        toName: string,
        sent: Option[DateTime] = none(DateTime),
        created: DateTime,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -76,29 +75,36 @@ proc createInviteReturnsPk*(
     insertStatement = "insert into invite ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: From Account User Id
   insertStatement &= "from_account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($fromAccountUserId)
+  insertValues.add(fromAccountUserId)
 
   # Field: From Email
   insertStatement &= "from_email, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(fromEmail)
 
   # Field: From Name
   insertStatement &= "from_name, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(fromName)
 
   # Field: To Email
   insertStatement &= "to_email, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(toEmail)
 
   # Field: To Name
   insertStatement &= "to_name, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(toName)
 
   # Field: Sent
@@ -125,16 +131,17 @@ proc createInviteReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createInvite*(
        dbContext: NexusCoreDbContext,
-       fromAccountUserId: int64,
+       fromAccountUserId: string,
        fromEmail: string,
        fromName: string,
        toEmail: string,
@@ -173,7 +180,7 @@ proc createInvite*(
 
 proc deleteInviteByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -233,7 +240,7 @@ proc deleteInvite*(
 
 proc existsInviteByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -243,7 +250,7 @@ proc existsInviteByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -346,26 +353,6 @@ proc filterInvite*(
 
 proc getInviteByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): Option[Invite] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, from_account_user_id, from_email, from_name, to_email, to_name, sent, created" & 
-    "  from invite" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(Invite)
-
-  return some(rowToInvite(row))
-
-
-proc getInviteByPk*(
-       dbContext: NexusCoreDbContext,
        id: string): Option[Invite] {.gcsafe.} =
 
   var selectStatement =
@@ -406,7 +393,7 @@ proc getInviteByToEmail*(
 
 proc getOrCreateInviteByToEmail*(
        dbContext: NexusCoreDbContext,
-       fromAccountUserId: int64,
+       fromAccountUserId: string,
        fromEmail: string,
        fromName: string,
        toEmail: string,
@@ -438,8 +425,8 @@ proc rowToInvite*(row: seq[string]):
 
   var invite = Invite()
 
-  invite.id = parseBiggestInt(row[0])
-  invite.fromAccountUserId = parseBiggestInt(row[1])
+  invite.id = row[0]
+  invite.fromAccountUserId = row[1]
   invite.fromEmail = row[2]
   invite.fromName = row[3]
   invite.toEmail = row[4]
@@ -482,11 +469,11 @@ proc updateInviteSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($invite.id)
+      updateValues.add(invite.id)
 
     elif field == "from_account_user_id":
       updateStatement &= "       from_account_user_id = ?,"
-      updateValues.add($invite.fromAccountUserId)
+      updateValues.add(invite.fromAccountUserId)
 
     elif field == "from_email":
       updateStatement &= "       from_email = ?,"

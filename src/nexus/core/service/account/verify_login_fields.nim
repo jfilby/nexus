@@ -18,13 +18,13 @@ proc verifyLoginFields*(
        password: string,
        accountUser: Option[AccountUser]):
          (DocUIReturn,
-          int64,
+          string,
           string) =
 
   var
     errorMessage = ""
     docuiReturn = newDocUIReturn(true)
-    noAccountUserId: int64 = -1
+    noAccountUserId = ""
 
   # Verify that email is not blank
   if email == "":

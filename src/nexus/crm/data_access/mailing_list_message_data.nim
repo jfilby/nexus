@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/crm/types/model_types
 
 
@@ -61,14 +60,14 @@ proc countMailingListMessage*(
 
 proc createMailingListMessageReturnsPk*(
        dbContext: NexusCRMDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        subject: string,
        message: string,
        created: DateTime,
        updated: Option[DateTime] = none(DateTime),
        deleted: Option[DateTime] = none(DateTime),
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -76,24 +75,31 @@ proc createMailingListMessageReturnsPk*(
     insertStatement = "insert into mailing_list_message ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($accountUserId)
+  insertValues.add(accountUserId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(uniqueHash)
 
   # Field: Subject
   insertStatement &= "subject, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(subject)
 
   # Field: Message
   insertStatement &= "message, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(message)
 
   # Field: Created
@@ -125,16 +131,17 @@ proc createMailingListMessageReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createMailingListMessage*(
        dbContext: NexusCRMDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        subject: string,
        message: string,
@@ -173,7 +180,7 @@ proc createMailingListMessage*(
 
 proc deleteMailingListMessageByPk*(
        dbContext: NexusCRMDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -233,7 +240,7 @@ proc deleteMailingListMessage*(
 
 proc existsMailingListMessageByPk*(
        dbContext: NexusCRMDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -243,7 +250,7 @@ proc existsMailingListMessageByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -346,26 +353,6 @@ proc filterMailingListMessage*(
 
 proc getMailingListMessageByPk*(
        dbContext: NexusCRMDbContext,
-       id: int64): Option[MailingListMessage] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, account_user_id, unique_hash, subject, message, created, updated, deleted" & 
-    "  from mailing_list_message" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(MailingListMessage)
-
-  return some(rowToMailingListMessage(row))
-
-
-proc getMailingListMessageByPk*(
-       dbContext: NexusCRMDbContext,
        id: string): Option[MailingListMessage] {.gcsafe.} =
 
   var selectStatement =
@@ -406,7 +393,7 @@ proc getMailingListMessageByUniqueHash*(
 
 proc getOrCreateMailingListMessageByUniqueHash*(
        dbContext: NexusCRMDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        subject: string,
        message: string,
@@ -438,8 +425,8 @@ proc rowToMailingListMessage*(row: seq[string]):
 
   var mailingListMessage = MailingListMessage()
 
-  mailingListMessage.id = parseBiggestInt(row[0])
-  mailingListMessage.accountUserId = parseBiggestInt(row[1])
+  mailingListMessage.id = row[0]
+  mailingListMessage.accountUserId = row[1]
   mailingListMessage.uniqueHash = row[2]
   mailingListMessage.subject = row[3]
   mailingListMessage.message = row[4]
@@ -486,11 +473,11 @@ proc updateMailingListMessageSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($mailingListMessage.id)
+      updateValues.add(mailingListMessage.id)
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
-      updateValues.add($mailingListMessage.accountUserId)
+      updateValues.add(mailingListMessage.accountUserId)
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"

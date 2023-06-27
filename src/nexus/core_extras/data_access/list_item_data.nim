@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core_extras/types/model_types
 
 
@@ -61,13 +60,13 @@ proc countListItem*(
 
 proc createListItemReturnsPk*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64] = none(int64),
+       parentId: Option[string] = none(string),
        seqNo: int,
        name: string,
        displayName: string,
        description: Option[string] = none(string),
        created: DateTime,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -75,11 +74,18 @@ proc createListItemReturnsPk*(
     insertStatement = "insert into list_item ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Parent Id
-  if parentId != none(int64):
+  if parentId != none(string):
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
-    insertValues.add($parentId.get)
+    insertValues.add(parentId.get)
 
   # Field: Seq No
   insertStatement &= "seq_no, "
@@ -88,18 +94,18 @@ proc createListItemReturnsPk*(
 
   # Field: Name
   insertStatement &= "name, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(name)
 
   # Field: Display Name
   insertStatement &= "display_name, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(displayName)
 
   # Field: Description
   if description != none(string):
     insertStatement &= "description, "
-    valuesClause &= "?" & ", "
+    valuesClause &= "?, "
     insertValues.add(description.get)
 
   # Field: Created
@@ -121,16 +127,17 @@ proc createListItemReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createListItem*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64] = none(int64),
+       parentId: Option[string] = none(string),
        seqNo: int,
        name: string,
        displayName: string,
@@ -166,7 +173,7 @@ proc createListItem*(
 
 proc deleteListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -226,7 +233,7 @@ proc deleteListItem*(
 
 proc existsListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -236,7 +243,7 @@ proc existsListItemByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -339,26 +346,6 @@ proc filterListItem*(
 
 proc getListItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): Option[ListItem] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, parent_id, seq_no, name, display_name, description, created" & 
-    "  from list_item" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(ListItem)
-
-  return some(rowToListItem(row))
-
-
-proc getListItemByPk*(
-       dbContext: NexusCoreExtrasDbContext,
        id: string): Option[ListItem] {.gcsafe.} =
 
   var selectStatement =
@@ -399,7 +386,7 @@ proc getListItemByName*(
 
 proc getOrCreateListItemByName*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64],
+       parentId: Option[string],
        seqNo: int,
        name: string,
        displayName: string,
@@ -429,12 +416,12 @@ proc rowToListItem*(row: seq[string]):
 
   var listItem = ListItem()
 
-  listItem.id = parseBiggestInt(row[0])
+  listItem.id = row[0]
 
   if row[1] != "":
-    listItem.parentId = some(parseBiggestInt(row[1]))
+    listItem.parentId = some(row[1])
   else:
-    listItem.parentId = none(int64)
+    listItem.parentId = none(string)
 
   listItem.seqNo = parseInt(row[2])
   listItem.name = row[3]
@@ -477,12 +464,12 @@ proc updateListItemSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($listItem.id)
+      updateValues.add(listItem.id)
 
     elif field == "parent_id":
-      if listItem.parentId != none(int64):
+      if listItem.parentId != none(string):
         updateStatement &= "       parent_id = ?,"
-        updateValues.add($listItem.parentId.get)
+        updateValues.add(listItem.parentId.get)
       else:
         updateStatement &= "       parent_id = null,"
 

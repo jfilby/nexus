@@ -23,7 +23,7 @@ proc getOrCreateTestAccountUser(nexusCRMContext: NexusCRMContext): int64 =
   let accountUser =
         getOrCreateAccountUserByEmail(
           nexusCRMContext.nexusCoreContext.db,
-          accountId = none(int64),
+          accountId = none(string),
           name = "Test account",
           email = "test@mydomain.com",
           passwordHash = "-",

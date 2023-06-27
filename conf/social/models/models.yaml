@@ -13,13 +13,13 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Parent Id
-    type: int64
+    type: string
     constraints: []
   - name: Account User Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Unique Hash
     type: string
@@ -37,7 +37,7 @@
     type: string
     constraints: [ not null ]
   - name: Tag Ids
-    type: int64
+    type: string
     constraints: []
   - name: Created
     type: datetime
@@ -83,7 +83,7 @@
   tableOptions: [ generate ]
   fields:
   - name: SM Post Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Votes Up Count
     type: int
@@ -111,10 +111,10 @@
   tableOptions: [ generate ]
   fields:
   - name: SM Post Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Account User Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Vote Up
     type: bool

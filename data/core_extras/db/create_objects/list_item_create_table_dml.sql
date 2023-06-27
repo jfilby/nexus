@@ -1,8 +1,8 @@
 REM Nexus generated DML file
 
 CREATE TABLE public.list_item (
-  id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
-  parent_id BIGINT,
+  id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL UNIQUE,
+  parent_id CHARACTER VARYING COLLATE pg_catalog."default",
   seq_no INT NOT NULL,
   name CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   display_name CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,

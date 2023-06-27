@@ -19,7 +19,7 @@ import nexus/core_extras/service/format/hash
 # Forward declarations
 proc loginActionVerified*(
        context: NexusCoreContext,
-       accountUserId: int64,
+       accountUserId: string,
        loginHash: string): DocUIReturn
 
 
@@ -237,7 +237,7 @@ proc loginActionByEmailVerified*(
 
 proc loginActionVerified*(
        context: NexusCoreContext,
-       accountUserId: int64,
+       accountUserId: string,
        loginHash: string): DocUIReturn =
 
   # Validate

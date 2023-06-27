@@ -1,5 +1,5 @@
 ,
-       id: int64): int64 =
+       id: string): int64 =
 
   var updateStatement =
     "update account_user" &

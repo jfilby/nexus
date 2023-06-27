@@ -8,10 +8,10 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Parent Id
-    type: int64
+    type: string
     constraints: []
   - name: Seq No
     type: int
@@ -50,10 +50,10 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Parent Id
-    type: int64
+    type: string
     constraints: []
   - name: Name
     type: string
@@ -71,7 +71,7 @@
     type: int
     constraints: [ not null ]
   - name: Role Ids
-    type: int64[]
+    type: string[]
     constraints: []
   - name: Created
     type: datetime
@@ -129,7 +129,7 @@
                   temporary ]
   fields:
   - name: Temp Queue Data Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Format
     type: string

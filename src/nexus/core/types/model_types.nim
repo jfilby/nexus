@@ -4,8 +4,8 @@ import db_postgres, options, tables, times
 
 type
   AccountUser* = object
-    id*: int64
-    accountId*: Option[int64]
+    id*: string
+    accountId*: Option[string]
     name*: string
     email*: string
     passwordHash*: string
@@ -28,16 +28,16 @@ type
 
 
   AccountUserRole* = object
-    id*: int64
-    accountUserId*: int64
-    roleId*: int64
+    id*: string
+    accountUserId*: string
+    roleId*: string
     created*: DateTime
 
   AccountUserRoles* = seq[AccountUserRole]
 
 
   AccountUserToken* = object
-    accountUserId*: int64
+    accountUserId*: string
     uniqueHash*: string
     token*: string
     created*: DateTime
@@ -47,8 +47,8 @@ type
 
 
   Invite* = object
-    id*: int64
-    fromAccountUserId*: int64
+    id*: string
+    fromAccountUserId*: string
     fromEmail*: string
     fromName*: string
     toEmail*: string
@@ -60,7 +60,7 @@ type
 
 
   NexusSetting* = object
-    id*: int64
+    id*: string
     module*: string
     key*: string
     value*: Option[string]
@@ -76,7 +76,7 @@ type
     fieldToIntSeqTable*: Table[string, int]
     intSeqToFieldTable*: Table[int, string]
 
-    cachedAccountUsers*: Table[int64, AccountUser]
-    cachedFilterAccountUser*: Table[string, seq[int64]]
+    cachedAccountUsers*: Table[string, AccountUser]
+    cachedFilterAccountUser*: Table[string, seq[string]]
 
 

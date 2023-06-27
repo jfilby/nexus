@@ -8,7 +8,7 @@ import nexus/core_extras/types/model_types
 # Forward declarations
 proc getListItemsByParentListId*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentListId: int64): ListItems
+       parentListId: string): ListItems
 proc getListItemsByParentListName*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        parentListName: string): ListItems
@@ -17,7 +17,7 @@ proc getListItemsByParentListName*(
 # Code
 proc getListItemDisplayNames*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: seq[int64]): seq[string] =
+       listItemIds: seq[string]): seq[string] =
 
   var strs: seq[string]
 
@@ -34,9 +34,9 @@ proc getListItemDisplayNames*(
 
 proc getListItemDisplayNames*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: Option[seq[int64]]): seq[string] =
+       listItemIds: Option[seq[string]]): seq[string] =
 
-  if listItemIds != none(seq[int64]):
+  if listItemIds != none(seq[string]):
 
     getListItemDisplayNames(
       nexusCoreExtrasContext,
@@ -64,7 +64,7 @@ proc getListItemByNameAndParentName*(
 
     for listItem in listItems:
 
-      if listItem.parentId != none(int64):
+      if listItem.parentId != none(string):
 
         let parentlistItem =
               getListItemByPk(
@@ -91,7 +91,7 @@ proc getListItemByNameAndParentName*(
 
 proc getListItemsByListItemId*(
       nexusCoreExtrasContext: NexusCoreExtrasContext,
-      listItemId: int64): ListItems =
+      listItemId: string): ListItems =
 
   # Filter list items
   let listItems =
@@ -106,7 +106,7 @@ proc getListItemsByListItemId*(
 
 proc getListItemsByListItemIds*(
       nexusCoreExtrasContext: NexusCoreExtrasContext,
-      listItemIds: seq[int64]): ListItems =
+      listItemIds: seq[string]): ListItems =
 
   var listItems: ListItems
 
@@ -131,7 +131,7 @@ proc getListItemsByListItemIds*(
 
 proc getListItemsByParentListId*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentListId: int64): ListItems =
+       parentListId: string): ListItems =
 
   # Filter list items
   return filterListItem(
@@ -165,16 +165,16 @@ proc getListItemsByParentListName*(
 
 proc getIdsAndDisplayNames*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentListId: int64,
+       parentListId: string,
        cascade: bool = false,
        indents: bool = true,
        indent: int = 0):
-       (seq[int64],
+       (seq[string],
         seq[string]) =
 
   # Get categories
   var
-    optionIds: seq[int64]
+    optionIds: seq[string]
     options: seq[string]
 
   let listItems =
@@ -220,7 +220,7 @@ proc getIdsAndDisplayNames*(
 
 proc getIdsAsStringsAndDisplayNames*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentListId: int64,
+       parentListId: string,
        cascade: bool = false,
        indent: int = 0):
        (seq[string],
@@ -311,7 +311,7 @@ proc getIdsAsStringsAndDisplayNames*(
 
 proc getListItemIdsCascade*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemId: int64): seq[int64] =
+       listItemId: string): seq[string] =
 
   var listItemIds = @[ listItemId ]
 
@@ -398,7 +398,7 @@ proc getListItemByParentNameAndDisplayNameCascade*(
 proc getListItemIdByParentNameAndDisplayName*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        parentName: string,
-       displayName: string): Option[int64] =
+       displayName: string): Option[string] =
 
   let listItem = getListItemByParentNameAndDisplayName(
                    nexusCoreExtrasContext,
@@ -410,13 +410,13 @@ proc getListItemIdByParentNameAndDisplayName*(
     return some(listItem.get.id)
 
   # Finally return none
-  return none(int64)
+  return none(string)
 
 
 proc getListItemIdByParentNameAndDisplayNameCascade*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        parentName: string,
-       displayName: string): Option[int64] =
+       displayName: string): Option[string] =
 
   let listItem = getListItemByParentNameAndDisplayNameCascade(
                    nexusCoreExtrasContext,
@@ -428,12 +428,12 @@ proc getListItemIdByParentNameAndDisplayNameCascade*(
     return some(listItem.get.id)
 
   # Finally return none
-  return none(int64)
+  return none(string)
 
 
 proc getListItemDisplayNameById*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemId: int64): Option[string] =
+       listItemId: string): Option[string] =
 
   let listItem =
         getListItemByPk(nexusCoreExtrasContext.db,
@@ -468,7 +468,7 @@ proc getListItemIdAsStringAndDisplayNameMap*(
 
 proc getListItemNames*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: seq[int64]): seq[string] =
+       listItemIds: seq[string]): seq[string] =
 
   var strs: seq[string]
 
@@ -485,7 +485,7 @@ proc getListItemNames*(
 
 proc getListItemNamesAsString*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: seq[int64],
+       listItemIds: seq[string],
        display_names: bool = false): string =
 
   # If no list items
@@ -546,7 +546,7 @@ proc getListItemNamesAsString*(
 
 proc getTextAndLinesFromItemListIds*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: seq[int64],
+       listItemIds: seq[string],
        delimiter: string = "\n",
        prefix: string = ""):
        (string, int) =
@@ -575,13 +575,13 @@ proc getTextAndLinesFromItemListIds*(
 
 proc getTextAndLinesFromItemListIds*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       listItemIds: Option[seq[int64]],
+       listItemIds: Option[seq[string]],
        delimiter: string = "\n",
        prefix: string = "",
        textOnNone: string = "None"):
        (string, int) =
 
-  if listItemIds != none(seq[int64]):
+  if listItemIds != none(seq[string]):
 
     return getTextAndLinesFromItemListIds(
              nexusCoreExtrasContext,

@@ -8,7 +8,7 @@ import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
-proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): int64 =
+proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): string =
 
   # Get admin user role
   let adminListItemId =
@@ -17,7 +17,7 @@ proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): int64 =
           "User Roles: Account User",
           "Admin")
 
-  if adminListItemId == none(int64):
+  if adminListItemId == none(string):
 
     raise newException(ValueError,
                        "No ListItem record found for Admin role")

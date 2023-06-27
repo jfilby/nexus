@@ -19,6 +19,7 @@ proc generateDataAccessFile*(
   var
     str = ""
     pgTryInsertId = false
+    uuids = false
 
   let pragmas = "{.gcsafe.}"
 
@@ -51,6 +52,7 @@ proc generateDataAccessFile*(
   # Create (without record type)
   createProc(str,
              pgTryInsertId,
+             uuids,
              model,
              pragmas)
 
@@ -255,8 +257,8 @@ proc generateDataAccessFile*(
 
   # Standard library imports
   var
-    stdlibSeqs: seq[string]
-    stdlibImports =
+    thirdPartySeqs: seq[string]
+    thirdPartyImports =
       toOrderedSet( @[ "db_postgres",
                        "options",
                        "sequtils",
@@ -265,39 +267,44 @@ proc generateDataAccessFile*(
   let hasDateTimeTypes = modelUsesDateTimeTypes(model)
 
   if hasDateTimeTypes == true:
-    stdlibImports.incl("times")
+    thirdPartyImports.incl("times")
 
   # Add various module imports
-  for module in stdlibImports:
+  for module in thirdPartyImports:
 
-    stdlibImports.incl(module)
+    thirdPartyImports.incl(module)
 
   for module in model.nimTypeModules:
 
-    stdlibImports.incl(module)
+    thirdPartyImports.incl(module)
 
-  for module in stdlibImports:
+  if uuids == true:
 
-    stdlibSeqs.add(module)
+    thirdPartyImports.incl("uuids")
 
-  var importsStr =
+  for module in thirdPartyImports:
+
+    thirdPartySeqs.add(module)
+
+  var preStr =
          "# Nexus generated file\n" &
-        &"import " & join(stdlibSeqs, ", ") & "\n"
+        &"import " & join(thirdPartySeqs, ", ") & "\n"
 
   # Import data_utils if specific types are used
   if modelUsesArrayTypes(model) or
      modelUsesBoolTypes(model) or
      hasDateTimeTypes == true:
 
-    importsStr &= "import nexus/core/data_access/data_utils\n"
+    preStr &= "import nexus/core/data_access/data_utils\n"
 
   if pgTryInsertId == true:
-    importsStr &= "import nexus/core/data_access/pg_try_insert_id\n"
+    preStr &= "import nexus/core/data_access/pg_try_insert_id\n"
 
-  importsStr &= &"import {model.module.importPath}/types/model_types\n" &
-                 "\n\n"
+  preStr &= &"import {model.module.importPath}/types/model_types\n" &
+             "\n\n"
 
-  str = importsStr & str
+  # Prepend preStr
+  str = preStr & str
 
   # Write data access file
   echo ".. writing: " & dataAccessFilename

@@ -60,7 +60,12 @@ proc createPgTable*(
       dmlStr &= " NOT NULL"
 
     if field.isAutoValue == true:
-      dmlStr &= " GENERATED ALWAYS AS IDENTITY"
+
+      if pgFieldType in @[ "smallint", "integer", "bigint" ]:
+        dmlStr &= " GENERATED ALWAYS AS IDENTITY"
+
+      else:
+        dmlStr &= " UNIQUE"
 
   # PK
   debug "createPgTable()",

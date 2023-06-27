@@ -12,24 +12,27 @@ import nexus/core_extras/types/model_types
 proc verifyMenuItemRoles*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        menuItem: MenuItem,
-       accountUserId: int64): bool
+       accountUserId: string): bool
 
 
 # Code
 proc loadMenuItems*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       accountUserId: int64,
+       accountUserId: string,
        excludeMenuURLs: seq[string]):
          seq[JsonNode] =
 
   # Load from Menu Item in the order it was loaded
-  let listItems =
+  let menuItems =
         filterMenuItem(nexusCoreExtrasContext.db,
-                       orderByFields = @[ "id" ])
+                       orderByFields = @[
+                         "level",
+                         "position"
+                       ])
 
   var menuItemsJsonNodes: seq[JsonNode]
 
-  for menuItem in listItems:
+  for menuItem in menuItems:
 
     # Exclude specific menu URLs
     if excludeMenuURLs.contains(menuItem.url):
@@ -52,8 +55,8 @@ proc loadMenuItems*(
 
 proc verifyMenuItemRole(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       roleId: int64,
-       accountUserId: int64): bool =
+       roleId: string,
+       accountUserId: string): bool =
 
   # Get NexusCoreContext
   let nexusCoreContext =
@@ -78,10 +81,10 @@ proc verifyMenuItemRole(
 proc verifyMenuItemRoles*(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
        menuItem: MenuItem,
-       accountUserId: int64): bool =
+       accountUserId: string): bool =
 
   # Return true if no rolesIds for the menuItem
-  if menuItem.roleIds == none(seq[int64]):
+  if menuItem.roleIds == none(seq[string]):
     return true
 
   # Verify each roleId for the menuItem, for the user

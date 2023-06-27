@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core/types/model_types
 
 
@@ -65,7 +64,7 @@ proc createNexusSettingReturnsPk*(
        key: string,
        value: Option[string] = none(string),
        created: DateTime,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -73,20 +72,27 @@ proc createNexusSettingReturnsPk*(
     insertStatement = "insert into nexus_setting ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Module
   insertStatement &= "module, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(module)
 
   # Field: Key
   insertStatement &= "key, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(key)
 
   # Field: Value
   if value != none(string):
     insertStatement &= "value, "
-    valuesClause &= "?" & ", "
+    valuesClause &= "?, "
     insertValues.add(value.get)
 
   # Field: Created
@@ -108,11 +114,12 @@ proc createNexusSettingReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createNexusSetting*(
@@ -147,7 +154,7 @@ proc createNexusSetting*(
 
 proc deleteNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -207,7 +214,7 @@ proc deleteNexusSetting*(
 
 proc existsNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -217,7 +224,7 @@ proc existsNexusSettingByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -323,26 +330,6 @@ proc filterNexusSetting*(
 
 proc getNexusSettingByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): Option[NexusSetting] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, module, key, value, created" & 
-    "  from nexus_setting" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(NexusSetting)
-
-  return some(rowToNexusSetting(row))
-
-
-proc getNexusSettingByPk*(
-       dbContext: NexusCoreDbContext,
        id: string): Option[NexusSetting] {.gcsafe.} =
 
   var selectStatement =
@@ -413,7 +400,7 @@ proc rowToNexusSetting*(row: seq[string]):
 
   var nexusSetting = NexusSetting()
 
-  nexusSetting.id = parseBiggestInt(row[0])
+  nexusSetting.id = row[0]
   nexusSetting.module = row[1]
   nexusSetting.key = row[2]
 
@@ -454,7 +441,7 @@ proc updateNexusSettingSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($nexusSetting.id)
+      updateValues.add(nexusSetting.id)
 
     elif field == "module":
       updateStatement &= "       module = ?,"

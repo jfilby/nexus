@@ -102,6 +102,7 @@ proc countWhereClauseProc*(
 
 proc createProc*(str: var string,
                  pgTryInsertId: var bool,
+                 uuids: var bool,
                  model: Model,
                  pragmas: string) =
 
@@ -142,8 +143,15 @@ proc createProc*(str: var string,
     indent = "  ")
 
   # Exec the insert statement
+  var returned = false
+
   if model.fields[0].isAutoValue == true:
-    pgTryInsertId = true
+
+    if model.pkNimType in @[ "int", "int64" ]:
+      pgTryInsertId = true
+
+    elif model.pkNimType == "string":
+      uuids = true
 
     case model.pkNimType:
 
@@ -156,6 +164,8 @@ proc createProc*(str: var string,
                &"           \"{model.pkNameInSnakeCase}\",\n" &
                 "           insertValues)\n"
 
+        returned = true
+
       of "int64":
 
         str &=  "  # Execute the insert statement and return the sequence values\n" &
@@ -165,7 +175,9 @@ proc createProc*(str: var string,
                &"           \"{model.pkNameInSnakeCase}\",\n" &
                 "           insertValues)\n"
 
-  else:
+        returned = true
+
+  if returned == false:
     str &=  "  # Execute the insert statement and return the sequence values\n" &
             "  exec(\n" &
            &"    dbContext.dbConn,\n" &

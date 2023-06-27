@@ -4,15 +4,15 @@ import db_postgres, options, tables, times
 
 type
   SMPost* = object
-    id*: int64
-    parentId*: Option[int64]
-    accountUserId*: int64
+    id*: string
+    parentId*: Option[string]
+    accountUserId*: string
     uniqueHash*: string
     postType*: char
     status*: char
     title*: Option[string]
     body*: string
-    tagIds*: Option[int64]
+    tagIds*: Option[string]
     created*: DateTime
     published*: Option[DateTime]
     updateCount*: int
@@ -23,7 +23,7 @@ type
 
 
   SMPostVote* = object
-    smPostId*: int64
+    smPostId*: string
     votesUpCount*: int
     votesDownCount*: int
 
@@ -31,8 +31,8 @@ type
 
 
   SMPostVoteUser* = object
-    smPostId*: int64
-    accountUserId*: int64
+    smPostId*: string
+    accountUserId*: string
     voteUp*: bool
     voteDown*: bool
 
@@ -46,7 +46,7 @@ type
     fieldToIntSeqTable*: Table[string, int]
     intSeqToFieldTable*: Table[int, string]
 
-    cachedSMPosts*: Table[int64, SMPost]
-    cachedFilterSMPost*: Table[string, seq[int64]]
+    cachedSMPosts*: Table[string, SMPost]
+    cachedFilterSMPost*: Table[string, seq[string]]
 
 

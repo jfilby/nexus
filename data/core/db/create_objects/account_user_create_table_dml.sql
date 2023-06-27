@@ -1,8 +1,8 @@
 REM Nexus generated DML file
 
 CREATE TABLE public.account_user (
-  id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
-  account_id BIGINT,
+  id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL UNIQUE,
+  account_id CHARACTER VARYING COLLATE pg_catalog."default",
   name CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   email CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   password_hash CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,

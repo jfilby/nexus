@@ -33,7 +33,7 @@ proc loadMenuYAML*(
        filename: string)
 proc loadMenusYAML(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentMenuItemId: Option[int64],
+       parentMenuItemId: Option[string],
        menusYAML: MenusYAML,
        level: int)
 
@@ -88,14 +88,14 @@ proc loadMenuYAML*(
 
   # Create menu items
   loadMenusYAML(nexusCoreExtrasContext,
-                none(int64),
+                none(string),
                 menusYAML,
                 level = 1)
 
 
 proc loadMenusYAML(
        nexusCoreExtrasContext: NexusCoreExtrasContext,
-       parentMenuItemId: Option[int64],
+       parentMenuItemId: Option[string],
        menusYAML: MenusYAML,
        level: int) =
 
@@ -107,7 +107,7 @@ proc loadMenusYAML(
       menuYAML = menuYAML
 
     # Get role ids
-    var roleIds: seq[int64]
+    var roleIds: seq[string]
 
     for menuRoleYAML in menuYAML.roles:
 
@@ -131,7 +131,7 @@ proc loadMenusYAML(
             menuYAML.screen,
             level,
             position,
-            int64sWithOption(roleIds),
+            stringsWithOption(roleIds),
             now())
 
     # Create menu items

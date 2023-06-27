@@ -9,10 +9,10 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Account User Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Unique Hash
     type: string
@@ -51,10 +51,10 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Account User Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Unique Hash
     type: string
@@ -97,13 +97,13 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Account User Id
-    type: int64
+    type: string
     constraints: []
   - name: Mailing List Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Unique Hash
     type: string
@@ -163,19 +163,19 @@
   tableOptions: [ generate ]
   fields:
   - name: Id
-    type: int64
+    type: string
     constraints: [ auto-value, not null ]
   - name: Account User Id
-    type: int64
+    type: string
     constraints: []
   - name: Mailing List Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Mailing List Subscriber Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Mailing List Message Id
-    type: int64
+    type: string
     constraints: [ not null ]
   - name: Created
     type: datetime

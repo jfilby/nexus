@@ -59,10 +59,10 @@ proc countSMPostVote*(
 
 proc createSMPostVoteReturnsPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
+       smPostId: string,
        votesUpCount: int,
        votesDownCount: int,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -73,7 +73,7 @@ proc createSMPostVoteReturnsPk*(
   # Field: SM Post Id
   insertStatement &= "sm_post_id, "
   valuesClause &= "?, "
-  insertValues.add($smPostId)
+  insertValues.add(smPostId)
 
   # Field: Votes Up Count
   insertStatement &= "votes_up_count, "
@@ -110,7 +110,7 @@ proc createSMPostVoteReturnsPk*(
 
 proc createSMPostVote*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
+       smPostId: string,
        votesUpCount: int,
        votesDownCount: int,
        ignoreExistingPk: bool = false,
@@ -136,7 +136,7 @@ proc createSMPostVote*(
 
 proc deleteSMPostVoteByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64): int64 {.gcsafe.} =
+       smPostId: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -196,7 +196,7 @@ proc deleteSMPostVote*(
 
 proc existsSMPostVoteByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64): bool {.gcsafe.} =
+       smPostId: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -206,7 +206,7 @@ proc existsSMPostVoteByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $smPostId)
+              smPostId)
 
   if row[0] == "":
     return false
@@ -289,26 +289,6 @@ proc filterSMPostVote*(
 
 proc getSMPostVoteByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64): Option[SMPostVote] {.gcsafe.} =
-
-  var selectStatement =
-    "select sm_post_id, votes_up_count, votes_down_count" & 
-    "  from sm_post_vote" &
-    " where sm_post_id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId)
-
-  if row[0] == "":
-    return none(SMPostVote)
-
-  return some(rowToSMPostVote(row))
-
-
-proc getSMPostVoteByPk*(
-       dbContext: NexusSocialDbContext,
        smPostId: string): Option[SMPostVote] {.gcsafe.} =
 
   var selectStatement =
@@ -329,7 +309,7 @@ proc getSMPostVoteByPk*(
 
 proc getOrCreateSMPostVoteByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
+       smPostId: string,
        votesUpCount: int,
        votesDownCount: int): SMPostVote {.gcsafe.} =
 
@@ -353,7 +333,7 @@ proc rowToSMPostVote*(row: seq[string]):
 
   var smPostVote = SMPostVote()
 
-  smPostVote.smPostId = parseBiggestInt(row[0])
+  smPostVote.smPostId = row[0]
   smPostVote.votesUpCount = parseInt(row[1])
   smPostVote.votesDownCount = parseInt(row[2])
 
@@ -387,7 +367,7 @@ proc updateSMPostVoteSetClause*(
 
     if field == "sm_post_id":
       updateStatement &= "       sm_post_id = ?,"
-      updateValues.add($smPostVote.smPostId)
+      updateValues.add(smPostVote.smPostId)
 
     elif field == "votes_up_count":
       updateStatement &= "       votes_up_count = ?,"

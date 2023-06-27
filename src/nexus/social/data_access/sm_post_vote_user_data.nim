@@ -60,11 +60,11 @@ proc countSMPostVoteUser*(
 
 proc createSMPostVoteUserReturnsPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64,
+       smPostId: string,
+       accountUserId: string,
        voteUp: bool,
        voteDown: bool,
-       ignoreExistingPk: bool = false): (int64, int64) {.gcsafe.} =
+       ignoreExistingPk: bool = false): (string, string) {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -75,12 +75,12 @@ proc createSMPostVoteUserReturnsPk*(
   # Field: SM Post Id
   insertStatement &= "sm_post_id, "
   valuesClause &= "?, "
-  insertValues.add($smPostId)
+  insertValues.add(smPostId)
 
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($accountUserId)
+  insertValues.add(accountUserId)
 
   # Field: Vote Up
   insertStatement &= "vote_up, "
@@ -117,8 +117,8 @@ proc createSMPostVoteUserReturnsPk*(
 
 proc createSMPostVoteUser*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64,
+       smPostId: string,
+       accountUserId: string,
        voteUp: bool,
        voteDown: bool,
        ignoreExistingPk: bool = false,
@@ -145,8 +145,8 @@ proc createSMPostVoteUser*(
 
 proc deleteSMPostVoteUserByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64): int64 {.gcsafe.} =
+       smPostId: string,
+       accountUserId: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -208,8 +208,8 @@ proc deleteSMPostVoteUser*(
 
 proc existsSMPostVoteUserByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64): bool {.gcsafe.} =
+       smPostId: string,
+       accountUserId: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -220,8 +220,8 @@ proc existsSMPostVoteUserByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $smPostId,
-              $accountUserId)
+              smPostId,
+              accountUserId)
 
   if row[0] == "":
     return false
@@ -304,29 +304,6 @@ proc filterSMPostVoteUser*(
 
 proc getSMPostVoteUserByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64): Option[SMPostVoteUser] {.gcsafe.} =
-
-  var selectStatement =
-    "select sm_post_id, account_user_id, vote_up, vote_down" & 
-    "  from sm_post_vote_user" &
-    " where sm_post_id = ?" &
-    "   and account_user_id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId,
-              accountUserId)
-
-  if row[0] == "":
-    return none(SMPostVoteUser)
-
-  return some(rowToSMPostVoteUser(row))
-
-
-proc getSMPostVoteUserByPk*(
-       dbContext: NexusSocialDbContext,
        smPostId: string,
        accountUserId: string): Option[SMPostVoteUser] {.gcsafe.} =
 
@@ -350,8 +327,8 @@ proc getSMPostVoteUserByPk*(
 
 proc getOrCreateSMPostVoteUserByPk*(
        dbContext: NexusSocialDbContext,
-       smPostId: int64,
-       accountUserId: int64,
+       smPostId: string,
+       accountUserId: string,
        voteUp: bool,
        voteDown: bool): SMPostVoteUser {.gcsafe.} =
 
@@ -377,8 +354,8 @@ proc rowToSMPostVoteUser*(row: seq[string]):
 
   var smPostVoteUser = SMPostVoteUser()
 
-  smPostVoteUser.smPostId = parseBiggestInt(row[0])
-  smPostVoteUser.accountUserId = parseBiggestInt(row[1])
+  smPostVoteUser.smPostId = row[0]
+  smPostVoteUser.accountUserId = row[1]
   smPostVoteUser.voteUp = parsePgBool(row[2])
   smPostVoteUser.voteDown = parsePgBool(row[3])
 
@@ -412,11 +389,11 @@ proc updateSMPostVoteUserSetClause*(
 
     if field == "sm_post_id":
       updateStatement &= "       sm_post_id = ?,"
-      updateValues.add($smPostVoteUser.smPostId)
+      updateValues.add(smPostVoteUser.smPostId)
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
-      updateValues.add($smPostVoteUser.accountUserId)
+      updateValues.add(smPostVoteUser.accountUserId)
 
     elif field == "vote_up":
         updateStatement &= "       vote_up = " & pgToBool(smPostVoteUser.voteUp) & ","

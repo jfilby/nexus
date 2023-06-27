@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/social/types/model_types
 
 
@@ -61,20 +60,20 @@ proc countSMPost*(
 
 proc createSMPostReturnsPk*(
        dbContext: NexusSocialDbContext,
-       parentId: Option[int64] = none(int64),
-       accountUserId: int64,
+       parentId: Option[string] = none(string),
+       accountUserId: string,
        uniqueHash: string,
        postType: char,
        status: char = 'A',
        title: Option[string] = none(string),
        body: string,
-       tagIds: Option[int64] = none(int64),
+       tagIds: Option[string] = none(string),
        created: DateTime = now(),
        published: Option[DateTime] = none(DateTime),
        updateCount: int = 0,
        updated: Option[DateTime] = none(DateTime),
        deleted: Option[DateTime] = none(DateTime),
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -82,20 +81,27 @@ proc createSMPostReturnsPk*(
     insertStatement = "insert into sm_post ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Parent Id
-  if parentId != none(int64):
+  if parentId != none(string):
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
-    insertValues.add($parentId.get)
+    insertValues.add(parentId.get)
 
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($accountUserId)
+  insertValues.add(accountUserId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(uniqueHash)
 
   # Field: Post Type
@@ -109,19 +115,19 @@ proc createSMPostReturnsPk*(
   # Field: Title
   if title != none(string):
     insertStatement &= "title, "
-    valuesClause &= "?" & ", "
+    valuesClause &= "?, "
     insertValues.add(title.get)
 
   # Field: Body
   insertStatement &= "body, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(body)
 
   # Field: Tag Ids
-  if tagIds != none(int64):
+  if tagIds != none(string):
     insertStatement &= "tag_ids, "
     valuesClause &= "?, "
-    insertValues.add($tagIds.get)
+    insertValues.add(tagIds.get)
 
   # Field: Created
   insertStatement &= "created, "
@@ -162,23 +168,24 @@ proc createSMPostReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createSMPost*(
        dbContext: NexusSocialDbContext,
-       parentId: Option[int64] = none(int64),
-       accountUserId: int64,
+       parentId: Option[string] = none(string),
+       accountUserId: string,
        uniqueHash: string,
        postType: char,
        status: char = 'A',
        title: Option[string] = none(string),
        body: string,
-       tagIds: Option[int64] = none(int64),
+       tagIds: Option[string] = none(string),
        created: DateTime = now(),
        published: Option[DateTime] = none(DateTime),
        updateCount: int = 0,
@@ -228,7 +235,7 @@ proc createSMPost*(
 
 proc deleteSMPostByPk*(
        dbContext: NexusSocialDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -288,7 +295,7 @@ proc deleteSMPost*(
 
 proc existsSMPostByPk*(
        dbContext: NexusSocialDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -298,7 +305,7 @@ proc existsSMPostByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -403,27 +410,6 @@ proc filterSMPost*(
 
 proc getSMPostByPk*(
        dbContext: NexusSocialDbContext,
-       id: int64): Option[SMPost] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, parent_id, account_user_id, unique_hash, post_type, status, title, body, tag_ids," & 
-    "       created, published, update_count, updated, deleted" &
-    "  from sm_post" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(SMPost)
-
-  return some(rowToSMPost(row))
-
-
-proc getSMPostByPk*(
-       dbContext: NexusSocialDbContext,
        id: string): Option[SMPost] {.gcsafe.} =
 
   var selectStatement =
@@ -466,14 +452,14 @@ proc getSMPostByUniqueHash*(
 
 proc getOrCreateSMPostByUniqueHash*(
        dbContext: NexusSocialDbContext,
-       parentId: Option[int64],
-       accountUserId: int64,
+       parentId: Option[string],
+       accountUserId: string,
        uniqueHash: string,
        postType: char,
        status: char,
        title: Option[string],
        body: string,
-       tagIds: Option[int64],
+       tagIds: Option[string],
        created: DateTime,
        published: Option[DateTime],
        updateCount: int,
@@ -510,14 +496,14 @@ proc rowToSMPost*(row: seq[string]):
 
   var smPost = SMPost()
 
-  smPost.id = parseBiggestInt(row[0])
+  smPost.id = row[0]
 
   if row[1] != "":
-    smPost.parentId = some(parseBiggestInt(row[1]))
+    smPost.parentId = some(row[1])
   else:
-    smPost.parentId = none(int64)
+    smPost.parentId = none(string)
 
-  smPost.accountUserId = parseBiggestInt(row[2])
+  smPost.accountUserId = row[2]
   smPost.uniqueHash = row[3]
   smPost.postType = row[4][0]
   smPost.status = row[5][0]
@@ -530,9 +516,9 @@ proc rowToSMPost*(row: seq[string]):
   smPost.body = row[7]
 
   if row[8] != "":
-    smPost.tagIds = some(parseBiggestInt(row[8]))
+    smPost.tagIds = some(row[8])
   else:
-    smPost.tagIds = none(int64)
+    smPost.tagIds = none(string)
 
   smPost.created = parsePgTimestamp(row[9])
 
@@ -584,18 +570,18 @@ proc updateSMPostSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($smPost.id)
+      updateValues.add(smPost.id)
 
     elif field == "parent_id":
-      if smPost.parentId != none(int64):
+      if smPost.parentId != none(string):
         updateStatement &= "       parent_id = ?,"
-        updateValues.add($smPost.parentId.get)
+        updateValues.add(smPost.parentId.get)
       else:
         updateStatement &= "       parent_id = null,"
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
-      updateValues.add($smPost.accountUserId)
+      updateValues.add(smPost.accountUserId)
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"
@@ -621,9 +607,9 @@ proc updateSMPostSetClause*(
       updateValues.add(smPost.body)
 
     elif field == "tag_ids":
-      if smPost.tagIds != none(int64):
+      if smPost.tagIds != none(string):
         updateStatement &= "       tag_ids = ?,"
-        updateValues.add($smPost.tagIds.get)
+        updateValues.add(smPost.tagIds.get)
       else:
         updateStatement &= "       tag_ids = null,"
 

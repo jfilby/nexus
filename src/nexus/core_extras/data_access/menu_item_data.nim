@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core_extras/types/model_types
 
 
@@ -61,15 +60,15 @@ proc countMenuItem*(
 
 proc createMenuItemReturnsPk*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64] = none(int64),
+       parentId: Option[string] = none(string),
        name: string,
        url: string,
        screen: string,
        level: int,
        position: int,
-       roleIds: Option[seq[int64]] = none(seq[int64]),
+       roleIds: Option[seq[string]] = none(seq[string]),
        created: DateTime,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -77,25 +76,32 @@ proc createMenuItemReturnsPk*(
     insertStatement = "insert into menu_item ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Parent Id
-  if parentId != none(int64):
+  if parentId != none(string):
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
-    insertValues.add($parentId.get)
+    insertValues.add(parentId.get)
 
   # Field: Name
   insertStatement &= "name, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(name)
 
   # Field: URL
   insertStatement &= "url, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(url)
 
   # Field: Screen
   insertStatement &= "screen, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(screen)
 
   # Field: Level
@@ -109,9 +115,9 @@ proc createMenuItemReturnsPk*(
   insertValues.add($position)
 
   # Field: Role Ids
-  if roleIds != none(seq[int64]):
+  if roleIds != none(seq[string]):
     insertStatement &= "role_ids, "
-    valuesClause &= "'" & getSeqNonStringAsPgArrayString(roleIds.get) & "'" & ", "
+    valuesClause &= "'" & getSeqStringAsPgArrayString(roleIds.get) & "'" & ", "
 
   # Field: Created
   insertStatement &= "created, "
@@ -132,22 +138,23 @@ proc createMenuItemReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createMenuItem*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64] = none(int64),
+       parentId: Option[string] = none(string),
        name: string,
        url: string,
        screen: string,
        level: int,
        position: int,
-       roleIds: Option[seq[int64]] = none(seq[int64]),
+       roleIds: Option[seq[string]] = none(seq[string]),
        created: DateTime,
        ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
@@ -183,7 +190,7 @@ proc createMenuItem*(
 
 proc deleteMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -243,7 +250,7 @@ proc deleteMenuItem*(
 
 proc existsMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -253,7 +260,7 @@ proc existsMenuItemByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -362,26 +369,6 @@ proc filterMenuItem*(
 
 proc getMenuItemByPk*(
        dbContext: NexusCoreExtrasDbContext,
-       id: int64): Option[MenuItem] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, parent_id, name, url, screen, level, position, role_ids, created" & 
-    "  from menu_item" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(MenuItem)
-
-  return some(rowToMenuItem(row))
-
-
-proc getMenuItemByPk*(
-       dbContext: NexusCoreExtrasDbContext,
        id: string): Option[MenuItem] {.gcsafe.} =
 
   var selectStatement =
@@ -428,13 +415,13 @@ proc getMenuItemByNameAndURLAndScreen*(
 
 proc getOrCreateMenuItemByNameAndURLAndScreen*(
        dbContext: NexusCoreExtrasDbContext,
-       parentId: Option[int64],
+       parentId: Option[string],
        name: string,
        url: string,
        screen: string,
        level: int,
        position: int,
-       roleIds: Option[seq[int64]],
+       roleIds: Option[seq[string]],
        created: DateTime): MenuItem {.gcsafe.} =
 
   let menuItem =
@@ -464,12 +451,12 @@ proc rowToMenuItem*(row: seq[string]):
 
   var menuItem = MenuItem()
 
-  menuItem.id = parseBiggestInt(row[0])
+  menuItem.id = row[0]
 
   if row[1] != "":
-    menuItem.parentId = some(parseBiggestInt(row[1]))
+    menuItem.parentId = some(row[1])
   else:
-    menuItem.parentId = none(int64)
+    menuItem.parentId = none(string)
 
   menuItem.name = row[2]
   menuItem.url = row[3]
@@ -478,9 +465,9 @@ proc rowToMenuItem*(row: seq[string]):
   menuItem.position = parseInt(row[6])
 
   if row[7] != "":
-    menuItem.roleIds = some(getPgArrayStringAsSeqInt64(row[7]))
+    menuItem.roleIds = some(getPgArrayStringAsSeqString(row[7]))
   else:
-    menuItem.roleIds = none(seq[int64])
+    menuItem.roleIds = none(seq[string])
 
   menuItem.created = parsePgTimestamp(row[8])
 
@@ -514,12 +501,12 @@ proc updateMenuItemSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($menuItem.id)
+      updateValues.add(menuItem.id)
 
     elif field == "parent_id":
-      if menuItem.parentId != none(int64):
+      if menuItem.parentId != none(string):
         updateStatement &= "       parent_id = ?,"
-        updateValues.add($menuItem.parentId.get)
+        updateValues.add(menuItem.parentId.get)
       else:
         updateStatement &= "       parent_id = null,"
 
@@ -544,8 +531,8 @@ proc updateMenuItemSetClause*(
       updateValues.add($menuItem.position)
 
     elif field == "role_ids":
-      if menuItem.roleIds != none(seq[int64]):
-        updateStatement &= "       role_ids = '" & getSeqNonStringAsPgArrayString(menuItem.roleIds.get) & "',"
+      if menuItem.roleIds != none(seq[string]):
+        updateStatement &= "       role_ids = '" & getSeqStringAsPgArrayString(menuItem.roleIds.get) & "',"
       else:
         updateStatement &= "       role_ids = null,"
 

@@ -74,17 +74,17 @@ proc createTempFormDataReturnsPk*(
 
   # Field: Token
   insertStatement &= "token, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(token)
 
   # Field: Format
   insertStatement &= "format, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(format)
 
   # Field: Data
   insertStatement &= "data, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(data)
 
   # Field: Created

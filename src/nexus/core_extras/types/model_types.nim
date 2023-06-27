@@ -4,8 +4,8 @@ import db_postgres, options, tables, times
 
 type
   ListItem* = object
-    id*: int64
-    parentId*: Option[int64]
+    id*: string
+    parentId*: Option[string]
     seqNo*: int
     name*: string
     displayName*: string
@@ -16,14 +16,14 @@ type
 
 
   MenuItem* = object
-    id*: int64
-    parentId*: Option[int64]
+    id*: string
+    parentId*: Option[string]
     name*: string
     url*: string
     screen*: string
     level*: int
     position*: int
-    roleIds*: Option[seq[int64]]
+    roleIds*: Option[seq[string]]
     created*: DateTime
 
   MenuItems* = seq[MenuItem]
@@ -39,7 +39,7 @@ type
 
 
   TempQueueData* = object
-    tempQueueDataId*: int64
+    tempQueueDataId*: string
     format*: string
     dataIn*: string
     dataOut*: Option[string]

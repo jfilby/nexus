@@ -60,12 +60,12 @@ proc countAccountUserToken*(
 
 proc createAccountUserTokenReturnsPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        token: string,
        created: DateTime,
        deleted: Option[DateTime] = none(DateTime),
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -76,16 +76,16 @@ proc createAccountUserTokenReturnsPk*(
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($accountUserId)
+  insertValues.add(accountUserId)
 
   # Field: Unique Hash
   insertStatement &= "unique_hash, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(uniqueHash)
 
   # Field: Token
   insertStatement &= "token, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(token)
 
   # Field: Created
@@ -122,7 +122,7 @@ proc createAccountUserTokenReturnsPk*(
 
 proc createAccountUserToken*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        token: string,
        created: DateTime,
@@ -154,7 +154,7 @@ proc createAccountUserToken*(
 
 proc deleteAccountUserTokenByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): int64 {.gcsafe.} =
+       accountUserId: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -214,7 +214,7 @@ proc deleteAccountUserToken*(
 
 proc existsAccountUserTokenByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): bool {.gcsafe.} =
+       accountUserId: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -224,7 +224,7 @@ proc existsAccountUserTokenByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $accountUserId)
+              accountUserId)
 
   if row[0] == "":
     return false
@@ -347,26 +347,6 @@ proc filterAccountUserToken*(
 
 proc getAccountUserTokenByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64): Option[AccountUserToken] {.gcsafe.} =
-
-  var selectStatement =
-    "select account_user_id, unique_hash, token, created, deleted" & 
-    "  from account_user_token" &
-    " where account_user_id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId)
-
-  if row[0] == "":
-    return none(AccountUserToken)
-
-  return some(rowToAccountUserToken(row))
-
-
-proc getAccountUserTokenByPk*(
-       dbContext: NexusCoreDbContext,
        accountUserId: string): Option[AccountUserToken] {.gcsafe.} =
 
   var selectStatement =
@@ -427,7 +407,7 @@ proc getAccountUserTokenByToken*(
 
 proc getOrCreateAccountUserTokenByPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        token: string,
        created: DateTime,
@@ -452,7 +432,7 @@ proc getOrCreateAccountUserTokenByPk*(
 
 proc getOrCreateAccountUserTokenByUniqueHash*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        token: string,
        created: DateTime,
@@ -477,7 +457,7 @@ proc getOrCreateAccountUserTokenByUniqueHash*(
 
 proc getOrCreateAccountUserTokenByToken*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
+       accountUserId: string,
        uniqueHash: string,
        token: string,
        created: DateTime,
@@ -505,7 +485,7 @@ proc rowToAccountUserToken*(row: seq[string]):
 
   var accountUserToken = AccountUserToken()
 
-  accountUserToken.accountUserId = parseBiggestInt(row[0])
+  accountUserToken.accountUserId = row[0]
   accountUserToken.uniqueHash = row[1]
   accountUserToken.token = row[2]
   accountUserToken.created = parsePgTimestamp(row[3])
@@ -546,7 +526,7 @@ proc updateAccountUserTokenSetClause*(
 
     if field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
-      updateValues.add($accountUserToken.accountUserId)
+      updateValues.add(accountUserToken.accountUserId)
 
     elif field == "unique_hash":
       updateStatement &= "       unique_hash = ?,"

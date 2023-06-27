@@ -106,9 +106,9 @@ proc buildInsertSQLFromModelFieldNames*(
 
   for field in model.fields:
 
-    # Skip PK if auto-gen and not uuid
+    # Skip PK if auto-gen and not handled here (ints are handled later)
     if field.isAutoValue == true and
-       field.`type` != "uuid":
+       field.`type` notin @[ "string", "uuid" ]:
 
       continue
 
@@ -140,7 +140,7 @@ proc buildInsertSQLFromModelFieldNames*(
       name = field.name,
       fieldType = field.`type`
 
-    # Add field name to insert caluse (uuid is a special case)
+    # Add field name to insert caluse (string and uuid are special cases)
     if field.`type` == "uuid":
       str &= &"{aIndent}insertStatement &= \"uuid_generate_v1(), \"\n"
 
@@ -155,8 +155,16 @@ proc buildInsertSQLFromModelFieldNames*(
 
     # The string type (no conversion necessary)
     if field.`type` == "string":
-      str &= &"{aIndent}valuesClause &= \"?\" {andComma}\n"
-      str &= &"{aIndent}insertValues.add({valueStr})\n"
+
+      str &= &"{aIndent}valuesClause &= \"?, \"\n"
+
+      if field.isAutoValue == true:
+        str &=  "\n" &
+               &"{aIndent}let {field.nameInCamelCase} = $genUUID()\n" &
+               &"{aIndent}insertValues.add({field.nameInCamelCase})\n"
+
+      else:
+        str &= &"{aIndent}insertValues.add({valueStr})\n"
 
     # Types that must be handled by DB functions
     elif @[ "char",

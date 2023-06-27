@@ -1,8 +1,8 @@
 REM Nexus generated DML file
 
 CREATE TABLE public.mailing_list_message (
-  id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
-  account_user_id BIGINT NOT NULL,
+  id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL UNIQUE,
+  account_user_id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   unique_hash CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   subject CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   message CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,

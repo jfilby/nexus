@@ -40,7 +40,7 @@ proc getOrCreateAdminUser*(
     accountUser =
       some(createAccountUser(
              coreContext.db,
-             accountId = none(int64),
+             accountId = none(string),
              name = "Admin User",
              email = email,
              passwordHash = passwordHash,
@@ -67,14 +67,12 @@ proc getOrCreateAdminUser*(
   accountUser.get.is_active = true
   accountUser.get.isVerified = true
 
-  var rowsUpdated: int64
-
-  rowsUpdated =
-    updateAccountUserByPk(
-      coreContext.db,
-      accountUser.get,
-      setFields = @[ "is_active",
-                     "is_verified" ])
+  let rowsUpdated =
+        updateAccountUserByPk(
+          coreContext.db,
+          accountUser.get,
+          setFields = @[ "is_active",
+                         "is_verified" ])
 
   # Create the Admin role for the user
   assignAdminRole(

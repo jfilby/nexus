@@ -386,7 +386,7 @@ proc verifyJWTByAPIKey*(
   # Get API key for the specified user
   let apiKey = getAPIKeyFromAccountUserByPk(
                  nexusCoreDbContext,
-                 parseBiggestInt(accountUserId))
+                 accountUserId)
 
   if apiKey == none(string):
 

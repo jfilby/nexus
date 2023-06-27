@@ -14,7 +14,7 @@ import admin_role
 proc assignAdminRole*(
        coreContext: NexusCoreContext,
        coreExtrasContext: NexusCoreExtrasContext,
-       accountUserId: int64) =
+       accountUserId: string) =
 
   # Get admin user role
   let adminRoleId =

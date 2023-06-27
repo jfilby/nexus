@@ -46,7 +46,7 @@ proc sendEmailsToMailingList*(
 
     discard getOrCreateMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMessageId(
               context,
-              none(int64),
+              none(string),
               mailingList.mailingListId,
               mailingListSubscriber.mailingListSubscriberId,
               mailingListMessage.mailingListMessageId,

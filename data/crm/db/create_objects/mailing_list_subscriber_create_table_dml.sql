@@ -1,9 +1,9 @@
 REM Nexus generated DML file
 
 CREATE TABLE public.mailing_list_subscriber (
-  id BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY,
-  account_user_id BIGINT,
-  mailing_list_id BIGINT NOT NULL,
+  id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL UNIQUE,
+  account_user_id CHARACTER VARYING COLLATE pg_catalog."default",
+  mailing_list_id CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   unique_hash CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,
   is_active BOOL NOT NULL,
   email CHARACTER VARYING COLLATE pg_catalog."default" NOT NULL,

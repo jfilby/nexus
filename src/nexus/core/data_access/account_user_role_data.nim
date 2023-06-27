@@ -1,7 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import db_postgres, options, sequtils, strutils, times, uuids
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core/types/model_types
 
 
@@ -61,10 +60,10 @@ proc countAccountUserRole*(
 
 proc createAccountUserRoleReturnsPk*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
-       roleId: int64,
+       accountUserId: string,
+       roleId: string,
        created: DateTime,
-       ignoreExistingPk: bool = false): int64 {.gcsafe.} =
+       ignoreExistingPk: bool = false): string {.gcsafe.} =
 
   # Formulate insertStatement and insertValues
   var
@@ -72,15 +71,22 @@ proc createAccountUserRoleReturnsPk*(
     insertStatement = "insert into account_user_role ("
     valuesClause = ""
 
+  # Field: Id
+  insertStatement &= "id, "
+  valuesClause &= "?, "
+
+  let id = $genUUID()
+  insertValues.add(id)
+
   # Field: Account User Id
   insertStatement &= "account_user_id, "
   valuesClause &= "?, "
-  insertValues.add($accountUserId)
+  insertValues.add(accountUserId)
 
   # Field: Role Id
   insertStatement &= "role_id, "
   valuesClause &= "?, "
-  insertValues.add($roleId)
+  insertValues.add(roleId)
 
   # Field: Created
   insertStatement &= "created, "
@@ -101,17 +107,18 @@ proc createAccountUserRoleReturnsPk*(
     insertStatement &= " on conflict (id) do nothing"
 
   # Execute the insert statement and return the sequence values
-  return tryInsertNamedID(
+  exec(
     dbContext.dbConn,
     sql(insertStatement),
-    "id",
     insertValues)
+
+  return id
 
 
 proc createAccountUserRole*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
-       roleId: int64,
+       accountUserId: string,
+       roleId: string,
        created: DateTime,
        ignoreExistingPk: bool = false,
        copyAllStringFields: bool = true,
@@ -137,7 +144,7 @@ proc createAccountUserRole*(
 
 proc deleteAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   var deleteStatement =
     "delete" & 
@@ -197,7 +204,7 @@ proc deleteAccountUserRole*(
 
 proc existsAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -207,7 +214,7 @@ proc existsAccountUserRoleByPk*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $id)
+              id)
 
   if row[0] == "":
     return false
@@ -217,8 +224,8 @@ proc existsAccountUserRoleByPk*(
 
 proc existsAccountUserRoleByAccountUserIdAndRoleId*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
-       roleId: int64): bool {.gcsafe.} =
+       accountUserId: string,
+       roleId: string): bool {.gcsafe.} =
 
   var selectStatement =
     "select 1" & 
@@ -229,8 +236,8 @@ proc existsAccountUserRoleByAccountUserIdAndRoleId*(
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              $accountUserId,
-              $roleId)
+              accountUserId,
+              roleId)
 
   if row[0] == "":
     return false
@@ -313,26 +320,6 @@ proc filterAccountUserRole*(
 
 proc getAccountUserRoleByPk*(
        dbContext: NexusCoreDbContext,
-       id: int64): Option[AccountUserRole] {.gcsafe.} =
-
-  var selectStatement =
-    "select id, account_user_id, role_id, created" & 
-    "  from account_user_role" &
-    " where id = ?"
-
-  let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
-
-  if row[0] == "":
-    return none(AccountUserRole)
-
-  return some(rowToAccountUserRole(row))
-
-
-proc getAccountUserRoleByPk*(
-       dbContext: NexusCoreDbContext,
        id: string): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
@@ -353,8 +340,8 @@ proc getAccountUserRoleByPk*(
 
 proc getAccountUserRoleByAccountUserIdAndRoleId*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
-       roleId: int64): Option[AccountUserRole] {.gcsafe.} =
+       accountUserId: string,
+       roleId: string): Option[AccountUserRole] {.gcsafe.} =
 
   var selectStatement =
     "select id, account_user_id, role_id, created" & 
@@ -376,8 +363,8 @@ proc getAccountUserRoleByAccountUserIdAndRoleId*(
 
 proc getOrCreateAccountUserRoleByAccountUserIdAndRoleId*(
        dbContext: NexusCoreDbContext,
-       accountUserId: int64,
-       roleId: int64,
+       accountUserId: string,
+       roleId: string,
        created: DateTime): AccountUserRole {.gcsafe.} =
 
   let accountUserRole =
@@ -401,9 +388,9 @@ proc rowToAccountUserRole*(row: seq[string]):
 
   var accountUserRole = AccountUserRole()
 
-  accountUserRole.id = parseBiggestInt(row[0])
-  accountUserRole.accountUserId = parseBiggestInt(row[1])
-  accountUserRole.roleId = parseBiggestInt(row[2])
+  accountUserRole.id = row[0]
+  accountUserRole.accountUserId = row[1]
+  accountUserRole.roleId = row[2]
   accountUserRole.created = parsePgTimestamp(row[3])
 
   return accountUserRole
@@ -436,15 +423,15 @@ proc updateAccountUserRoleSetClause*(
 
     if field == "id":
       updateStatement &= "       id = ?,"
-      updateValues.add($accountUserRole.id)
+      updateValues.add(accountUserRole.id)
 
     elif field == "account_user_id":
       updateStatement &= "       account_user_id = ?,"
-      updateValues.add($accountUserRole.accountUserId)
+      updateValues.add(accountUserRole.accountUserId)
 
     elif field == "role_id":
       updateStatement &= "       role_id = ?,"
-      updateValues.add($accountUserRole.roleId)
+      updateValues.add(accountUserRole.roleId)
 
     elif field == "created":
         updateStatement &= "       created = " & pgToDateTimeString(accountUserRole.created) & ","

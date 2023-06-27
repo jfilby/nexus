@@ -7,14 +7,14 @@ import nexus/social/types/model_types
 # Code
 proc cachedCreateSMPost*(
        dbContext: var NexusSocialDbContext,
-       parentId: Option[int64] = none(int64),
-       accountUserId: int64,
+       parentId: Option[string] = none(string),
+       accountUserId: string,
        uniqueHash: string,
        postType: char,
        status: char = 'A',
        title: Option[string] = none(string),
        body: string,
-       tagIds: Option[int64] = none(int64),
+       tagIds: Option[string] = none(string),
        created: DateTime = now(),
        published: Option[DateTime] = none(DateTime),
        updateCount: int = 0,
@@ -52,7 +52,7 @@ proc cachedCreateSMPost*(
 
 proc cachedDeleteSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       id: int64): int64 {.gcsafe.} =
+       id: string): int64 {.gcsafe.} =
 
   # Call the model's delete proc
   let rowsDeleted = 
@@ -74,7 +74,7 @@ proc cachedDeleteSMPostByPk*(
 
 proc cachedExistsSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       id: int64): bool {.gcsafe.} =
+       id: string): bool {.gcsafe.} =
 
   # Check existence in the model row cache
   if dbContext.cachedSMPosts.hasKey(id):
@@ -136,7 +136,7 @@ proc cachedFilterSMPost*(
           limit)
 
   # Get PKs from the filter results
-  var pks: seq[int64]
+  var pks: seq[string]
 
   for smPost in smPosts:
     pks.add(smPost.id)
@@ -184,7 +184,7 @@ proc cachedFilterSMPost*(
           limit)
 
   # Get PKs from the filter results
-  var pks: seq[int64]
+  var pks: seq[string]
 
   for smPost in smPosts:
     pks.add(smPost.id)
@@ -202,7 +202,7 @@ proc cachedFilterSMPost*(
 
 proc cachedGetSMPostByPk*(
        dbContext: var NexusSocialDbContext,
-       id: int64): Option[SMPost] {.gcsafe.} =
+       id: string): Option[SMPost] {.gcsafe.} =
 
   # Get from the model row cache
   if dbContext.cachedSMPosts.hasKey(id):
@@ -250,14 +250,14 @@ proc cachedGetSMPostByUniqueHash*(
 
 proc cachedGetOrCreateSMPostByUniqueHash*(
        dbContext: var NexusSocialDbContext,
-       parentId: Option[int64],
-       accountUserId: int64,
+       parentId: Option[string],
+       accountUserId: string,
        uniqueHash: string,
        postType: char,
        status: char,
        title: Option[string],
        body: string,
-       tagIds: Option[int64],
+       tagIds: Option[string],
        created: DateTime,
        published: Option[DateTime],
        updateCount: int,

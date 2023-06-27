@@ -124,7 +124,7 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
   let accountUser =
         createAccountUser(
           context.db,
-          accountId = none(int64),
+          accountId = none(string),
           name = name,
           email = email,
           passwordHash = passwordHash,

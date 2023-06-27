@@ -29,7 +29,7 @@ type
     metaDescription*: Option[string]
 
     token*: string
-    accountUserId*: int64
+    accountUserId*: string
     accountUserIdStr*: string
     loggedIn*: bool
 
@@ -237,9 +237,9 @@ proc newBaseWebContext*(
     loggedIn = $webContext.loggedIn
 
   if accountUserId != "":
-    webContext.accountUserId = parseBiggestInt(accountUserId)
+    webContext.accountUserId = accountUserId
   else:
-    webContext.accountUserId = -1
+    webContext.accountUserId = ""
 
   webContext.accountUserIdStr = accountUserId
 

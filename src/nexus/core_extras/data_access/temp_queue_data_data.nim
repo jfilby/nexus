@@ -1,7 +1,6 @@
 # Nexus generated file
 import db_postgres, options, sequtils, strutils, times
 import nexus/core/data_access/data_utils
-import nexus/core/data_access/pg_try_insert_id
 import nexus/core_extras/types/model_types
 
 
@@ -74,20 +73,27 @@ proc createTempQueueDataReturnsPk*(
     insertStatement = "insert into temp_queue_data ("
     valuesClause = ""
 
+  # Field: Temp Queue Data Id
+  insertStatement &= "temp_queue_data_id, "
+  valuesClause &= "?, "
+
+  let tempQueueDataId = $genUUID()
+  insertValues.add(tempQueueDataId)
+
   # Field: Format
   insertStatement &= "format, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(format)
 
   # Field: Data In
   insertStatement &= "data_in, "
-  valuesClause &= "?" & ", "
+  valuesClause &= "?, "
   insertValues.add(dataIn)
 
   # Field: Data Out
   if dataOut != none(string):
     insertStatement &= "data_out, "
-    valuesClause &= "?" & ", "
+    valuesClause &= "?, "
     insertValues.add(dataOut.get)
 
   # Field: Created
@@ -109,6 +115,13 @@ proc createTempQueueDataReturnsPk*(
   insertStatement &=
     ") values (" & valuesClause & ")"
 
+  # Execute the insert statement and return the sequence values
+  exec(
+    dbContext.dbConn,
+    sql(insertStatement),
+    insertValues)
+
+  return 
 
 
 proc createTempQueueData*(
@@ -267,7 +280,7 @@ proc rowToTempQueueData*(row: seq[string]):
 
   var tempQueueData = TempQueueData()
 
-  tempQueueData.tempQueueDataId = parseBiggestInt(row[0])
+  tempQueueData.tempQueueDataId = row[0]
   tempQueueData.format = row[1]
   tempQueueData.dataIn = row[2]
 
@@ -309,7 +322,7 @@ proc updateTempQueueDataSetClause*(
 
     if field == "temp_queue_data_id":
       updateStatement &= "       temp_queue_data_id = ?,"
-      updateValues.add($tempQueueData.tempQueueDataId)
+      updateValues.add(tempQueueData.tempQueueDataId)
 
     elif field == "format":
       updateStatement &= "       format = ?,"
