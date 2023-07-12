@@ -43,6 +43,15 @@ proc charsWithOption*(strs: seq[string]): Option[seq[char]] =
   return none(seq[char])
 
 
+proc charWithoutOptionAsString*(c: Option[char]): string =
+
+  if c == none(char):
+    return ""
+
+  else:
+    return $c.get
+
+
 # fmtfloat code from https://forum.nim-lang.org/t/8162 (see Javi's post)
 proc fmtFloat*(value: float,
                decimals: int,
