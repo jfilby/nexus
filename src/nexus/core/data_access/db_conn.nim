@@ -1,4 +1,4 @@
-import chronicles, db_postgres, locks, options, os, strformat, strutils
+import db_postgres, locks, options, os, strformat, strutils
 
 
 # DB open connection lock
@@ -12,7 +12,7 @@ proc closeDbConn*(dbConn: var DbConn) =
   close(dbConn)
 
 
-proc getDbConn*(): DbConn =
+proc getDbConn*(printInfo: bool = true): DbConn =
 
   # If a DEFAULT_DB_PREFIX env is specified then use it
   var defaultDbPrefix = getEnv("DEFAULT_DB_PREFIX")
@@ -44,8 +44,9 @@ proc getDbConn*(): DbConn =
   if dbPort == "":
     dbString = dbHost
 
-    info "getDbConn(): connecting to main db:",
-      dbName = dbName
+    if printInfo == true:
+      echo "getDbConn(): connecting to main db:" &
+           &"dbName: {dbName}"
 
     dbConn = open(dbHost,
                   username,
@@ -58,8 +59,9 @@ proc getDbConn*(): DbConn =
 
     dbString = &"postgresql://{username}:{password}@{dbHost}:{dbPort}/{dbName}"
 
-    info "getDbConn(): connecting to main db:",
-      dbShowString = dbShowString
+    if printInfo == true:
+      echo "getDbConn(): connecting to main db:",
+           &"dbShowString: {dbShowString}"
 
     dbConn = open("",
                   "",
