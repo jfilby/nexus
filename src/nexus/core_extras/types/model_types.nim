@@ -3,6 +3,17 @@ import db_postgres, options, tables, times
 
 
 type
+  CachedKeyValue* = object
+    id*: string
+    key*: string
+    value*: string
+    created*: DateTime
+    updated*: Option[DateTime]
+    expires*: Option[DateTime]
+
+  CachedKeyValues* = seq[CachedKeyValue]
+
+
   ListItem* = object
     id*: string
     parentId*: Option[string]
@@ -47,6 +58,14 @@ type
     fulfilled*: DateTime
 
   TempQueueDatas* = seq[TempQueueData]
+
+
+  CountryTimezone* = object
+    countryCode*: string
+    timezone*: string
+    created*: DateTime
+
+  CountryTimezones* = seq[CountryTimezone]
 
 
   NexusCoreExtrasDbContext* = object

@@ -1,6 +1,40 @@
 %YAML 1.2
 ---
 
+- name: Cached Key Value
+  description: Key-values cached in the DB.
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Id
+    type: string
+    constraints: [ auto-value, not null ]
+  - name: Key
+    type: string
+    constraints: [ not null ]
+  - name: Value
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  - name: Updated
+    type: datetime
+    constraints: []
+  - name: Expires
+    type: datetime
+    constraints: []
+  defaults: []
+  pkFields: [ Id ]
+  uniqueFieldSets:
+  - fields: [ Key ]
+  relationships: []
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
 - name: List Item
   description: Hierarchical lists.
   module: Core Extras
@@ -149,6 +183,33 @@
   defaults: []
   pkFields: []
   uniqueFieldSets: []
+  relationships: []
+  indexes: []
+  getFunctions: []
+  updateFunctions: []
+
+
+- name: Country Timezone
+  description: >
+    Timezone names by country code. Imported with the timezones package.
+  module: Core Extras
+  modelOptions: [ object ]
+  tableOptions: [ generate ]
+  fields:
+  - name: Country Code
+    type: string
+    constraints: [ not null ]
+  - name: Timezone
+    type: string
+    constraints: [ not null ]
+  - name: Created
+    type: datetime
+    constraints: [ not null ]
+  defaults: []
+  pkFields: []
+  uniqueFieldSets:
+  - fields: [ Country Code,
+              Timezone ]
   relationships: []
   indexes: []
   getFunctions: []
