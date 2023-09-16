@@ -32,13 +32,13 @@ type
 
 
 # Forward declarations
-proc loadListYAML*(nexusCoreExtrasContext: NexusCoreExtrasContext,
+proc loadListYAML*(dbContext: NexusCoreExtrasDbContext,
                    filename: string,
                    listLoadType: ListLoadType)
 
 
 # Code
-proc loadListFiles(nexusCoreExtrasContext: NexusCoreExtrasContext,
+proc loadListFiles(dbContext: NexusCoreExtrasDbContext,
                    path: string,
                    listLoadType: ListLoadType) =
 
@@ -53,58 +53,58 @@ proc loadListFiles(nexusCoreExtrasContext: NexusCoreExtrasContext,
     case kind:
 
       of pcDir:
-        loadListFiles(nexusCoreExtrasContext,
+        loadListFiles(dbContext,
                       fullPath,
                       listLoadType)
 
       of pcLinkToDir:
-        loadListFiles(nexusCoreExtrasContext,
+        loadListFiles(dbContext,
                       fullPath,
                       listLoadType)
 
       of pcFile:
-        loadListYAML(nexusCoreExtrasContext,
+        loadListYAML(dbContext,
                      fullPath,
                      listLoadType)
 
       of pcLinkToFile:
-        loadListYAML(nexusCoreExtrasContext,
+        loadListYAML(dbContext,
                      fullPath,
                      listLoadType)
 
 
-proc loadListFiles*(nexusCoreExtrasContext: NexusCoreExtrasContext,
+proc loadListFiles*(dbContext: NexusCoreExtrasDbContext,
                     path: string) =
 
-  loadListFiles(nexusCoreExtrasContext,
+  loadListFiles(dbContext,
                 &"{path}{DirSep}basic",
                 Basic)
 
-  loadListFiles(nexusCoreExtrasContext,
+  loadListFiles(dbContext,
                 &"{path}{DirSep}full",
                 Full)
 
 
 proc truncateAndLoadListFiles*(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        dataLoadPath: string,
        truncate: bool = false) =
 
   # Truncate
   if truncate == true:
-    truncateListItem(nexusCoreExtrasContext.db,
+    truncateListItem(dbContext,
                      cascade = true)
 
   # Load files
   info "truncateAndLoadListFiles()",
     dataLoadPath = dataLoadPath
 
-  loadListFiles(nexusCoreExtrasContext,
+  loadListFiles(dbContext,
                 dataLoadPath)
 
 
 proc loadBasicListYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        filename: string) =
 
   info "loadBasicListYAML()",
@@ -127,7 +127,7 @@ proc loadBasicListYAML(
 
     # Create list
     let list = getOrCreateListItemByName(
-                 nexusCoreExtrasContext.db,
+                 dbContext,
                  parentId = none(string),
                  seqNo = 1,
                  listBasicYAML.name,
@@ -147,7 +147,7 @@ proc loadBasicListYAML(
         description = none(string)
 
       discard getOrCreateListItemByName(
-                nexusCoreExtrasContext.db,
+                dbContext,
                 some(list.id),
                 seqNo,
                 &"{listBasicYAML.name}: {listItemName}",
@@ -159,7 +159,7 @@ proc loadBasicListYAML(
 
 
 proc loadFullListYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        listsFullYAML: ListsFullYAML,
        parentId: Option[string] = none(string)) =
 
@@ -175,7 +175,7 @@ proc loadFullListYAML(
     # Create list
     let listItem =
           getOrCreateListItemByName(
-            nexusCoreExtrasContext.db,
+            dbContext,
             parentId,
             seqNo = 1,
             listFullYAML.name,
@@ -185,7 +185,7 @@ proc loadFullListYAML(
 
     # Create list items
     loadFullListYAML(
-      nexusCoreExtrasContext,
+      dbContext,
       listFullYAML.items,
       some(listItem.id))
 
@@ -193,7 +193,7 @@ proc loadFullListYAML(
 
 
 proc loadFullListYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        filename: string) =
 
   info "loadFullListYAML()",
@@ -208,22 +208,22 @@ proc loadFullListYAML(
   s.close()
 
   loadFullListYAML(
-    nexusCoreExtrasContext,
+    dbContext,
     listsFullYAML)
 
 
 proc loadListYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        filename: string,
        listLoadType: ListLoadType) =
 
   case listLoadType:
 
     of Basic:
-      loadBasicListYAML(nexusCoreExtrasContext,
+      loadBasicListYAML(dbContext,
                         filename)
 
     of Full:
-      loadFullListYAML(nexusCoreExtrasContext,
+      loadFullListYAML(dbContext,
                        filename)
 

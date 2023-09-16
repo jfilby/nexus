@@ -6,7 +6,6 @@ import nexus/core/service/account/jwt_utils
 import nexus/core/service/account/utils
 import nexus/core/types/model_types
 
-
 # Types
 type
   LinkMenuEntry* = ref object of RootObj
@@ -45,7 +44,6 @@ type
     topMenuBarAbout*: bool
     topMenuBarBlog*: bool
     topMenuBarSubscription*: bool
-
     formWidth*: string
     formWidthNarrow*: string
     formWideWidth*: string

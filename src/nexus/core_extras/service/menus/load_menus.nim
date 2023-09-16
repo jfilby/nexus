@@ -29,10 +29,10 @@ type
 
 # Forward declarations
 proc loadMenuYAML*(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        filename: string)
 proc loadMenusYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentMenuItemId: Option[string],
        menusYAML: MenusYAML,
        level: int)
@@ -40,7 +40,7 @@ proc loadMenusYAML(
 
 # Code
 proc loadMenuFiles*(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        path: string) =
 
   for kind, filename in walkDir(path,
@@ -49,30 +49,30 @@ proc loadMenuFiles*(
     if kind == pcFile and
        filename[0] != '.':
     
-      loadMenuYAML(nexusCoreExtrasContext,
+      loadMenuYAML(dbContext,
                    &"{path}{DirSep}{filename}")
 
 
 proc truncateAndLoadMenuFiles*(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        dataLoadPath: string,
        truncate: bool = false) =
 
   # Truncate
   if truncate == true:
 
-    truncateMenuItem(nexusCoreExtrasContext.db)
+    truncateMenuItem(dbContext)
 
   # Load files
   info "truncateAndLoadMenuFiles()",
     dataLoadPath = dataLoadPath
 
-  loadMenuFiles(nexusCoreExtrasContext,
+  loadMenuFiles(dbContext,
                 dataLoadPath)
 
 
 proc loadMenuYAML*(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        filename: string) =
 
   info "loadMenuYAML()",
@@ -87,14 +87,14 @@ proc loadMenuYAML*(
   s.close()
 
   # Create menu items
-  loadMenusYAML(nexusCoreExtrasContext,
+  loadMenusYAML(dbContext,
                 none(string),
                 menusYAML,
                 level = 1)
 
 
 proc loadMenusYAML(
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       dbContext: NexusCoreExtrasDbContext,
        parentMenuItemId: Option[string],
        menusYAML: MenusYAML,
        level: int) =
@@ -115,7 +115,7 @@ proc loadMenusYAML(
 
         let roleListItemId =
               getListItemIdByParentNameAndDisplayName(
-                nexusCoreExtrasContext,
+                dbContext,
                 &"User Roles: {menuRoleYAML.roleType}",
                 roleName)
 
@@ -124,7 +124,7 @@ proc loadMenusYAML(
     # Create menu
     let menuItem =
           getOrCreateMenuItemByNameAndURLAndScreen(
-            nexusCoreExtrasContext.db,
+            dbContext,
             parentMenuItemId,
             menuYAML.name,
             menuYAML.url,
@@ -135,7 +135,7 @@ proc loadMenusYAML(
             now())
 
     # Create menu items
-    loadMenusYAML(nexusCoreExtrasContext,
+    loadMenusYAML(dbContext,
                   some(menuItem.id),
                   menuYaml.items,
                   level = level + 1)

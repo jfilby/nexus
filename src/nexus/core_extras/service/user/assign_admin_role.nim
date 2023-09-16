@@ -12,30 +12,30 @@ import admin_role
 
 # Code
 proc assignAdminRole*(
-       coreContext: NexusCoreContext,
-       coreExtrasContext: NexusCoreExtrasContext,
+       coreDbContext: NexusCoreDbContext,
+       coreExtrasDbContext: NexusCoreExtrasDbContext,
        accountUserId: string) =
 
   # Get admin user role
   let adminRoleId =
-        getAdminRoleId(coreExtrasContext)
+        getAdminRoleId(coreExtrasDbContext)
 
   # Create user/role assignment
   discard getOrCreateAccountUserRoleByAccountUserIdAndRoleId(
-            coreContext.db,
+            coreDbContext,
             accountUserId,
             adminRoleId,
             now())
 
 
 proc assignDefaultAdminRoles*(
-       coreContext: NexusCoreContext,
-       coreExtrasContext: NexusCoreExtrasContext) =
+       coreDbContext: NexusCoreDbContext,
+       coreExtrasDbContext: NexusCoreExtrasDbContext) =
 
   # Get users that should have the admin role by email
   let accountUsers =
         filterAccountUser(
-          coreContext.db,
+          coreDbContext,
           whereFields = @[ "is_admin" ],
           whereValues = @[ $true ])
 
@@ -49,7 +49,7 @@ proc assignDefaultAdminRoles*(
   # Assign admin role per user
   for accountUser in accountUsers:
 
-    assignAdminRole(coreContext,
-                    coreExtrasContext,
+    assignAdminRole(coreDbContext,
+                    coreExtrasDbContext,
                     accountUser.id)
 

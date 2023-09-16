@@ -8,12 +8,12 @@ import nexus/core_extras/types/context_type
 import nexus/core_extras/types/model_types
 
 
-proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): string =
+proc getAdminRoleId*(coreExtrasDbContext: NexusCoreExtrasDbContext): string =
 
   # Get admin user role
   let adminListItemId =
         getListItemIdByParentNameAndDisplayName(
-          nexusCoreExtrasContext,
+          coreExtrasDbContext,
           "User Roles: Account User",
           "Admin")
 
@@ -26,17 +26,17 @@ proc getAdminRoleId*(nexusCoreExtrasContext: NexusCoreExtrasContext): string =
 
 
 proc userHasAdminRole*(
-       context: NexusCoreContext,
-       nexusCoreExtrasContext: NexusCoreExtrasContext,
+       coreDbContext: NexusCoreDbContext,
+       coreExtrasDbContext: NexusCoreExtrasDbContext,
        accountUser: AccountUser): bool =
 
   # Get adminRoleId
-  let adminRoleId = getAdminRoleId(nexusCoreExtrasContext)
+  let adminRoleId = getAdminRoleId(coreExtrasDbContext)
 
   # Check for user/role
   let accountUserRole =
         getAccountUserRoleByAccountUserIdAndRoleId(
-          context.db,
+          coreDbContext,
           accountUser.id,
           adminRoleId)
 
