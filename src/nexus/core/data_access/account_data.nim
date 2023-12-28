@@ -1,4 +1,5 @@
-import db_postgres, options
+import options
+import db_connector/db_postgres
 
 
 type

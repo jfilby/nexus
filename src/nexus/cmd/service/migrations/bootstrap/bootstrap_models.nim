@@ -1,4 +1,5 @@
-import chronicles, db_postgres, os, strformat, strutils
+import chronicles, os, strformat, strutils
+import db_connector/db_postgres
 
 
 proc bootstrapMigrationTables*(

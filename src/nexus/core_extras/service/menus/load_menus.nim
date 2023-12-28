@@ -1,4 +1,5 @@
-import chronicles, db_postgres, os, streams, strformat, times, yaml
+import chronicles, os, streams, strformat, times, yaml
+import db_connector/db_postgres
 import nexus/core/service/format/type_utils
 import nexus/core_extras/data_access/menu_item_data
 import nexus/core_extras/service/lists/list_utils

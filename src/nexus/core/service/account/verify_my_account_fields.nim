@@ -1,4 +1,4 @@
-import db_postgres
+import db_connector/db_postgres
 import docui/service/sdk/docui_types
 import docui/service/sdk/docui_utils
 import nexus/core/types/model_types

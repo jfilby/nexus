@@ -1,4 +1,5 @@
-import chronicles, db_postgres, json, strformat, strutils, tables
+import chronicles, json, strformat, strutils, tables
+import db_connector/db_postgres
 import docui/service/sdk/docui_elements
 import docui/service/sdk/docui_types
 import docui/service/sdk/docui_utils

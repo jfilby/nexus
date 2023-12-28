@@ -31,7 +31,7 @@ proc createBasicModelTypesFile*(
 
   var typeStr =
         "# Minimal model_types file (no models defined)with a DbContext definition\n" &
-        "import db_postgres\n" &
+        "import db_connector/db_postgres\n" &
         "\n" &
         "type\n" &
        &"  {module.nameInPascalCase}DbContext* = object\n" &
@@ -233,7 +233,7 @@ proc readModelFile(modelFiles: var seq[string],
     modelModuleTypeTable: Table[string, string]    # [ model.module, moduleType definition ]
     fileModuleName = ""
     moduleMinimumImports =
-      @[ "db_postgres",
+      @[ "db_connector/db_postgres",
          "tables" ]
 
   # Validate

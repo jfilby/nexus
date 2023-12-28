@@ -1,4 +1,5 @@
-import chronicles, db_postgres, jester, options, strformat, strutils, times
+import chronicles, jester, options, strformat, strutils, times
+import db_connector/db_postgres
 import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/types/view_types
 import nexus/core/view/common/spacers

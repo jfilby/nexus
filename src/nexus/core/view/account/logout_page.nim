@@ -1,4 +1,5 @@
-import db_postgres, htmlgen, jester, options
+import htmlgen, jester, options
+import db_connector/db_postgres
 import nexus/core/data_access/db_conn
 import nexus/core/service/account/jwt_utils
 import nexus/core/types/context_type

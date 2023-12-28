@@ -1,4 +1,4 @@
-import db_postgres
+import db_connector/db_postgres
 import nexus/core/data_access/account_user_role_data
 import nexus/core/types/model_types
 

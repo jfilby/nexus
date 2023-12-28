@@ -1,4 +1,5 @@
-import chronicles, db_postgres, jester, json, options, strformat, tables, times
+import chronicles, jester, json, options, strformat, tables, times
+import db_connector/db_postgres
 import docui/service/sdk/docui_elements
 import docui/service/sdk/docui_types
 import docui/service/sdk/docui_utils

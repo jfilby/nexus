@@ -1,4 +1,5 @@
-import db_postgres, tables
+import tables
+import db_connector/db_postgres
 import nexus/core/types/model_types
 
 

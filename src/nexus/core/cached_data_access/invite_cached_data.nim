@@ -1,5 +1,6 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils, times
+import options, sequtils, strutils, times
+import db_connector/db_postgres
 import nexus/core/data_access/data_utils
 import nexus/core/data_access/pg_try_insert_id
 import nexus/core/types/model_types

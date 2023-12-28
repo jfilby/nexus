@@ -259,7 +259,7 @@ proc generateDataAccessFile*(
   var
     thirdPartySeqs: seq[string]
     thirdPartyImports =
-      toOrderedSet( @[ "db_postgres",
+      toOrderedSet( @[ "db_connector/db_postgres",
                        "options",
                        "sequtils",
                        "strutils" ])

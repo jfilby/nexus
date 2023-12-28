@@ -1,4 +1,5 @@
-import chronicles, db_postgres, strutils
+import chronicles, strutils
+import db_connector/db_postgres
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/invite_data
 import nexus/core/service/account/verify_account_fields

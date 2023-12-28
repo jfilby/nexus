@@ -1,5 +1,6 @@
 # Sessions are deprecated, replaced by JWT.
-import chronicles, db_postgres, jester, marshal, options, random_key, streams
+import chronicles, jester, marshal, options, random_key, streams
+import db_connector/db_postgres
 import nexus/core/data_access/session_data
 
 

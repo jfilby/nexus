@@ -1,4 +1,5 @@
-import chronicles, db_postgres, jester, json, options, os, strutils
+import chronicles, jester, json, options, os, strutils
+import db_connector/db_postgres
 import karax / [karaxdsl, vdom, vstyles]
 import docui/service/sdk/docui_types
 import nexus/core/data_access/db_conn

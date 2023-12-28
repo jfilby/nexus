@@ -1,4 +1,5 @@
-import db_postgres, locks, options, os, strformat, strutils
+import locks, options, os, strformat, strutils
+import db_connector/db_postgres
 
 
 # DB open connection lock

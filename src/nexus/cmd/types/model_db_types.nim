@@ -17,21 +17,21 @@ type
 
 const
   stdlibDbMySql = DbDriver(
-    driver: "stdlib/db_mysql",
+    driver: "db_connector/db_mysql",
     minDbVersion: none(String),
     package: none(String),
     `import`: "db_mysql")
 
 
   stdlibDbPostgres = DbDriver(
-    driver: "stdlib/db_postgres",
+    driver: "db_connector/db_postgres",
     minDbVersion: none(String),
     package: none(String),
     `import`: "db_postgres")
 
 
   stdlibDbSqlite = DbDriver(
-    driver: "stdlib/db_sqlite",
+    driver: "db_connector/db_sqlite",
     minDbVersion: none(String),
     package: none(String),
     `import`: "db_sqlite")

@@ -48,7 +48,8 @@ proc generateDbContextProcs*(
     moduleName = module.name
 
   # Imports
-  var str = "import db_postgres, tables\n" &
+  var str = "import tables\n" &
+            "import db_connector/db_postgres\n" &
             &"import {module.importPath}/types/model_types\n" &
             "\n" &
             "\n"

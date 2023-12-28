@@ -1,4 +1,5 @@
-import chronicles, db_postgres, jester, options, strformat, times
+import chronicles, jester, options, strformat, times
+import db_connector/db_postgres
 import karax / [karaxdsl, vdom, vstyles]
 import nexus/core/data_access/account_user_data
 import nexus/core/data_access/account_user_role_data

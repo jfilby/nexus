@@ -1,4 +1,5 @@
-import db_postgres, options, json, tables
+import options, json, tables
+import db_connector/db_postgres
 import docui/service/sdk/docui_elements
 import docui/service/sdk/docui_types
 import docui/service/sdk/docui_utils

@@ -1,4 +1,5 @@
-import chronicles, db_postgres, strutils, times
+import chronicles, strutils, times
+import db_connector/db_postgres
 
 
 # Forward declarations

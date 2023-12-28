@@ -1,5 +1,5 @@
 # Nexus generated file
-import db_postgres, options, sequtils, strutils
+import db_connector/db_postgres, options, sequtils, strutils
 import nexus/social/types/model_types
 
 

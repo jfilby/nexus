@@ -1,7 +1,8 @@
 # This is a custom verion of Nim's v1.2 db_postgres.tryInsertID that allows the ID field name to be specified
 # The original version is found in: https://github.com/nim-lang/Nim/blob/devel/lib/impure/db_postgres.nim
 
-import db_common, db_postgres, postgres, strutils
+import db_common, postgres, strutils
+import db_connector/db_postgres
 
 
 proc dbFormat(formatstr: SqlQuery, args: varargs[string]): string =
