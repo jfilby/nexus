@@ -53,11 +53,13 @@ proc charWithoutOptionAsString*(c: Option[char]): string =
 
 
 # fmtfloat code from https://forum.nim-lang.org/t/8162 (see Javi's post)
+# Modified to optionally remove trailing zeros
 proc fmtFloat*(value: float,
                decimals: int,
                format: string = "",
                thousandSep: string = ",",
-               decimalSep: string = "."): string =
+               decimalSep: string = ".",
+               removeTrailingZeros: bool = true): string =
 
   if value != value:
     return "NaN"
@@ -103,16 +105,21 @@ proc fmtFloat*(value: float,
   else:
     integer = integerTmp
 
-  while removeZero:
+  # Remove the trailing zeros if specified
+  if removeTrailingZeros == true:
 
-    if decimal[^1] == '0':
-      decimal = decimal[0 .. ^2]
-    else:
-      break
+    while removeZero:
 
+      if decimal[^1] == '0':
+        decimal = decimal[0 .. ^2]
+      else:
+        break
+
+  # Remove the decimal separator?
   if decimal == decimalSep:
     decimal = ""
 
+  # Return the final value as a string
   return sign & integer & decimal
 
 
