@@ -7,7 +7,6 @@ import nexus/core/types/context_type as nexus_core_context_type
 import nexus/core/types/model_types as nexus_core_model_types
 import nexus/core_extras/types/context_type as nexus_core_extras_context_type
 import nexus/core_extras/types/model_types
-import engine/types/context_type
 import assign_admin_role
 
 
