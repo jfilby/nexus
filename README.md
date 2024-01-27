@@ -19,10 +19,12 @@ Join the [Discord server](https://discord.gg/PcjVrSgTMj) to chat with other
 Nexus users.
 
 
-## Nexus v2
+## Status
 
-The next version of Nexus (v2) is being designed. This is mostly an upgrade for
-the ORM to provide more flexible query and DML capabilities.
+Nexus is mostly in maintenance mode.
+
+
+## Possible improvements
 
 Related threads on the Nim forum:
 - [Defining models in Nim code](https://forum.nim-lang.org/t/9736)
