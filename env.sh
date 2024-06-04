@@ -2,6 +2,7 @@
 export NEXUS_PACKAGE=nexus
 export NEXUS_BASE_PATH=/opt/nexus
 export NEXUS_BIN_PATH=/opt/nexus/bin
+export NEXUS_SRC_PATH=/opt/nexus/src
 
 export NEXUS_CORE_SRC_PATH=$NEXUS_BASE_PATH/src/core
 export NEXUS_CORE_EXTRAS_SRC_PATH=$NEXUS_BASE_PATH/src/core_extras
