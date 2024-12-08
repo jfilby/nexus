@@ -500,7 +500,7 @@ proc listFieldNames*(
        listFields: seq[string]) =
 
   debug "listFieldNames()",
-    fields = fields
+    listFields = listFields
 
   var first = true
 

@@ -1,7 +1,7 @@
 import strformat, strutils
-import nexus/cmd/service/generate/models/model_utils
 import nexus/core/service/format/case_utils
-import types/types
+import nexus/cmd/service/generate/models/model_utils
+import nexus/cmd/types/types
 
 
 # Forward declarations

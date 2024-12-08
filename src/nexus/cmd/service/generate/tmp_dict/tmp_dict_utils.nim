@@ -64,13 +64,9 @@ proc updateTmpDictFileWritten*(
 proc writeTmpDict*(tmpDict: Table[string, string],
                    filename: string) =
 
-  {.hint[XCannotRaiseY]: off.}
+  # {.hint[XCannotRaiseY]: off.}
 
-  var output =
-        dump(tmpDict,
-             tsRootOnly,
-             asTidy,
-             defineOptions(style = psMinimal))
+  let output = Dumper().dump(tmpDict)
 
   writeFile(filename,
             output)

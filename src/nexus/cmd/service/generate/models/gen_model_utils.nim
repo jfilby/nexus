@@ -26,7 +26,7 @@ proc getModel*(modelYaml: ModelYAML,
                isRef: bool): Model =
 
   debug "getModel()",
-    modelName = model.name
+    modelName = modelYaml.name
 
   # Set moduleImport
   # warn "to do"

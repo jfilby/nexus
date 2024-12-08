@@ -12,5 +12,5 @@ export WEB_APP_INVITE_ONLY=Y
 export WEB_APP_LOG_LEVEL=INFO
 export WEB_APP_PORT=5000
 
-export NIM_COMPILE_OPTIONS="--path:.. --path:$DOCUI_SRC_PATH --path:$EXS_SRC_PATH -d:ssl -d:chronicles_log_level:$WEB_APP_LOG_LEVEL -d:chronicles_line_numbers -d:chronicles_colors:NativeColors -d:chronicles_sinks:json[file]"
+export NIM_COMPILE_OPTIONS="--path:../.. --path:$DOCUI_SRC_PATH --path:$EXS_SRC_PATH -d:ssl -d:chronicles_log_level:$WEB_APP_LOG_LEVEL -d:chronicles_line_numbers -d:chronicles_colors:NativeColors -d:chronicles_sinks:json[file]"
 
