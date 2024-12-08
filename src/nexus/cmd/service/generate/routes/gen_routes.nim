@@ -51,7 +51,7 @@ proc generateRoute(
 
   debug "generateRoute(): route:",
     methods = route.methods,
-    url = route.url
+    url = route.route
 
   # const optionRoutes = @[ "/account/login",
   #                         "/account/sign-up" ]
@@ -82,7 +82,7 @@ proc generateRoute(
 
     # Form URL
     debug "generateRoute()",
-      lenRouteParamInfos = len(route.paramInfos)
+      lenRouteParameters = len(route.parameters)
 
     # Route and proc call
     str &= &"  {`method`} \"{route.jesterRoute}\":\n" &
