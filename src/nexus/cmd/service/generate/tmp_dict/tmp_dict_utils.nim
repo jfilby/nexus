@@ -64,10 +64,11 @@ proc updateTmpDictFileWritten*(
 proc writeTmpDict*(tmpDict: Table[string, string],
                    filename: string) =
 
-  # {.hint[XCannotRaiseY]: off.}
+  var s = newFileStream(
+            filename,
+            fmWrite)
 
-  let output = Dumper().dump(tmpDict)
+  Dumper().dump(tmpDict, s)
 
-  writeFile(filename,
-            output)
+  s.close()
 
