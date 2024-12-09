@@ -413,7 +413,7 @@ type
   LibrariesYAML* = seq[LibraryYAML]
 
 
-  Media* = ref object of RootObj
+  Media* = object
     name*: string
     `type`*: string
     version*: string
