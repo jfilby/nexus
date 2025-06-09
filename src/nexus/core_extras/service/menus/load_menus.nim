@@ -105,7 +105,7 @@ proc loadMenusYAML(
   for menuYAML in menusYAML:
 
     info "loadMenusYAML()",
-      menuYAML = menuYAML
+      menuYAML = $menuYAML
 
     # Get role ids
     var roleIds: seq[string]
