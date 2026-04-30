@@ -67,11 +67,11 @@ proc loginAction*(context: NexusCoreContext,
                   json: Option[JsonNode]): DocUIReturn =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Initial vars
   let contentType = getContentType(context.web.get.request)
@@ -128,13 +128,13 @@ proc loginAction*(context: NexusCoreContext,
             context.db,
             loginHash)
 
-    if accountUserToken == none(AccountUserToken):
+    if accountUserToken.isNone:
       return newDocUIReturn(
                false,
                errorMessage = "Login Hash is invalid.")
 
     # Commented out, if the login has
-    if accountUserToken.get.deleted != none(DateTime):
+    if accountUserToken.get.deleted.isSome:
       return newDocUIReturn(
                false,
                errorMessage = "Login Hash has expired.")
@@ -164,7 +164,7 @@ proc loginAction*(context: NexusCoreContext,
           context.db,
           email)
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
     debug "loginAction(): email not found"
 
     return newDocUIReturn(
@@ -224,7 +224,7 @@ proc loginActionByEmailVerified*(
           context.db,
           email)
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     raise newException(
             ValueError,
@@ -242,11 +242,11 @@ proc loginActionVerified*(
        loginHash: string): DocUIReturn =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Login OK
   debug "loginAction(): login verified OK"
@@ -285,7 +285,7 @@ proc loginActionVerified*(
       mobile = $context.web.get.mobileDefault)
 
   # New AccountUserToken record required
-  if accountUserToken == none(AccountUserToken):
+  if accountUserToken.isNone:
 
     discard createAccountUserToken(
               context.db,
@@ -312,7 +312,7 @@ proc loginActionVerified*(
           context.db,
           accountUserId)
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     raise newException(
             ValueError,
@@ -343,11 +343,11 @@ template logoutAction*(context: NexusCoreContext,
                        redirect: string = "") =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Logout page
   logoutPage(context)
@@ -358,7 +358,7 @@ template logoutAction*(context: NexusCoreContext,
           context.db,
           context.web.get.accountUserId)
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     raise newException(
             ValueError,
@@ -428,10 +428,10 @@ template postLoginAction*(context: NexusCoreContext) =
             context.db,
             email)
 
-    if accountUser != none(AccountUser):
+    if accountUser.isSome:
 
       if nexusPaySubscriptionsEnabled.get == "Y" and
-         accountUser.get.subscriptionStatus == none(char):
+         accountUser.get.subscriptionStatus.isNone:
 
         redirectToURL = "/account/subscription"
 

@@ -7,7 +7,7 @@ import nexus/cmd/types/types
 proc createPgTablePartitioning(model: Model): string =
 
   # Not partitioned
-  if model.partitioning == none(Partitioning):
+  if model.partitioning.isNone:
     return ""
 
   # Partitioned
@@ -84,7 +84,7 @@ proc createPgTable*(
   dmlStr &= ")\n"
 
   # Can't specify a default tablespace when table is partitioned (Postgres)
-  if model.partitioning != none(Partitioning):
+  if model.partitioning.isSome:
 
     dmlStr &= createPgTablePartitioning(model)
 

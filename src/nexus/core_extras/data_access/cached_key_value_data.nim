@@ -95,12 +95,12 @@ proc createCachedKeyValueReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Updated
-  if updated != none(DateTime):
+  if updated.isSome:
     insertStatement &= "updated, "
     valuesClause &= pgToDateTimeString(updated.get) & ", "
 
   # Field: Expires
-  if expires != none(DateTime):
+  if expires.isSome:
     insertStatement &= "expires, "
     valuesClause &= pgToDateTimeString(expires.get) & ", "
 
@@ -277,7 +277,7 @@ proc filterCachedKeyValue*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var cachedKeyValues: CachedKeyValues
@@ -319,7 +319,7 @@ proc filterCachedKeyValue*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var cachedKeyValues: CachedKeyValues
@@ -386,7 +386,7 @@ proc getOrCreateCachedKeyValueByKey*(
           dbContext,
           key)
 
-  if cachedKeyValue != none(CachedKeyValue):
+  if cachedKeyValue.isSome:
     return cachedKeyValue.get
 
   return createCachedKeyValue(
@@ -463,13 +463,13 @@ proc updateCachedKeyValueSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(cachedKeyValue.created) & ","
 
     elif field == "updated":
-      if cachedKeyValue.updated != none(DateTime):
+      if cachedKeyValue.updated.isSome:
         updateStatement &= "       updated = " & pgToDateTimeString(cachedKeyValue.updated.get) & ","
       else:
         updateStatement &= "       updated = null,"
 
     elif field == "expires":
-      if cachedKeyValue.expires != none(DateTime):
+      if cachedKeyValue.expires.isSome:
         updateStatement &= "       expires = " & pgToDateTimeString(cachedKeyValue.expires.get) & ","
       else:
         updateStatement &= "       expires = null,"

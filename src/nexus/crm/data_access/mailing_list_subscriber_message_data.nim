@@ -81,7 +81,7 @@ proc createMailingListSubscriberMessageReturnsPk*(
   insertValues.add(id)
 
   # Field: Account User Id
-  if accountUserId != none(string):
+  if accountUserId.isSome:
     insertStatement &= "account_user_id, "
     valuesClause &= "?, "
     insertValues.add(accountUserId.get)
@@ -282,7 +282,7 @@ proc filterMailingListSubscriberMessage*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListSubscriberMessages: MailingListSubscriberMessages
@@ -325,7 +325,7 @@ proc filterMailingListSubscriberMessage*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListSubscriberMessages: MailingListSubscriberMessages
@@ -398,7 +398,7 @@ proc getOrCreateMailingListSubscriberMessageByMailingListSubscriberIdAndMailingL
           mailingListSubscriberId,
           mailingListMessageId)
 
-  if mailingListSubscriberMessage != none(MailingListSubscriberMessage):
+  if mailingListSubscriberMessage.isSome:
     return mailingListSubscriberMessage.get
 
   return createMailingListSubscriberMessage(
@@ -460,7 +460,7 @@ proc updateMailingListSubscriberMessageSetClause*(
       updateValues.add(mailingListSubscriberMessage.id)
 
     elif field == "account_user_id":
-      if mailingListSubscriberMessage.accountUserId != none(string):
+      if mailingListSubscriberMessage.accountUserId.isSome:
         updateStatement &= "       account_user_id = ?,"
         updateValues.add(mailingListSubscriberMessage.accountUserId.get)
       else:

@@ -36,7 +36,7 @@ proc getListItemDisplayNames*(
        dbContext: NexusCoreExtrasDbContext,
        listItemIds: Option[seq[string]]): seq[string] =
 
-  if listItemIds != none(seq[string]):
+  if listItemIds.isSome:
 
     getListItemDisplayNames(
       dbContext,
@@ -58,20 +58,20 @@ proc getListItemByNameAndParentName*(
                 whereFields = @[ "name" ],
                 whereValues = @[ listName ])
 
-  if parentListName != none(string):
+  if parentListName.isSome:
 
     var filteredListItems: ListItems
 
     for listItem in listItems:
 
-      if listItem.parentId != none(string):
+      if listItem.parentId.isSome:
 
         let parentlistItem =
               getListItemByPk(
                 dbContext,
                 listItem.parentId.get)
 
-        if parentlistItem != none(ListItem):
+        if parentlistItem.isSome:
           filteredListItems.add(listItem)
 
     listItems = filteredListItems
@@ -117,7 +117,7 @@ proc getListItemsByListItemIds*(
             dbContext,
             listItemId)
 
-    if listItem == none(ListItem):
+    if listItem.isNone:
 
       raise newException(
               ValueError,
@@ -151,7 +151,7 @@ proc getListItemsByParentListName*(
           dbContext,
           parentListName)
 
-  if parentListItem == none(ListItem):
+  if parentListItem.isNone:
 
     raise newException(
             ValueError,
@@ -405,7 +405,7 @@ proc getListItemIdByParentNameAndDisplayName*(
                    parentName,
                    displayName)
 
-  if listItem != none(ListItem):
+  if listItem.isSome:
 
     return some(listItem.get.id)
 
@@ -423,7 +423,7 @@ proc getListItemIdByParentNameAndDisplayNameCascade*(
                    parentName,
                    displayName)
 
-  if listItem != none(ListItem):
+  if listItem.isSome:
 
     return some(listItem.get.id)
 
@@ -439,7 +439,7 @@ proc getListItemDisplayNameById*(
         getListItemByPk(dbContext,
                         listItemId)
 
-  if listItem == none(ListItem):
+  if listItem.isNone:
     return none(string)
 
   return some(listItem.get.displayName)
@@ -581,7 +581,7 @@ proc getTextAndLinesFromItemListIds*(
        textOnNone: string = "None"):
        (string, int) =
 
-  if listItemIds != none(seq[string]):
+  if listItemIds.isSome:
 
     return getTextAndLinesFromItemListIds(
              dbContext,

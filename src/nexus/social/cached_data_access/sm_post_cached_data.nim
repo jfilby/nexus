@@ -214,7 +214,7 @@ proc cachedGetSMPostByPk*(
           dbContext,
           id)
 
-  if smPost != none(SMPost):
+  if smPost.isSome:
 
     # Add to the model row cache
     dbContext.cachedSMPosts[smPost.get.id] = smPost.get
@@ -240,7 +240,7 @@ proc cachedGetSMPostByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if smPost != none(SMPost):
+  if smPost.isSome:
 
     # Add to the model row cache
     dbContext.cachedSMPosts[smPost.get.id] = smPost.get

@@ -94,7 +94,7 @@ proc createAccountUserReturnsPk*(
   insertValues.add(id)
 
   # Field: Account Id
-  if accountId != none(string):
+  if accountId.isSome:
     insertStatement &= "account_id, "
     valuesClause &= "?, "
     insertValues.add(accountId.get)
@@ -125,7 +125,7 @@ proc createAccountUserReturnsPk*(
   insertValues.add(apiKey)
 
   # Field: Last Token
-  if lastToken != none(string):
+  if lastToken.isSome:
     insertStatement &= "last_token, "
     valuesClause &= "?, "
     insertValues.add(lastToken.get)
@@ -140,13 +140,13 @@ proc createAccountUserReturnsPk*(
   valuesClause &= pgToDateTimeString(signUpDate) & ", "
 
   # Field: Password Reset Code
-  if passwordResetCode != none(string):
+  if passwordResetCode.isSome:
     insertStatement &= "password_reset_code, "
     valuesClause &= "?, "
     insertValues.add(passwordResetCode.get)
 
   # Field: Password Reset Date
-  if passwordResetDate != none(DateTime):
+  if passwordResetDate.isSome:
     insertStatement &= "password_reset_date, "
     valuesClause &= pgToDateTimeString(passwordResetDate.get) & ", "
 
@@ -166,17 +166,17 @@ proc createAccountUserReturnsPk*(
   insertValues.add($isVerified)
 
   # Field: Subscription Status
-  if subscriptionStatus != none(char):
+  if subscriptionStatus.isSome:
     insertStatement &= "subscription_status, "
     valuesClause &= "'" & $subscriptionStatus.get & "'" & ", "
 
   # Field: Last Login
-  if lastLogin != none(DateTime):
+  if lastLogin.isSome:
     insertStatement &= "last_login, "
     valuesClause &= pgToDateTimeString(lastLogin.get) & ", "
 
   # Field: Last Update
-  if lastUpdate != none(DateTime):
+  if lastUpdate.isSome:
     insertStatement &= "last_update, "
     valuesClause &= pgToDateTimeString(lastUpdate.get) & ", "
 
@@ -438,7 +438,7 @@ proc filterAccountUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUsers: AccountUsers
@@ -482,7 +482,7 @@ proc filterAccountUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUsers: AccountUsers
@@ -629,7 +629,7 @@ proc getOrCreateAccountUserByEmail*(
           dbContext,
           email)
 
-  if accountUser != none(AccountUser):
+  if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
@@ -680,7 +680,7 @@ proc getOrCreateAccountUserByAPIKey*(
           dbContext,
           apiKey)
 
-  if accountUser != none(AccountUser):
+  if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
@@ -731,7 +731,7 @@ proc getOrCreateAccountUserByLastToken*(
           dbContext,
           lastToken)
 
-  if accountUser != none(AccountUser):
+  if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
@@ -846,7 +846,7 @@ proc updateAccountUserSetClause*(
       updateValues.add(accountUser.id)
 
     elif field == "account_id":
-      if accountUser.accountId != none(string):
+      if accountUser.accountId.isSome:
         updateStatement &= "       account_id = ?,"
         updateValues.add(accountUser.accountId.get)
       else:
@@ -873,7 +873,7 @@ proc updateAccountUserSetClause*(
       updateValues.add(accountUser.apiKey)
 
     elif field == "last_token":
-      if accountUser.lastToken != none(string):
+      if accountUser.lastToken.isSome:
         updateStatement &= "       last_token = ?,"
         updateValues.add(accountUser.lastToken.get)
       else:
@@ -887,14 +887,14 @@ proc updateAccountUserSetClause*(
         updateStatement &= "       sign_up_date = " & pgToDateTimeString(accountUser.signUpDate) & ","
 
     elif field == "password_reset_code":
-      if accountUser.passwordResetCode != none(string):
+      if accountUser.passwordResetCode.isSome:
         updateStatement &= "       password_reset_code = ?,"
         updateValues.add(accountUser.passwordResetCode.get)
       else:
         updateStatement &= "       password_reset_code = null,"
 
     elif field == "password_reset_date":
-      if accountUser.passwordResetDate != none(DateTime):
+      if accountUser.passwordResetDate.isSome:
         updateStatement &= "       password_reset_date = " & pgToDateTimeString(accountUser.passwordResetDate.get) & ","
       else:
         updateStatement &= "       password_reset_date = null,"
@@ -909,20 +909,20 @@ proc updateAccountUserSetClause*(
         updateStatement &= "       is_verified = " & pgToBool(accountUser.isVerified) & ","
 
     elif field == "subscription_status":
-      if accountUser.subscriptionStatus != none(char):
+      if accountUser.subscriptionStatus.isSome:
         updateStatement &= "       subscription_status = ?,"
         updateValues.add($accountUser.subscriptionStatus.get)
       else:
         updateStatement &= "       subscription_status = null,"
 
     elif field == "last_login":
-      if accountUser.lastLogin != none(DateTime):
+      if accountUser.lastLogin.isSome:
         updateStatement &= "       last_login = " & pgToDateTimeString(accountUser.lastLogin.get) & ","
       else:
         updateStatement &= "       last_login = null,"
 
     elif field == "last_update":
-      if accountUser.lastUpdate != none(DateTime):
+      if accountUser.lastUpdate.isSome:
         updateStatement &= "       last_update = " & pgToDateTimeString(accountUser.lastUpdate.get) & ","
       else:
         updateStatement &= "       last_update = null,"

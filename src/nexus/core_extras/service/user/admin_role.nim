@@ -17,7 +17,7 @@ proc getAdminRoleId*(coreExtrasDbContext: NexusCoreExtrasDbContext): string =
           "User Roles: Account User",
           "Admin")
 
-  if adminListItemId == none(string):
+  if adminListItemId.isNone:
 
     raise newException(ValueError,
                        "No ListItem record found for Admin role")
@@ -42,7 +42,7 @@ proc userHasAdminRole*(
 
   var hasAdminRole = false
 
-  if accountUserRole != none(AccountUserRole):
+  if accountUserRole.isSome:
     hasAdminRole = true
 
   info "userHasAdminRole()",

@@ -173,7 +173,7 @@ proc resetPasswordSuccessPage*(
     success = false
     message = ""
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
     message = &"Email address ({email}) not found; please retry."
 
   else:

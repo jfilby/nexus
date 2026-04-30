@@ -107,7 +107,7 @@ proc connectWithJWT*(
             nexusCoreDbContext,
             accountUserId)
 
-    if accountUser == none(AccountUser):
+    if accountUser.isNone:
       return (false,
               "Invalid token (2)",
               "",
@@ -361,7 +361,7 @@ proc setJWTDeleted*(
           nexusCoreDbContext,
           token)
 
-  if accountUserToken == none(AccountUserToken):
+  if accountUserToken.isNone:
     warn "setJWTDeleted(): token not found"
     return
 
@@ -388,7 +388,7 @@ proc verifyJWTByAPIKey*(
                  nexusCoreDbContext,
                  accountUserId)
 
-  if apiKey == none(string):
+  if apiKey.isNone:
 
     debug "verifyJWTByAPIKey(): apiKey not found"
 

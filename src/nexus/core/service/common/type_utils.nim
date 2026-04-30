@@ -5,15 +5,15 @@ proc compareInt64sWithOptions*(
        aSeq: Option[seq[int64]],
        bSeq: Option[seq[int64]]): bool =
 
-  if aSeq == none(seq[int64]) and
-     bSeq == none(seq[int64]):
+  if aSeq.isNone and
+     bSeq.isNone:
 
     return false
 
-  elif (aSeq == none(seq[int64]) and
-        bSeq != none(seq[int64])) or
-       (aSeq != none(seq[int64]) and
-        bSeq == none(seq[int64])):
+  elif (aSeq.isNone and
+        bSeq.isSome) or
+       (aSeq.isSome and
+        bSeq.isNone):
 
     return true
 

@@ -100,7 +100,7 @@ proc createMailingListReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Deleted
-  if deleted != none(DateTime):
+  if deleted.isSome:
     insertStatement &= "deleted, "
     valuesClause &= pgToDateTimeString(deleted.get) & ", "
 
@@ -300,7 +300,7 @@ proc filterMailingList*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingLists: MailingLists
@@ -342,7 +342,7 @@ proc filterMailingList*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingLists: MailingLists
@@ -432,7 +432,7 @@ proc getOrCreateMailingListByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if mailingList != none(MailingList):
+  if mailingList.isSome:
     return mailingList.get
 
   return createMailingList(
@@ -458,7 +458,7 @@ proc getOrCreateMailingListByAccountUserIdAndName*(
           accountUserId,
           name)
 
-  if mailingList != none(MailingList):
+  if mailingList.isSome:
     return mailingList.get
 
   return createMailingList(
@@ -535,7 +535,7 @@ proc updateMailingListSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(mailingList.created) & ","
 
     elif field == "deleted":
-      if mailingList.deleted != none(DateTime):
+      if mailingList.deleted.isSome:
         updateStatement &= "       deleted = " & pgToDateTimeString(mailingList.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"

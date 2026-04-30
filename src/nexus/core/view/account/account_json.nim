@@ -19,11 +19,11 @@ proc loginJSONPost*(context: NexusCoreContext): string =
     headers = request.headers
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Initial vars
   template request: untyped = context.web.get.request
@@ -50,11 +50,11 @@ proc loginJSONPost*(context: NexusCoreContext): string =
 proc logoutJSON*(context: NexusCoreContext): string =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Initial vars
   template webContext: untyped = context.web.get
@@ -65,7 +65,7 @@ proc logoutJSON*(context: NexusCoreContext): string =
           context.db,
           webContext.accountUserId)
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     raise newException(
             ValueError,

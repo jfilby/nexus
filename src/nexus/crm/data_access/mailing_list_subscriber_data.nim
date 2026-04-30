@@ -86,7 +86,7 @@ proc createMailingListSubscriberReturnsPk*(
   insertValues.add(id)
 
   # Field: Account User Id
-  if accountUserId != none(string):
+  if accountUserId.isSome:
     insertStatement &= "account_user_id, "
     valuesClause &= "?, "
     insertValues.add(accountUserId.get)
@@ -112,13 +112,13 @@ proc createMailingListSubscriberReturnsPk*(
   insertValues.add(email)
 
   # Field: Name
-  if name != none(string):
+  if name.isSome:
     insertStatement &= "name, "
     valuesClause &= "?, "
     insertValues.add(name.get)
 
   # Field: Verification Code
-  if verificationCode != none(string):
+  if verificationCode.isSome:
     insertStatement &= "verification_code, "
     valuesClause &= "?, "
     insertValues.add(verificationCode.get)
@@ -133,7 +133,7 @@ proc createMailingListSubscriberReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Deleted
-  if deleted != none(DateTime):
+  if deleted.isSome:
     insertStatement &= "deleted, "
     valuesClause &= pgToDateTimeString(deleted.get) & ", "
 
@@ -372,7 +372,7 @@ proc filterMailingListSubscriber*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListSubscribers: MailingListSubscribers
@@ -415,7 +415,7 @@ proc filterMailingListSubscriber*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListSubscribers: MailingListSubscribers
@@ -537,7 +537,7 @@ proc getOrCreateMailingListSubscriberByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if mailingListSubscriber != none(MailingListSubscriber):
+  if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
@@ -573,7 +573,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
           mailingListId,
           accountUserId)
 
-  if mailingListSubscriber != none(MailingListSubscriber):
+  if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
@@ -609,7 +609,7 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
           mailingListId,
           email)
 
-  if mailingListSubscriber != none(MailingListSubscriber):
+  if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
@@ -695,7 +695,7 @@ proc updateMailingListSubscriberSetClause*(
       updateValues.add(mailingListSubscriber.id)
 
     elif field == "account_user_id":
-      if mailingListSubscriber.accountUserId != none(string):
+      if mailingListSubscriber.accountUserId.isSome:
         updateStatement &= "       account_user_id = ?,"
         updateValues.add(mailingListSubscriber.accountUserId.get)
       else:
@@ -717,14 +717,14 @@ proc updateMailingListSubscriberSetClause*(
       updateValues.add(mailingListSubscriber.email)
 
     elif field == "name":
-      if mailingListSubscriber.name != none(string):
+      if mailingListSubscriber.name.isSome:
         updateStatement &= "       name = ?,"
         updateValues.add(mailingListSubscriber.name.get)
       else:
         updateStatement &= "       name = null,"
 
     elif field == "verification_code":
-      if mailingListSubscriber.verificationCode != none(string):
+      if mailingListSubscriber.verificationCode.isSome:
         updateStatement &= "       verification_code = ?,"
         updateValues.add(mailingListSubscriber.verificationCode.get)
       else:
@@ -737,7 +737,7 @@ proc updateMailingListSubscriberSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(mailingListSubscriber.created) & ","
 
     elif field == "deleted":
-      if mailingListSubscriber.deleted != none(DateTime):
+      if mailingListSubscriber.deleted.isSome:
         updateStatement &= "       deleted = " & pgToDateTimeString(mailingListSubscriber.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"

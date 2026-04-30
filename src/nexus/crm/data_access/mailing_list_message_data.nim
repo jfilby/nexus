@@ -107,12 +107,12 @@ proc createMailingListMessageReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Updated
-  if updated != none(DateTime):
+  if updated.isSome:
     insertStatement &= "updated, "
     valuesClause &= pgToDateTimeString(updated.get) & ", "
 
   # Field: Deleted
-  if deleted != none(DateTime):
+  if deleted.isSome:
     insertStatement &= "deleted, "
     valuesClause &= pgToDateTimeString(deleted.get) & ", "
 
@@ -295,7 +295,7 @@ proc filterMailingListMessage*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListMessages: MailingListMessages
@@ -337,7 +337,7 @@ proc filterMailingListMessage*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var mailingListMessages: MailingListMessages
@@ -406,7 +406,7 @@ proc getOrCreateMailingListMessageByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if mailingListMessage != none(MailingListMessage):
+  if mailingListMessage.isSome:
     return mailingListMessage.get
 
   return createMailingListMessage(
@@ -495,13 +495,13 @@ proc updateMailingListMessageSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(mailingListMessage.created) & ","
 
     elif field == "updated":
-      if mailingListMessage.updated != none(DateTime):
+      if mailingListMessage.updated.isSome:
         updateStatement &= "       updated = " & pgToDateTimeString(mailingListMessage.updated.get) & ","
       else:
         updateStatement &= "       updated = null,"
 
     elif field == "deleted":
-      if mailingListMessage.deleted != none(DateTime):
+      if mailingListMessage.deleted.isSome:
         updateStatement &= "       deleted = " & pgToDateTimeString(mailingListMessage.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"

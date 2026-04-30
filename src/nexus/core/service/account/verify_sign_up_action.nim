@@ -27,11 +27,11 @@ proc returnForm(children: seq[JsonNode]): JsonNode =
 proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Initial vars
   template request: untyped = context.web.get.request

@@ -45,7 +45,7 @@ proc charsWithOption*(strs: seq[string]): Option[seq[char]] =
 
 proc charWithoutOptionAsString*(c: Option[char]): string =
 
-  if c == none(char):
+  if c.isNone:
     return ""
 
   else:
@@ -164,7 +164,7 @@ proc int64sFromStrings*(strs: seq[string]): seq[int64] =
 
 proc int64sFromStrings*(strs: Option[seq[string]]): Option[seq[int64]] =
 
-  if strs == none(seq[string]):
+  if strs.isNone:
     return none(seq[int64])
 
   return some(int64sFromStrings(strs.get))
@@ -240,7 +240,7 @@ proc stringsWithOptionFromInt64sWithOption*(
        int64s: Option[seq[int64]]):
          Option[seq[string]] =
 
-  if int64s == none(seq[int64]):
+  if int64s.isNone:
     return none(seq[string])
 
   return some(stringsFromInt64s(int64s.get))
@@ -257,7 +257,7 @@ proc stringWithOption*(str: string): Option[string] =
 
 proc stringWithoutOption*(str: Option[string]): string =
 
-  if str == none(string):
+  if str.isNone:
     return ""
 
   else:

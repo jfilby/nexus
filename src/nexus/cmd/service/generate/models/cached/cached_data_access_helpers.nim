@@ -52,7 +52,7 @@ proc addModelRowToCache*(
   if withOption == true:
     optionGet = ".get"
 
-    str &= &"  if {model.nameInCamelCase} != none({model.nameInPascalCase}):\n" &
+    str &= &"  if {model.nameInCamelCase}.isSome:\n" &
             "\n"
 
     indent &= "  "

@@ -322,8 +322,8 @@ proc readModelFile(modelFiles: var seq[string],
         modelRef.get,
         modelImportsTable)
 
-    if modelObject == none(Model) and
-       modelRef == none(Model):
+    if modelObject.isNone and
+       modelRef.isNone:
 
       raise newException(ValueError,
                          &"Model: {modelYAML.name}: " &
@@ -334,7 +334,7 @@ proc readModelFile(modelFiles: var seq[string],
                          migrationsPath)
 
     # Process object models
-    if modelObject != none(Model):
+    if modelObject.isSome:
 
       processModel(modelObject.get,
                    srcPath,
@@ -344,7 +344,7 @@ proc readModelFile(modelFiles: var seq[string],
                    generatorInfo)
 
     # Process ref models
-    if modelRef != none(Model):
+    if modelRef.isSome:
 
       processModel(modelRef.get,
                    srcPath,

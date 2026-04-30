@@ -141,7 +141,7 @@ proc signUpVerifyPagePost*(context: NexusCoreContext):
         module,
         key)
 
-  if nexusSetting == none(NexusSetting):
+  if nexusSetting.isNone:
 
     raise newException(
             ValueError,

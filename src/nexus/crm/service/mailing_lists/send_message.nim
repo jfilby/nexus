@@ -55,7 +55,7 @@ proc sendEmailsToMailingList*(
     # Done?
     sentEmails += 1
 
-    if batchSize != none(int):
+    if batchSize.isSome:
       if sentEmails >= batchSize.get:
         break
 

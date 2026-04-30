@@ -58,7 +58,7 @@ proc setParentNodes(menuNodes: var MenuNodes): MenuNode =
     menuNode.parentNode = parentNode
 
     # Set root node if no parent found
-    if parentNode == none(MenuNode):
+    if parentNode.isNone:
       rootMenuNode = menuNode
 
   # Return

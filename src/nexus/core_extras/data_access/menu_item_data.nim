@@ -84,7 +84,7 @@ proc createMenuItemReturnsPk*(
   insertValues.add(id)
 
   # Field: Parent Id
-  if parentId != none(string):
+  if parentId.isSome:
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
     insertValues.add(parentId.get)
@@ -115,7 +115,7 @@ proc createMenuItemReturnsPk*(
   insertValues.add($position)
 
   # Field: Role Ids
-  if roleIds != none(seq[string]):
+  if roleIds.isSome:
     insertStatement &= "role_ids, "
     valuesClause &= "'" & getSeqStringAsPgArrayString(roleIds.get) & "'" & ", "
 
@@ -311,7 +311,7 @@ proc filterMenuItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var menuItems: MenuItems
@@ -353,7 +353,7 @@ proc filterMenuItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var menuItems: MenuItems
@@ -431,7 +431,7 @@ proc getOrCreateMenuItemByNameAndURLAndScreen*(
           url,
           screen)
 
-  if menuItem != none(MenuItem):
+  if menuItem.isSome:
     return menuItem.get
 
   return createMenuItem(
@@ -504,7 +504,7 @@ proc updateMenuItemSetClause*(
       updateValues.add(menuItem.id)
 
     elif field == "parent_id":
-      if menuItem.parentId != none(string):
+      if menuItem.parentId.isSome:
         updateStatement &= "       parent_id = ?,"
         updateValues.add(menuItem.parentId.get)
       else:
@@ -531,7 +531,7 @@ proc updateMenuItemSetClause*(
       updateValues.add($menuItem.position)
 
     elif field == "role_ids":
-      if menuItem.roleIds != none(seq[string]):
+      if menuItem.roleIds.isSome:
         updateStatement &= "       role_ids = '" & getSeqStringAsPgArrayString(menuItem.roleIds.get) & "',"
       else:
         updateStatement &= "       role_ids = null,"

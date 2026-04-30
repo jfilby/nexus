@@ -240,7 +240,7 @@ proc filterTempFormData*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var tempFormDatas: TempFormDatas
@@ -282,7 +282,7 @@ proc filterTempFormData*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var tempFormDatas: TempFormDatas
@@ -328,7 +328,7 @@ proc getOrCreateTempFormDataByPk*(
           dbContext,
           token)
 
-  if tempFormData != none(TempFormData):
+  if tempFormData.isSome:
     return tempFormData.get
 
   return createTempFormData(

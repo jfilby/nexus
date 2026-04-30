@@ -44,7 +44,7 @@ proc readExternalRoutesFile(
       routesPath = module.basePath
       break
 
-  if routesModule == none(Module):
+  if routesModule.isNone:
 
     raise newException(ValueError,
                        &"Module not found: {externalRoute.module}")

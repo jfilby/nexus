@@ -71,7 +71,7 @@ proc verifyMenuItemRole(
           accountUserId,
           roleId)
 
-  if accountUserRole != none(AccountUserRole):
+  if accountUserRole.isSome:
     return true
 
   else:
@@ -84,7 +84,7 @@ proc verifyMenuItemRoles*(
        accountUserId: string): bool =
 
   # Return true if no rolesIds for the menuItem
-  if menuItem.roleIds == none(seq[string]):
+  if menuItem.roleIds.isNone:
     return true
 
   # Verify each roleId for the menuItem, for the user

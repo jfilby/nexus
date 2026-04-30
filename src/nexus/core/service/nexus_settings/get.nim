@@ -15,13 +15,13 @@ proc getNexusSettingValue*(
           module,
           key)
 
-  if nexusSetting == none(NexusSetting):
+  if nexusSetting.isNone:
     raise newException(
             ValueError,
             &"NexusSetting record not found for module: \"{module}\" and " &
             &"key: \"{key}\"")
 
-  if nexusSetting.get.value == none(string):
+  if nexusSetting.get.value.isNone:
     raise newException(
             ValueError,
             &"NexusSetting has none value for module: \"{module}\" and " &

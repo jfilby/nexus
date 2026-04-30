@@ -45,7 +45,7 @@ proc addLibraryAsModule*(
     moduleName = module.name
 
   # Set package details
-  if package != none(PackageYAML):
+  if package.isSome:
 
     module.package = package.get.package
     module.generate = package.get.generate

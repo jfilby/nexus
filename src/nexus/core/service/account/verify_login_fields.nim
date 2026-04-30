@@ -42,7 +42,7 @@ proc verifyLoginFields*(
             errorMessage)
 
   # Verify that a row was found (otherwise the email is not found)
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     errorMessage = "The email address specified is not found in the system."
 

@@ -91,7 +91,7 @@ proc createTempQueueDataReturnsPk*(
   insertValues.add(dataIn)
 
   # Field: Data Out
-  if dataOut != none(string):
+  if dataOut.isSome:
     insertStatement &= "data_out, "
     valuesClause &= "?, "
     insertValues.add(dataOut.get)
@@ -219,7 +219,7 @@ proc filterTempQueueData*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var tempQueueDatas: TempQueueDatas
@@ -261,7 +261,7 @@ proc filterTempQueueData*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var tempQueueDatas: TempQueueDatas
@@ -333,7 +333,7 @@ proc updateTempQueueDataSetClause*(
       updateValues.add(tempQueueData.dataIn)
 
     elif field == "data_out":
-      if tempQueueData.dataOut != none(string):
+      if tempQueueData.dataOut.isSome:
         updateStatement &= "       data_out = ?,"
         updateValues.add(tempQueueData.dataOut.get)
       else:

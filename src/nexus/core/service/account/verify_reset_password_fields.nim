@@ -34,7 +34,7 @@ proc verifyResetPasswordRequestFields*(
                           results = form)
 
   # Verify that the account exists
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     errorMessage = "An account doesn't exist for the specified email."
 
@@ -87,7 +87,7 @@ proc verifyChangePasswordFields*(
                           form)
 
   # Verify that the account exists
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     let form = returnForm(@[
                  fieldError("email",

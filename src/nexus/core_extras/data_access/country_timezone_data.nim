@@ -216,7 +216,7 @@ proc filterCountryTimezone*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var countryTimezones: CountryTimezones
@@ -258,7 +258,7 @@ proc filterCountryTimezone*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var countryTimezones: CountryTimezones
@@ -307,7 +307,7 @@ proc getOrCreateCountryTimezoneByCountryCodeAndTimezone*(
           countryCode,
           timezone)
 
-  if countryTimezone != none(CountryTimezone):
+  if countryTimezone.isSome:
     return countryTimezone.get
 
   return createCountryTimezone(

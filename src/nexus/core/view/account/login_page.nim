@@ -256,7 +256,7 @@ proc loginPagePost*(context: NexusCoreContext):
               context.db,
               email)
 
-      if accountUser != none(AccountUser):
+      if accountUser.isSome:
 
         accountIsVerified = $accountUser.get.isVerified
         accountIsVerified = $accountIsVerified[0]

@@ -93,7 +93,7 @@ proc createAccountUserTokenReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Deleted
-  if deleted != none(DateTime):
+  if deleted.isSome:
     insertStatement &= "deleted, "
     valuesClause &= pgToDateTimeString(deleted.get) & ", "
 
@@ -289,7 +289,7 @@ proc filterAccountUserToken*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUserTokens: AccountUserTokens
@@ -331,7 +331,7 @@ proc filterAccountUserToken*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUserTokens: AccountUserTokens
@@ -418,7 +418,7 @@ proc getOrCreateAccountUserTokenByPk*(
           dbContext,
           accountUserId)
 
-  if accountUserToken != none(AccountUserToken):
+  if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
@@ -443,7 +443,7 @@ proc getOrCreateAccountUserTokenByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if accountUserToken != none(AccountUserToken):
+  if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
@@ -468,7 +468,7 @@ proc getOrCreateAccountUserTokenByToken*(
           dbContext,
           token)
 
-  if accountUserToken != none(AccountUserToken):
+  if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
@@ -540,7 +540,7 @@ proc updateAccountUserTokenSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(accountUserToken.created) & ","
 
     elif field == "deleted":
-      if accountUserToken.deleted != none(DateTime):
+      if accountUserToken.deleted.isSome:
         updateStatement &= "       deleted = " & pgToDateTimeString(accountUserToken.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"

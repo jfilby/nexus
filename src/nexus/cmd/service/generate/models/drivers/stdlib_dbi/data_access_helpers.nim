@@ -131,7 +131,7 @@ proc buildInsertSQLFromModelFieldNames*(
       aIndent &= "  "
       getOption = ".get"
 
-      str &= &"{indent}if {field.nameInCamelCase} != none({fieldNimType}):\n"
+      str &= &"{indent}if {field.nameInCamelCase}.isSome:\n"
 
     skipFieldsComma = false
     skipValuesComma = false
@@ -475,7 +475,7 @@ proc getDbToStringFunc*(
               &"Unhandled type: {`type`}")
 
   # In parentheses?
-  if inParentheses == none(string):
+  if inParentheses.isNone:
     return str
 
   # With parentheses
@@ -723,7 +723,7 @@ proc initType*(str: var string,
 proc limitClause*(str: var string,
                   query: string) =
 
-  str &= &"  if limit != none(int):\n" &
+  str &= &"  if limit.isSome:\n" &
          &"    {query} &= \" limit \" & $limit.get\n"
 
 
@@ -881,7 +881,7 @@ proc setClause*(str: var string,
 
       else:
         str &=
-          &"      if {modelField} != none({fieldNimType}):\n" &
+          &"      if {modelField}.isSome:\n" &
           &"        {statement} &= " &
             &"\"       {fieldName} = {quote}\" & {valueToAdd} & \"{quote},\"\n" &
            "      else:\n" &
@@ -901,7 +901,7 @@ proc setClause*(str: var string,
 
       else:
         str &=
-          &"      if {modelField} != none({fieldNimType}):\n" &
+          &"      if {modelField}.isSome:\n" &
           &"        {statement} &= \"       {fieldName}" &
             " = ?,\"\n" &
           &"        {queryType}Values.add({valueToAdd})\n" &

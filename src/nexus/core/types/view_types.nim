@@ -181,7 +181,7 @@ proc newBaseWebContext*(
         webContext.mobile = some(false)
 
   # Set mobile default (if a true/false value must be decided on)
-  if webContext.mobile != none(bool):
+  if webContext.mobile.isSome:
     webContext.mobileDefault = webContext.mobile.get
 
   else:
@@ -196,13 +196,13 @@ proc newBaseWebContext*(
   if foundToken == true:
 #    if @[ "", "false" ].contains(mobileFromToken) and
     if mobileFromToken == "" and
-       webContext.mobile != none(bool):
+       webContext.mobile.isSome:
 
       debug "newBaseWebContext(): createToken case 1"
 
       createToken = true
 
-  elif webContext.mobile != none(bool):
+  elif webContext.mobile.isSome:
 
     debug "newBaseWebContext(): createToken case 2"
 
@@ -217,7 +217,7 @@ proc newBaseWebContext*(
     # Don't set mobile if it's not known
     var mobileInToken = ""
 
-    if webContext.mobile != none(bool):
+    if webContext.mobile.isSome:
       mobileInToken = $webContext.mobile.get
 
     # Create a JWT connection (token)

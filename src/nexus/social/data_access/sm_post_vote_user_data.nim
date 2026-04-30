@@ -246,7 +246,7 @@ proc filterSMPostVoteUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var smPostVoteUsers: SMPostVoteUsers
@@ -288,7 +288,7 @@ proc filterSMPostVoteUser*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var smPostVoteUsers: SMPostVoteUsers
@@ -338,7 +338,7 @@ proc getOrCreateSMPostVoteUserByPk*(
           smPostId,
           accountUserId)
 
-  if smPostVoteUser != none(SMPostVoteUser):
+  if smPostVoteUser.isSome:
     return smPostVoteUser.get
 
   return createSMPostVoteUser(

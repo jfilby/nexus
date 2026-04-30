@@ -12,11 +12,11 @@ import nexus/core/view/base_page
 proc logoutPage*(context: NexusCoreContext) =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Log out with JWT
   logoutJWT(context.web.get.request,

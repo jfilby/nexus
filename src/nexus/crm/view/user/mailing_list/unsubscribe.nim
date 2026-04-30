@@ -43,13 +43,13 @@ proc mailingListUnsubscribePage*(
           nexusCRMModule,
           uniqueHash)
 
-  if mailingListSubscriber == none(MailingListSubscriber):
+  if mailingListSubscriber.isNone:
 
     raise newException(
             ValueError,
             "MailingListSubscriber record not found")
 
-  if mailingListSubscriber.get.verificationCode != none(string):
+  if mailingListSubscriber.get.verificationCode.isSome:
     subscriberVerificationCode = mailingListSubscriber.get.verificationCode.get
 
   # Check verificationCode
@@ -103,7 +103,7 @@ proc mailingListUnsubscribePagePost*(
           nexusCRMModule,
           uniqueHash)
 
-  if mailingListSubscriber == none(MailingListSubscriber):
+  if mailingListSubscriber.isNone:
 
     raise newException(
             ValueError,

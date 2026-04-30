@@ -262,7 +262,7 @@ proc filterAccountUserRole*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUserRoles: AccountUserRoles
@@ -304,7 +304,7 @@ proc filterAccountUserRole*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var accountUserRoles: AccountUserRoles
@@ -373,7 +373,7 @@ proc getOrCreateAccountUserRoleByAccountUserIdAndRoleId*(
           accountUserId,
           roleId)
 
-  if accountUserRole != none(AccountUserRole):
+  if accountUserRole.isSome:
     return accountUserRole.get
 
   return createAccountUserRole(

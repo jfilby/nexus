@@ -126,7 +126,7 @@ proc signUpSuccessPage*(context: NexusCoreContext): string =
     success = false
     message = ""
 
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
     message = &"Email address ({email}) not found; please retry."
 
   elif accountUser.get.isVerified == true:

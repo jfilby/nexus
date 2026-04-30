@@ -90,7 +90,7 @@ proc createNexusSettingReturnsPk*(
   insertValues.add(key)
 
   # Field: Value
-  if value != none(string):
+  if value.isSome:
     insertStatement &= "value, "
     valuesClause &= "?, "
     insertValues.add(value.get)
@@ -272,7 +272,7 @@ proc filterNexusSetting*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var nexusSettings: NexusSettings
@@ -314,7 +314,7 @@ proc filterNexusSetting*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var nexusSettings: NexusSettings
@@ -384,7 +384,7 @@ proc getOrCreateNexusSettingByModuleAndKey*(
           module,
           key)
 
-  if nexusSetting != none(NexusSetting):
+  if nexusSetting.isSome:
     return nexusSetting.get
 
   return createNexusSetting(
@@ -452,7 +452,7 @@ proc updateNexusSettingSetClause*(
       updateValues.add(nexusSetting.key)
 
     elif field == "value":
-      if nexusSetting.value != none(string):
+      if nexusSetting.value.isSome:
         updateStatement &= "       value = ?,"
         updateValues.add(nexusSetting.value.get)
       else:

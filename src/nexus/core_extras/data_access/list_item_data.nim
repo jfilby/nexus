@@ -82,7 +82,7 @@ proc createListItemReturnsPk*(
   insertValues.add(id)
 
   # Field: Parent Id
-  if parentId != none(string):
+  if parentId.isSome:
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
     insertValues.add(parentId.get)
@@ -103,7 +103,7 @@ proc createListItemReturnsPk*(
   insertValues.add(displayName)
 
   # Field: Description
-  if description != none(string):
+  if description.isSome:
     insertStatement &= "description, "
     valuesClause &= "?, "
     insertValues.add(description.get)
@@ -288,7 +288,7 @@ proc filterListItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var listItems: ListItems
@@ -330,7 +330,7 @@ proc filterListItem*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var listItems: ListItems
@@ -398,7 +398,7 @@ proc getOrCreateListItemByName*(
           dbContext,
           name)
 
-  if listItem != none(ListItem):
+  if listItem.isSome:
     return listItem.get
 
   return createListItem(
@@ -467,7 +467,7 @@ proc updateListItemSetClause*(
       updateValues.add(listItem.id)
 
     elif field == "parent_id":
-      if listItem.parentId != none(string):
+      if listItem.parentId.isSome:
         updateStatement &= "       parent_id = ?,"
         updateValues.add(listItem.parentId.get)
       else:
@@ -486,7 +486,7 @@ proc updateListItemSetClause*(
       updateValues.add(listItem.displayName)
 
     elif field == "description":
-      if listItem.description != none(string):
+      if listItem.description.isSome:
         updateStatement &= "       description = ?,"
         updateValues.add(listItem.description.get)
       else:

@@ -85,14 +85,14 @@ proc topBarMenu*(
 
   # LoginHash for auto-login of the app
   if webContext.request.cookies.hasKey("token") and
-     nexusCoreDbContext != none(NexusCoreDbContext):
+     nexusCoreDbContext.isSome:
 
     let accountUserToken =
           getAccountUserTokenByToken(
             nexusCoreDbContext.get,
             webContext.request.cookies["token"])
 
-    if accountUserToken != none(AccountUserToken):
+    if accountUserToken.isSome:
       launchAppUrl &= "?launchHash=" & accountUserToken.get.uniqueHash
 
   # Menu HTML
@@ -184,14 +184,14 @@ proc baseForDesktopContent*(
     head:
       title: text webContext.websiteTitle & ": " & pageContext.pageTitle
 
-      if webContext.metaDescription != none(string):
+      if webContext.metaDescription.isSome:
         verbatim("<meta description=\"" & webContext.metaDescription.get & "\">")
 
       verbatim("<meta name=\"viewport\" content=\"width=device-width, " &
                "initial-scale=1, maximum-scale=1, user-scalable=0\">")
 
       # If the mobile setting is not known then determine it was JS
-      if webContext.mobile == none(bool):
+      if webContext.mobile.isNone:
 
         script(src = "/js/utility.js")
 
@@ -229,7 +229,7 @@ proc baseForDesktopContent*(
       # Workaround for FOUC browser issue from: https://stackoverflow.com/a/57888310
       verbatim("<script>0</script>")
 
-      if pageContext.backgroundImage != none(string):
+      if pageContext.backgroundImage.isSome:
         tdiv(style = style((StyleAttr.backgroundColor, "#ffffff"),
                            (StyleAttr.position, "absolute"),
                            (StyleAttr.top, "0px"),
@@ -244,7 +244,7 @@ proc baseForDesktopContent*(
                  pageContext,
                  nexusCoreDbContext)
 
-      if pageContext.backgroundImage != none(string):
+      if pageContext.backgroundImage.isSome:
         pageContentsClass &= " form_div"
 
       tdiv(class = "section"):
@@ -289,7 +289,7 @@ proc baseForMobileContent*(webContext: WebContext,
     head:
       title: text webContext.websiteTitle & ": " & pageContext.pageTitle
 
-      if webContext.metaDescription != none(string):
+      if webContext.metaDescription.isSome:
         verbatim("<meta description=\"" & webContext.metaDescription.get & "\">")
 
       verbatim("<meta name=\"viewport\" content=\"width=device-width, " &

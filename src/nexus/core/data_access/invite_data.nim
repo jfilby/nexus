@@ -108,7 +108,7 @@ proc createInviteReturnsPk*(
   insertValues.add(toName)
 
   # Field: Sent
-  if sent != none(DateTime):
+  if sent.isSome:
     insertStatement &= "sent, "
     valuesClause &= pgToDateTimeString(sent.get) & ", "
 
@@ -295,7 +295,7 @@ proc filterInvite*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var invites: Invites
@@ -337,7 +337,7 @@ proc filterInvite*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var invites: Invites
@@ -406,7 +406,7 @@ proc getOrCreateInviteByToEmail*(
           dbContext,
           toEmail)
 
-  if invite != none(Invite):
+  if invite.isSome:
     return invite.get
 
   return createInvite(
@@ -492,7 +492,7 @@ proc updateInviteSetClause*(
       updateValues.add(invite.toName)
 
     elif field == "sent":
-      if invite.sent != none(DateTime):
+      if invite.sent.isSome:
         updateStatement &= "       sent = " & pgToDateTimeString(invite.sent.get) & ","
       else:
         updateStatement &= "       sent = null,"

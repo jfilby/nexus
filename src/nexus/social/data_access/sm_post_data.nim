@@ -89,7 +89,7 @@ proc createSMPostReturnsPk*(
   insertValues.add(id)
 
   # Field: Parent Id
-  if parentId != none(string):
+  if parentId.isSome:
     insertStatement &= "parent_id, "
     valuesClause &= "?, "
     insertValues.add(parentId.get)
@@ -113,7 +113,7 @@ proc createSMPostReturnsPk*(
   valuesClause &= "'" & $status & "'" & ", "
 
   # Field: Title
-  if title != none(string):
+  if title.isSome:
     insertStatement &= "title, "
     valuesClause &= "?, "
     insertValues.add(title.get)
@@ -124,7 +124,7 @@ proc createSMPostReturnsPk*(
   insertValues.add(body)
 
   # Field: Tag Ids
-  if tagIds != none(string):
+  if tagIds.isSome:
     insertStatement &= "tag_ids, "
     valuesClause &= "?, "
     insertValues.add(tagIds.get)
@@ -134,7 +134,7 @@ proc createSMPostReturnsPk*(
   valuesClause &= pgToDateTimeString(created) & ", "
 
   # Field: Published
-  if published != none(DateTime):
+  if published.isSome:
     insertStatement &= "published, "
     valuesClause &= pgToDateTimeString(published.get) & ", "
 
@@ -144,12 +144,12 @@ proc createSMPostReturnsPk*(
   insertValues.add($updateCount)
 
   # Field: Updated
-  if updated != none(DateTime):
+  if updated.isSome:
     insertStatement &= "updated, "
     valuesClause &= pgToDateTimeString(updated.get) & ", "
 
   # Field: Deleted
-  if deleted != none(DateTime):
+  if deleted.isSome:
     insertStatement &= "deleted, "
     valuesClause &= pgToDateTimeString(deleted.get) & ", "
 
@@ -351,7 +351,7 @@ proc filterSMPost*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var smPosts: SMPosts
@@ -394,7 +394,7 @@ proc filterSMPost*(
   if len(orderByFields) > 0:
     selectStatement &= " order by " & orderByFields.join(", ")
 
-  if limit != none(int):
+  if limit.isSome:
     selectStatement &= " limit " & $limit.get
 
   var smPosts: SMPosts
@@ -471,7 +471,7 @@ proc getOrCreateSMPostByUniqueHash*(
           dbContext,
           uniqueHash)
 
-  if smPost != none(SMPost):
+  if smPost.isSome:
     return smPost.get
 
   return createSMPost(
@@ -573,7 +573,7 @@ proc updateSMPostSetClause*(
       updateValues.add(smPost.id)
 
     elif field == "parent_id":
-      if smPost.parentId != none(string):
+      if smPost.parentId.isSome:
         updateStatement &= "       parent_id = ?,"
         updateValues.add(smPost.parentId.get)
       else:
@@ -596,7 +596,7 @@ proc updateSMPostSetClause*(
       updateValues.add($smPost.status)
 
     elif field == "title":
-      if smPost.title != none(string):
+      if smPost.title.isSome:
         updateStatement &= "       title = ?,"
         updateValues.add(smPost.title.get)
       else:
@@ -607,7 +607,7 @@ proc updateSMPostSetClause*(
       updateValues.add(smPost.body)
 
     elif field == "tag_ids":
-      if smPost.tagIds != none(string):
+      if smPost.tagIds.isSome:
         updateStatement &= "       tag_ids = ?,"
         updateValues.add(smPost.tagIds.get)
       else:
@@ -617,7 +617,7 @@ proc updateSMPostSetClause*(
         updateStatement &= "       created = " & pgToDateTimeString(smPost.created) & ","
 
     elif field == "published":
-      if smPost.published != none(DateTime):
+      if smPost.published.isSome:
         updateStatement &= "       published = " & pgToDateTimeString(smPost.published.get) & ","
       else:
         updateStatement &= "       published = null,"
@@ -627,13 +627,13 @@ proc updateSMPostSetClause*(
       updateValues.add($smPost.updateCount)
 
     elif field == "updated":
-      if smPost.updated != none(DateTime):
+      if smPost.updated.isSome:
         updateStatement &= "       updated = " & pgToDateTimeString(smPost.updated.get) & ","
       else:
         updateStatement &= "       updated = null,"
 
     elif field == "deleted":
-      if smPost.deleted != none(DateTime):
+      if smPost.deleted.isSome:
         updateStatement &= "       deleted = " & pgToDateTimeString(smPost.deleted.get) & ","
       else:
         updateStatement &= "       deleted = null,"

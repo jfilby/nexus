@@ -41,7 +41,7 @@ proc verifySignUpCodeFields*(
     return docuiReturnVerifyEmail
 
   # Verify that the email is in the system
-  if accountUser == none(AccountUser):
+  if accountUser.isNone:
 
     let form = returnForm(@[
                  fieldError("email",

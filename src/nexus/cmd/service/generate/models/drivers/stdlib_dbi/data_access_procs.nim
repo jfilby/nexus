@@ -865,7 +865,7 @@ proc getOrCreateProc*(str: var string,
          "\n"
 
   # Return if a record was found
-  str &= &"  if {model.nameInCamelCase} != none({model.nameInPascalCase}):\n" &
+  str &= &"  if {model.nameInCamelCase}.isSome:\n" &
          &"    return {model.nameInCamelCase}.get\n" &
           "\n"
 

@@ -20,11 +20,11 @@ import nexus/crm/types/model_types as nexus_crm_model_types
 proc signUpAction*(context: NexusCoreContext): DocUIReturn =
 
   # Validate
-  if context.web == none(WebContext):
+  if context.web.isNone:
 
     raise newException(
             ValueError,
-            "context.web == none")
+            "context.web is none")
 
   # Initial vars
   template request: untyped = context.web.get.request
@@ -173,7 +173,7 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
           ownerAccountUser.get.id,
           mailingListName.get)
 
-    if mailingList == none(MailingList):
+    if mailingList.isNone:
 
       raise newException(
               ValueError,

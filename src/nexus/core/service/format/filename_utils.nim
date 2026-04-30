@@ -79,7 +79,7 @@ proc getEnvInclTest(
          string =
 
   # If used, lookup a test environment var setting
-  if testEnvs != none(Table[string, string]):
+  if testEnvs.isSome:
 
     if testEnvs.get.hasKey(envVarName):
       return testEnvs.get[envVarName]
