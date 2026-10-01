@@ -57,8 +57,8 @@ proc readExternalRoutesFile(
 
     # Formulate and verify routes path
     let routesPath =
-          &"{routesModule.get.confPath}{DirSep}web_apps{DirSep}" &
-          &"{routesModule.get.nameInSnakeCase}{DirSep}routes{DirSep}external"
+      &"{routesModule.get.confPath}{DirSep}web_apps{DirSep}" &
+      &"{routesModule.get.nameInSnakeCase}{DirSep}routes{DirSep}external"
 
     if not dirExists(routesPath):
 

@@ -170,9 +170,9 @@ proc deleteMailingListByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteMailingList*(
@@ -186,9 +186,9 @@ proc deleteMailingList*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteMailingList*(
@@ -215,9 +215,9 @@ proc deleteMailingList*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsMailingListByPk*(
@@ -230,9 +230,9 @@ proc existsMailingListByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -250,9 +250,9 @@ proc existsMailingListByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return false
@@ -272,10 +272,10 @@ proc existsMailingListByAccountUserIdAndName*(
     "   and name = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId,
-              name)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId,
+    name)
 
   if row[0] == "":
     return false
@@ -366,9 +366,9 @@ proc getMailingListByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(MailingList)
@@ -386,9 +386,9 @@ proc getMailingListByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return none(MailingList)
@@ -408,10 +408,10 @@ proc getMailingListByAccountUserIdAndName*(
     "   and name = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId,
-              name)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId,
+    name)
 
   if row[0] == "":
     return none(MailingList)
@@ -428,20 +428,20 @@ proc getOrCreateMailingListByUniqueHash*(
        deleted: Option[DateTime]): MailingList {.gcsafe.} =
 
   let mailingList =
-        getMailingListByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getMailingListByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if mailingList.isSome:
     return mailingList.get
 
   return createMailingList(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           name,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    name,
+    created,
+    deleted)
 
 
 proc getOrCreateMailingListByAccountUserIdAndName*(
@@ -453,21 +453,21 @@ proc getOrCreateMailingListByAccountUserIdAndName*(
        deleted: Option[DateTime]): MailingList {.gcsafe.} =
 
   let mailingList =
-        getMailingListByAccountUserIdAndName(
-          dbContext,
-          accountUserId,
-          name)
+    getMailingListByAccountUserIdAndName(
+      dbContext,
+      accountUserId,
+      name)
 
   if mailingList.isSome:
     return mailingList.get
 
   return createMailingList(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           name,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    name,
+    created,
+    deleted)
 
 
 proc rowToMailingList*(row: seq[string]):
@@ -565,10 +565,10 @@ proc updateMailingListByPk*(
   updateValues.add($mailingList.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -602,10 +602,10 @@ proc updateMailingListByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateMailingListByWhereEqOnly*(
@@ -640,9 +640,9 @@ proc updateMailingListByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

@@ -243,9 +243,9 @@ proc deleteSMPostByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteSMPost*(
@@ -259,9 +259,9 @@ proc deleteSMPost*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteSMPost*(
@@ -288,9 +288,9 @@ proc deleteSMPost*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsSMPostByPk*(
@@ -303,9 +303,9 @@ proc existsSMPostByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -323,9 +323,9 @@ proc existsSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return false
@@ -419,9 +419,9 @@ proc getSMPostByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(SMPost)
@@ -440,9 +440,9 @@ proc getSMPostByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return none(SMPost)
@@ -467,28 +467,28 @@ proc getOrCreateSMPostByUniqueHash*(
        deleted: Option[DateTime]): SMPost {.gcsafe.} =
 
   let smPost =
-        getSMPostByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getSMPostByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if smPost.isSome:
     return smPost.get
 
   return createSMPost(
-           dbContext,
-           parentId,
-           accountUserId,
-           uniqueHash,
-           postType,
-           status,
-           title,
-           body,
-           tagIds,
-           created,
-           published,
-           updateCount,
-           updated,
-           deleted)
+    dbContext,
+    parentId,
+    accountUserId,
+    uniqueHash,
+    postType,
+    status,
+    title,
+    body,
+    tagIds,
+    created,
+    published,
+    updateCount,
+    updated,
+    deleted)
 
 
 proc rowToSMPost*(row: seq[string]):
@@ -663,10 +663,10 @@ proc updateSMPostByPk*(
   updateValues.add($smPost.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -700,10 +700,10 @@ proc updateSMPostByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateSMPostByWhereEqOnly*(
@@ -738,9 +738,9 @@ proc updateSMPostByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

@@ -45,7 +45,7 @@ proc buildAssignModelTypeFieldsFromRow*(
 
     # Get convert function
     let convertFunction =
-          getConvertStringToNimTypeFunction(field)
+      getConvertStringToNimTypeFunction(field)
 
     # Get fieldNimType
     let fieldNimType = getNimType(field,
@@ -117,8 +117,8 @@ proc buildInsertSQLFromModelFieldNames*(
 
     # Get fieldNimType
     let fieldNimType =
-          getNimType(field,
-                     withOption = false)
+      getNimType(field,
+                 withOption = false)
 
     # Add field value
     var
@@ -179,9 +179,9 @@ proc buildInsertSQLFromModelFieldNames*(
             "string[]" ].contains(field.`type`):
 
       var dbToStringFunc =
-            getDbToStringFunc(
-              field.`type`,
-              inParentheses = some(valueStr))
+        getDbToStringFunc(
+          field.`type`,
+          inParentheses = some(valueStr))
 
       # Certain DB functions must be quoted: chars, array and json types
       if @[ "char",
@@ -254,9 +254,9 @@ proc deleteQuery*(
 
   # Get where predicates
   let wherePredicates =
-        getWherePredicates(
-          whereFields,
-          model)
+    getWherePredicates(
+      whereFields,
+      model)
 
   # Create select SQL statement
   str &= &"  var deleteStatement =\n" &
@@ -296,9 +296,9 @@ proc getFieldsAsPascalCaseCase*(
        joinStr = "And"): string =
 
   let uniqueFieldNames =
-        getFieldsWithPkNamed(
-          uniqueFields,
-          model)
+    getFieldsWithPkNamed(
+      uniqueFields,
+      model)
 
   return stripAllStrings(uniqueFieldNames.join(joinStr))
 
@@ -363,7 +363,7 @@ proc getFieldsFromRowToReturn*(
 
     # Get convert function
     let convertFunction =
-          getConvertStringToNimTypeFunction(field)
+      getConvertStringToNimTypeFunction(field)
 
     # Add field type to the return type
     if convertFunction == "":
@@ -508,8 +508,8 @@ proc listFieldNames*(
 
     # Get field
     let field =
-          getFieldByName(listField,
-                         model)
+      getFieldByName(listField,
+                     model)
 
     # Compose lines (for string and non-strings)
     if first == false:
@@ -570,8 +570,8 @@ proc listFieldNames*(
          field.isRequired == false:
 
         let nimTypeWithoutOption =
-              getNimType(field,
-                         withOption = false)
+          getNimType(field,
+                     withOption = false)
 
         str &= &" = none({nimTypeWithoutOption})"
 
@@ -769,9 +769,9 @@ proc selectQuery*(str: var string,
 
   # Get where predicates
   let wherePredicates =
-        getWherePredicates(
-          whereFields,
-          model)
+    getWherePredicates(
+      whereFields,
+      model)
 
   # Create select SQL statement
   str &= &"  var selectStatement =\n" &
@@ -857,9 +857,9 @@ proc setClause*(str: var string,
 
     # Get DB value/function call
     var valueToAdd =
-          getDbToStringFunc(
-            field.`type`,
-            some(&"{modelField}{getOption}"))
+      getDbToStringFunc(
+        field.`type`,
+        some(&"{modelField}{getOption}"))
 
     # If a function is used the put in the statement
     let fieldName = getColumnName(field)

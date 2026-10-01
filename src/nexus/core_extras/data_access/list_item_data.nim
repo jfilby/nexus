@@ -181,9 +181,9 @@ proc deleteListItemByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteListItem*(
@@ -197,9 +197,9 @@ proc deleteListItem*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteListItem*(
@@ -226,9 +226,9 @@ proc deleteListItem*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsListItemByPk*(
@@ -241,9 +241,9 @@ proc existsListItemByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -261,9 +261,9 @@ proc existsListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              name)
+    dbContext.dbConn,
+    sql(selectStatement),
+    name)
 
   if row[0] == "":
     return false
@@ -354,9 +354,9 @@ proc getListItemByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(ListItem)
@@ -374,9 +374,9 @@ proc getListItemByName*(
     " where name = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              name)
+    dbContext.dbConn,
+    sql(selectStatement),
+    name)
 
   if row[0] == "":
     return none(ListItem)
@@ -394,21 +394,21 @@ proc getOrCreateListItemByName*(
        created: DateTime): ListItem {.gcsafe.} =
 
   let listItem =
-        getListItemByName(
-          dbContext,
-          name)
+    getListItemByName(
+      dbContext,
+      name)
 
   if listItem.isSome:
     return listItem.get
 
   return createListItem(
-           dbContext,
-           parentId,
-           seqNo,
-           name,
-           displayName,
-           description,
-           created)
+    dbContext,
+    parentId,
+    seqNo,
+    name,
+    displayName,
+    description,
+    created)
 
 
 proc rowToListItem*(row: seq[string]):
@@ -520,10 +520,10 @@ proc updateListItemByPk*(
   updateValues.add($listItem.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -557,10 +557,10 @@ proc updateListItemByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateListItemByWhereEqOnly*(
@@ -595,9 +595,9 @@ proc updateListItemByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

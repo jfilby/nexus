@@ -76,8 +76,8 @@ proc getModuleAndBasePathAndSrcPathByProgram*(
 
     for webArtifact in generatorInfo.webArtifacts:
 
-        echo &".. package: {webArtifact.package} " &
-             &"shortName: {webArtifact.shortName}"
+      echo &".. package: {webArtifact.package} " &
+           &"shortName: {webArtifact.shortName}"
 
   quit(1)
 

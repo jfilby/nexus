@@ -39,7 +39,7 @@ proc generateCachedDataAccessFile*(
     stdlibs.add(module)
 
   let modulePath =
-        &"{model.module.package}/{model.module.shortNameInSnakeCase}"
+    &"{model.module.package}/{model.module.shortNameInSnakeCase}"
 
   var str =  "# Nexus generated file\n" &
             &"import " & join(stdlibs, ", ") & "\n" &

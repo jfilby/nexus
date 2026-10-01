@@ -73,17 +73,17 @@ proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
 
   # Get accountUser record
   var accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Verify fields
   let docuiReturn =
-        verifySignUpCodeFields(
-          context.db,
-          email,
-          signUpCode,
-          accountUser)
+    verifySignUpCodeFields(
+      context.db,
+      email,
+      signUpCode,
+      accountUser)
 
   if docuiReturn.isVerified == true:
 
@@ -94,11 +94,11 @@ proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
       accountUser.get.isVerified = true
 
       var rowsUpdated =
-            updateAccountUserByPk(
-              context.db,
-              accountUser.get,
-              setFields = @[ "is_active",
-                             "is_verified" ])
+        updateAccountUserByPk(
+          context.db,
+          accountUser.get,
+          setFields = @[ "is_active",
+                         "is_verified" ])
 
       if rowsUpdated == 0:
 
@@ -139,22 +139,22 @@ proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
 
       # Activate mailing list for subscriber
       let uniqueHash =
-            getUniqueHash(@[ $mailingList.get.id,
-                             email ])
+        getUniqueHash(@[ $mailingList.get.id,
+                         email ])
 
       var mailingListSubscriber =
-            getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId(
-              nexusCrmDbContext,
-              accountUser.get.id,
-              mailingList.get.id,
-              uniqueHash,
-              isActive = true,
-              email = email,
-              name = some(accountUser.get.name),
-              verificationCode = none(string),
-              isVerified = true,
-              created = now(),
-              deleted = none(DateTime))
+        getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId(
+          nexusCrmDbContext,
+          accountUser.get.id,
+          mailingList.get.id,
+          uniqueHash,
+          isActive = true,
+          email = email,
+          name = some(accountUser.get.name),
+          verificationCode = none(string),
+          isVerified = true,
+          created = now(),
+          deleted = none(DateTime))
 
       if mailingListSubscriber.isActive == false or
          mailingListSubscriber.isVerified == false:
@@ -170,12 +170,12 @@ proc verifySignUpAction*(context: NexusCoreContext): DocUIReturn =
                            "is_verified" ])
 
     else:
-        let form = returnForm(@[
-                     fieldError("signUpCode",
-                                "Incorrect verification code.") ])
+      let form = returnForm(@[
+                   fieldError("signUpCode",
+                              "Incorrect verification code.") ])
 
-        return newDocUIReturn(false,
-                              form)
+      return newDocUIReturn(false,
+                            form)
 
   # Return OK
   return newDocUIReturn(true)

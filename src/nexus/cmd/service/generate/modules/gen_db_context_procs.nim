@@ -114,8 +114,8 @@ proc generateIsInATransaction(
   str &= &"proc isInATransaction*({param}): bool =\n" &
          "\n" &
          "  let row = getRow(\n" &
-        &"              dbContext.dbConn,\n" &
-         "              sql\"select pg_current_xact_id_if_assigned()\")\n" &
+        &"    dbContext.dbConn,\n" &
+         "    sql\"select pg_current_xact_id_if_assigned()\")\n" &
          "\n" &
          "  if row[0] == \"\":\n" &
          "    return false\n" &

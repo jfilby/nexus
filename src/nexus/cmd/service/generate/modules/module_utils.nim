@@ -166,9 +166,9 @@ proc getPackageModules*(
 
     # Load library
     var library =
-          findAndLoadLibraryYAMLFile(
-            module.confPath,
-            module)
+      findAndLoadLibraryYAMLFile(
+        module.confPath,
+        module)
 
     let
       moduleShortNameLower = toLowerAscii(module.shortName)
@@ -369,14 +369,14 @@ proc getModules*(models: Models,
                  generatorInfo: GeneratorInfo): Modules =
 
   var modules =
-        getModulesByModels(
-          models,
-          generatorInfo)
+    getModulesByModels(
+      models,
+      generatorInfo)
 
   let webAppModule =
-        getModuleByWebArtifact(
-          webArtifact,
-          generatorInfo)
+    getModuleByWebArtifact(
+      webArtifact,
+      generatorInfo)
 
   var webArtifactModuleFound = false
 

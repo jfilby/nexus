@@ -39,8 +39,8 @@ proc signUpPage*(
                   desktopClass = "form_div")
 
   let vnode = buildHtml(tdiv(style =
-                style(StyleAttr.width,
-                      context.web.get.formWidth))):
+    style(StyleAttr.width,
+          context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
@@ -116,9 +116,9 @@ proc signUpSuccessPage*(context: NexusCoreContext): string =
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Success message
   var

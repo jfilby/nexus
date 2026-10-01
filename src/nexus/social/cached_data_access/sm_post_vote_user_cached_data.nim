@@ -182,10 +182,10 @@ proc cachedGetOrCreateSmPostVoteUserByPk*(
     return dai.cached_sm_post_vote_user[sm_postId, accountUserId]
 
   let sm_post_vote_user = getOrCreateSmPostVoteUserByPk(
-       sm_postId,
-       accountUserId,
-       vote_up,
-       vote_down)
+    sm_postId,
+    accountUserId,
+    vote_up,
+    vote_down)
 
   # Add to the model row cache if it's not there
   if not dai.cached_sm_post_vote_user.hasKey(sm_postId, accountUserId):

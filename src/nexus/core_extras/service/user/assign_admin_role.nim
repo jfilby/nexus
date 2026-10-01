@@ -17,7 +17,7 @@ proc assignAdminRole*(
 
   # Get admin user role
   let adminRoleId =
-        getAdminRoleId(coreExtrasDbContext)
+    getAdminRoleId(coreExtrasDbContext)
 
   # Create user/role assignment
   discard getOrCreateAccountUserRoleByAccountUserIdAndRoleId(
@@ -33,10 +33,10 @@ proc assignDefaultAdminRoles*(
 
   # Get users that should have the admin role by email
   let accountUsers =
-        filterAccountUser(
-          coreDbContext,
-          whereFields = @[ "is_admin" ],
-          whereValues = @[ $true ])
+    filterAccountUser(
+      coreDbContext,
+      whereFields = @[ "is_admin" ],
+      whereValues = @[ $true ])
 
 
   # Verify that at least 1 user is returned

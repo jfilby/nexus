@@ -22,17 +22,17 @@ proc resetPasswordRequestPage*(
 
   # Setup pageContext
   var pageContext =
-        newPageContext(pageTitle = "Reset Password")
+    newPageContext(pageTitle = "Reset Password")
 
   let formDiv =
-        getFormFactorClass(
-          context.web.get,
-          desktopClass = "form_div")
+    getFormFactorClass(
+      context.web.get,
+      desktopClass = "form_div")
 
   # Render form
   let vnode = buildHtml(tdiv(style =
-                style(StyleAttr.width,
-                      context.web.get.formWidth))):
+    style(StyleAttr.width,
+          context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
@@ -85,17 +85,17 @@ proc resetPasswordVerifyPage*(
 
   # Setup pageContext
   var pageContext =
-        newPageContext(pageTitle = "Reset Password")
+    newPageContext(pageTitle = "Reset Password")
 
   let formDiv =
-        getFormFactorClass(
-          context.web.get,
-          desktopClass = "form_div")
+    getFormFactorClass(
+      context.web.get,
+      desktopClass = "form_div")
 
   # Render form
   let vnode = buildHtml(tdiv(style =
-                style(StyleAttr.width,
-                context.web.get.formWidth))):
+    style(StyleAttr.width,
+          context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
@@ -159,13 +159,13 @@ proc resetPasswordSuccessPage*(
 
   # Setup pageContext
   var pageContext =
-        newPageContext(pageTitle = "Reset Password Successful")
+    newPageContext(pageTitle = "Reset Password Successful")
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Success message
   var

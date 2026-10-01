@@ -15,7 +15,7 @@ proc newNexusSocialContext*():
        NexusSocialContext =
 
   var nexusSocialContext =
-        NexusSocialContext(db: NexusSocialDbContext())
+    NexusSocialContext(db: NexusSocialDbContext())
 
   nexusSocialContext.nexusCoreContext =
     NexusCoreContext(db: NexusCoreDbContext())

@@ -22,18 +22,18 @@ proc sendEmailsToMailingList*(
 
   # Get all subscribers
   let mailingListSubscribers =
-        filterMailingListSubscriber(
-          context,
-          whereClause =
-            "mailing_list_id = ? and " &
-            "not exists (select 1" &
-            "              from mailing_list_subscriber_message mlsm" &
-            "             where mlsm.mailing_list_message_id    = ?" &
-            "               and mlsm.mailing_list_subscriber_id = " &
-            "                   mailing_list_subscriber.mailing_list_subscriber_id)",
-          whereValues = @[
-            $mailingList.mailingListId,
-            $mailingListMessage.mailingListMessageId ])
+    filterMailingListSubscriber(
+      context,
+      whereClause =
+      "mailing_list_id = ? and " &
+      "not exists (select 1" &
+      "              from mailing_list_subscriber_message mlsm" &
+      "             where mlsm.mailing_list_message_id    = ?" &
+      "               and mlsm.mailing_list_subscriber_id = " &
+      "                   mailing_list_subscriber.mailing_list_subscriber_id)",
+      whereValues = @[
+        $mailingList.mailingListId,
+        $mailingListMessage.mailingListMessageId ])
 
   # Send emails until batchSize is reached (if set)
   var sentEmails = 0

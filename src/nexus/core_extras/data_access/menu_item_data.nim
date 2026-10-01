@@ -198,9 +198,9 @@ proc deleteMenuItemByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteMenuItem*(
@@ -214,9 +214,9 @@ proc deleteMenuItem*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteMenuItem*(
@@ -243,9 +243,9 @@ proc deleteMenuItem*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsMenuItemByPk*(
@@ -258,9 +258,9 @@ proc existsMenuItemByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -282,11 +282,11 @@ proc existsMenuItemByNameAndURLAndScreen*(
     "   and screen = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              name,
-              url,
-              screen)
+    dbContext.dbConn,
+    sql(selectStatement),
+    name,
+    url,
+    screen)
 
   if row[0] == "":
     return false
@@ -377,9 +377,9 @@ proc getMenuItemByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(MenuItem)
@@ -401,11 +401,11 @@ proc getMenuItemByNameAndURLAndScreen*(
     "   and screen = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              name,
-              url,
-              screen)
+    dbContext.dbConn,
+    sql(selectStatement),
+    name,
+    url,
+    screen)
 
   if row[0] == "":
     return none(MenuItem)
@@ -425,25 +425,25 @@ proc getOrCreateMenuItemByNameAndURLAndScreen*(
        created: DateTime): MenuItem {.gcsafe.} =
 
   let menuItem =
-        getMenuItemByNameAndURLAndScreen(
-          dbContext,
-          name,
-          url,
-          screen)
+    getMenuItemByNameAndURLAndScreen(
+      dbContext,
+      name,
+      url,
+      screen)
 
   if menuItem.isSome:
     return menuItem.get
 
   return createMenuItem(
-           dbContext,
-           parentId,
-           name,
-           url,
-           screen,
-           level,
-           position,
-           roleIds,
-           created)
+    dbContext,
+    parentId,
+    name,
+    url,
+    screen,
+    level,
+    position,
+    roleIds,
+    created)
 
 
 proc rowToMenuItem*(row: seq[string]):
@@ -564,10 +564,10 @@ proc updateMenuItemByPk*(
   updateValues.add($menuItem.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -601,10 +601,10 @@ proc updateMenuItemByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateMenuItemByWhereEqOnly*(
@@ -639,9 +639,9 @@ proc updateMenuItemByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

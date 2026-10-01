@@ -188,9 +188,9 @@ proc deleteMailingListMessageByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteMailingListMessage*(
@@ -204,9 +204,9 @@ proc deleteMailingListMessage*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteMailingListMessage*(
@@ -233,9 +233,9 @@ proc deleteMailingListMessage*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsMailingListMessageByPk*(
@@ -248,9 +248,9 @@ proc existsMailingListMessageByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -268,9 +268,9 @@ proc existsMailingListMessageByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return false
@@ -361,9 +361,9 @@ proc getMailingListMessageByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(MailingListMessage)
@@ -381,9 +381,9 @@ proc getMailingListMessageByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return none(MailingListMessage)
@@ -402,22 +402,22 @@ proc getOrCreateMailingListMessageByUniqueHash*(
        deleted: Option[DateTime]): MailingListMessage {.gcsafe.} =
 
   let mailingListMessage =
-        getMailingListMessageByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getMailingListMessageByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if mailingListMessage.isSome:
     return mailingListMessage.get
 
   return createMailingListMessage(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           subject,
-           message,
-           created,
-           updated,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    subject,
+    message,
+    created,
+    updated,
+    deleted)
 
 
 proc rowToMailingListMessage*(row: seq[string]):
@@ -531,10 +531,10 @@ proc updateMailingListMessageByPk*(
   updateValues.add($mailingListMessage.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -568,10 +568,10 @@ proc updateMailingListMessageByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateMailingListMessageByWhereEqOnly*(
@@ -606,9 +606,9 @@ proc updateMailingListMessageByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

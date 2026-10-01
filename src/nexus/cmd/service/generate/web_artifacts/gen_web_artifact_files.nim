@@ -26,8 +26,8 @@ proc generateNewWebContext(webArtifact: WebArtifact) =
          "\n" &
          "  # New WebContext\n" &
          "  var webContext =\n" &
-         "        newBaseWebContext(request,\n" &
-         "                          nexusCoreDbContext)\n" &
+         "    newBaseWebContext(request,\n" &
+         "      nexusCoreDbContext)\n" &
          "\n" &
          "  # Site-specific settings\n" &
          "  webContext.bulmaPathName = \"bulma_0.9.3/bulma\"\n" &
@@ -61,9 +61,9 @@ proc generateWebArtifactRoutesFile(
 
   # Get module
   let module =
-        getModuleByWebArtifact(
-          webArtifact,
-          generatorInfo)
+    getModuleByWebArtifact(
+      webArtifact,
+      generatorInfo)
 
   # Imports
   var imports: OrderedSet[string]

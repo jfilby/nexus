@@ -24,7 +24,7 @@ proc addIfNotExistModelRowToCache*(
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
-        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+    &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(addToCacheStr) > 80:
 
@@ -66,8 +66,8 @@ proc addModelRowToCache*(
 
   # Generate code to put the row in the row cache
   var addToCacheStr =
-        &"{indent}dbContext.{cachedRows}[{pkField}] = " &
-          &"{model.nameInCamelCase}{optionGet}\n"
+    &"{indent}dbContext.{cachedRows}[{pkField}] = " &
+      &"{model.nameInCamelCase}{optionGet}\n"
 
   if len(addToCacheStr) > 80:
 
@@ -205,7 +205,7 @@ proc filterModelSetRowsInCacheWithWhereClause*(
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
-        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+    &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(setInCacheStr) > 80:
 
@@ -235,7 +235,7 @@ proc filterModelSetRowsInCacheWithWhereFields*(
 
   # Generate code to put the row in the row cache
   var setInCacheStr =
-        &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
+    &"    dbContext.{cachedRows}[{pkField}] = {model.nameInCamelCase}\n"
 
   if len(setInCacheStr) > 80:
 

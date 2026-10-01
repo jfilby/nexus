@@ -112,10 +112,10 @@ proc readWebArtifactDefinitionFilesPass1*(
 
   # Get path name
   let pathName =
-        replace(
-          artifact,
-          '-',
-          '_')
+    replace(
+      artifact,
+      '-',
+      '_')
 
   # Formulate path and return if not found
   let webAppsConfPath = &"{confPath}{DirSep}{pathName}s{DirSep}"

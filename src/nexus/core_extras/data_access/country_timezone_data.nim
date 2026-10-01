@@ -142,9 +142,9 @@ proc deleteCountryTimezone*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteCountryTimezone*(
@@ -171,9 +171,9 @@ proc deleteCountryTimezone*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsCountryTimezoneByCountryCodeAndTimezone*(
@@ -188,10 +188,10 @@ proc existsCountryTimezoneByCountryCodeAndTimezone*(
     "   and timezone = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              countryCode,
-              timezone)
+    dbContext.dbConn,
+    sql(selectStatement),
+    countryCode,
+    timezone)
 
   if row[0] == "":
     return false
@@ -284,10 +284,10 @@ proc getCountryTimezoneByCountryCodeAndTimezone*(
     "   and timezone = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              countryCode,
-              timezone)
+    dbContext.dbConn,
+    sql(selectStatement),
+    countryCode,
+    timezone)
 
   if row[0] == "":
     return none(CountryTimezone)
@@ -302,19 +302,19 @@ proc getOrCreateCountryTimezoneByCountryCodeAndTimezone*(
        created: DateTime): CountryTimezone {.gcsafe.} =
 
   let countryTimezone =
-        getCountryTimezoneByCountryCodeAndTimezone(
-          dbContext,
-          countryCode,
-          timezone)
+    getCountryTimezoneByCountryCodeAndTimezone(
+      dbContext,
+      countryCode,
+      timezone)
 
   if countryTimezone.isSome:
     return countryTimezone.get
 
   return createCountryTimezone(
-           dbContext,
-           countryCode,
-           timezone,
-           created)
+    dbContext,
+    countryCode,
+    timezone,
+    created)
 
 
 proc rowToCountryTimezone*(row: seq[string]):
@@ -390,10 +390,10 @@ proc updateCountryTimezoneByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateCountryTimezoneByWhereEqOnly*(
@@ -428,9 +428,9 @@ proc updateCountryTimezoneByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

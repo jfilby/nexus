@@ -162,9 +162,9 @@ proc deleteNexusSettingByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteNexusSetting*(
@@ -178,9 +178,9 @@ proc deleteNexusSetting*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteNexusSetting*(
@@ -207,9 +207,9 @@ proc deleteNexusSetting*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsNexusSettingByPk*(
@@ -222,9 +222,9 @@ proc existsNexusSettingByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -244,10 +244,10 @@ proc existsNexusSettingByModuleAndKey*(
     "   and key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              module,
-              key)
+    dbContext.dbConn,
+    sql(selectStatement),
+    module,
+    key)
 
   if row[0] == "":
     return false
@@ -338,9 +338,9 @@ proc getNexusSettingByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(NexusSetting)
@@ -360,10 +360,10 @@ proc getNexusSettingByModuleAndKey*(
     "   and key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              module,
-              key)
+    dbContext.dbConn,
+    sql(selectStatement),
+    module,
+    key)
 
   if row[0] == "":
     return none(NexusSetting)
@@ -379,20 +379,20 @@ proc getOrCreateNexusSettingByModuleAndKey*(
        created: DateTime): NexusSetting {.gcsafe.} =
 
   let nexusSetting =
-        getNexusSettingByModuleAndKey(
-          dbContext,
-          module,
-          key)
+    getNexusSettingByModuleAndKey(
+      dbContext,
+      module,
+      key)
 
   if nexusSetting.isSome:
     return nexusSetting.get
 
   return createNexusSetting(
-           dbContext,
-           module,
-           key,
-           value,
-           created)
+    dbContext,
+    module,
+    key,
+    value,
+    created)
 
 
 proc rowToNexusSetting*(row: seq[string]):
@@ -486,10 +486,10 @@ proc updateNexusSettingByPk*(
   updateValues.add($nexusSetting.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -523,10 +523,10 @@ proc updateNexusSettingByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateNexusSettingByWhereEqOnly*(
@@ -561,9 +561,9 @@ proc updateNexusSettingByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

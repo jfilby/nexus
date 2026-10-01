@@ -14,9 +14,9 @@ proc newWebContext*(
 
   # New WebContext
   var webContext =
-        newBaseWebContext(
-          request,
-          dbContext)
+    newBaseWebContext(
+      request,
+      dbContext)
 
   debug "newWebContext",
     webContext = $webContext

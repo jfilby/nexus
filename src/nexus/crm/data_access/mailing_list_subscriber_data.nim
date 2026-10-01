@@ -218,9 +218,9 @@ proc deleteMailingListSubscriberByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteMailingListSubscriber*(
@@ -234,9 +234,9 @@ proc deleteMailingListSubscriber*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteMailingListSubscriber*(
@@ -263,9 +263,9 @@ proc deleteMailingListSubscriber*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsMailingListSubscriberByPk*(
@@ -278,9 +278,9 @@ proc existsMailingListSubscriberByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -298,9 +298,9 @@ proc existsMailingListSubscriberByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return false
@@ -320,10 +320,10 @@ proc existsMailingListSubscriberByMailingListIdAndAccountUserId*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListId,
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListId,
+    accountUserId)
 
   if row[0] == "":
     return false
@@ -343,10 +343,10 @@ proc existsMailingListSubscriberByMailingListIdAndEmail*(
     "   and email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListId,
-              email)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListId,
+    email)
 
   if row[0] == "":
     return false
@@ -440,9 +440,9 @@ proc getMailingListSubscriberByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -461,9 +461,9 @@ proc getMailingListSubscriberByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -484,10 +484,10 @@ proc getMailingListSubscriberByMailingListIdAndAccountUserId*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListId,
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListId,
+    accountUserId)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -508,10 +508,10 @@ proc getMailingListSubscriberByMailingListIdAndEmail*(
     "   and email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListId,
-              email)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListId,
+    email)
 
   if row[0] == "":
     return none(MailingListSubscriber)
@@ -533,25 +533,25 @@ proc getOrCreateMailingListSubscriberByUniqueHash*(
        deleted: Option[DateTime]): MailingListSubscriber {.gcsafe.} =
 
   let mailingListSubscriber =
-        getMailingListSubscriberByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getMailingListSubscriberByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           dbContext,
-           accountUserId,
-           mailingListId,
-           uniqueHash,
-           isActive,
-           email,
-           name,
-           verificationCode,
-           isVerified,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    mailingListId,
+    uniqueHash,
+    isActive,
+    email,
+    name,
+    verificationCode,
+    isVerified,
+    created,
+    deleted)
 
 
 proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
@@ -568,26 +568,26 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndAccountUserId*(
        deleted: Option[DateTime]): MailingListSubscriber {.gcsafe.} =
 
   let mailingListSubscriber =
-        getMailingListSubscriberByMailingListIdAndAccountUserId(
-          dbContext,
-          mailingListId,
-          accountUserId)
+    getMailingListSubscriberByMailingListIdAndAccountUserId(
+      dbContext,
+      mailingListId,
+      accountUserId)
 
   if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           dbContext,
-           some(accountUserId),
-           mailingListId,
-           uniqueHash,
-           isActive,
-           email,
-           name,
-           verificationCode,
-           isVerified,
-           created,
-           deleted)
+    dbContext,
+    some(accountUserId),
+    mailingListId,
+    uniqueHash,
+    isActive,
+    email,
+    name,
+    verificationCode,
+    isVerified,
+    created,
+    deleted)
 
 
 proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
@@ -604,26 +604,26 @@ proc getOrCreateMailingListSubscriberByMailingListIdAndEmail*(
        deleted: Option[DateTime]): MailingListSubscriber {.gcsafe.} =
 
   let mailingListSubscriber =
-        getMailingListSubscriberByMailingListIdAndEmail(
-          dbContext,
-          mailingListId,
-          email)
+    getMailingListSubscriberByMailingListIdAndEmail(
+      dbContext,
+      mailingListId,
+      email)
 
   if mailingListSubscriber.isSome:
     return mailingListSubscriber.get
 
   return createMailingListSubscriber(
-           dbContext,
-           accountUserId,
-           mailingListId,
-           uniqueHash,
-           isActive,
-           email,
-           name,
-           verificationCode,
-           isVerified,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    mailingListId,
+    uniqueHash,
+    isActive,
+    email,
+    name,
+    verificationCode,
+    isVerified,
+    created,
+    deleted)
 
 
 proc rowToMailingListSubscriber*(row: seq[string]):
@@ -767,10 +767,10 @@ proc updateMailingListSubscriberByPk*(
   updateValues.add($mailingListSubscriber.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -804,10 +804,10 @@ proc updateMailingListSubscriberByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateMailingListSubscriberByWhereEqOnly*(
@@ -842,9 +842,9 @@ proc updateMailingListSubscriberByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

@@ -59,15 +59,15 @@ proc resetPasswordRequestAction*(context: NexusCoreContext):
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Verify the input
   let docuiReturn =
-        verifyResetPasswordRequestFields(
-          email,
-          accountUser)
+    verifyResetPasswordRequestFields(
+      email,
+      accountUser)
 
   if docuiReturn.isVerified == false:
     return docuiReturn
@@ -77,9 +77,9 @@ proc resetPasswordRequestAction*(context: NexusCoreContext):
 
     # Get accountUser record
     var accountUser =
-          getAccountUserByEmail(
-            context.db,
-            email)
+      getAccountUserByEmail(
+        context.db,
+        email)
 
     # Get passwordResetCode, and stamp when it was issued so it can expire
     accountUser.get.passwordResetCode = some(generateSignUpCode())
@@ -161,18 +161,18 @@ proc resetPasswordChangeAction*(context: NexusCoreContext):
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Verify the input
   let docuiReturn =
-        verifyChangePasswordFields(
-          email,
-          passwordResetCode,
-          password1,
-          password2,
-          accountUser)
+    verifyChangePasswordFields(
+      email,
+      passwordResetCode,
+      password1,
+      password2,
+      accountUser)
 
   # Generate reset code and send password reset email
   if docuiReturn.isVerified == false:
@@ -182,9 +182,9 @@ proc resetPasswordChangeAction*(context: NexusCoreContext):
 
     # Get accountUser record
     var accountUser =
-          getAccountUserByEmail(
-            context.db,
-            email)
+      getAccountUserByEmail(
+        context.db,
+        email)
 
     # Update password
     # Get the passwordHash and salt

@@ -21,12 +21,12 @@ proc writeRoutesYamlFile(
 proc createInitialRoutes(moduleSnakeCaseName: string): Routes =
 
   var route =
-        Route(
-          name: "Frontpage",
-          description: "The frontpage",
-          group: "Home",
-          methods: @[ "get" ],
-          route: "/")
+    Route(
+      name: "Frontpage",
+      description: "The frontpage",
+      group: "Home",
+      methods: @[ "get" ],
+      route: "/")
 
   enrichRouteNamesAndPaths(
     route,
@@ -47,11 +47,11 @@ proc generateInitialWebArtifact*(
 
   # Defined a WebArtifact object
   var webArtifact =
-        getWebArtifactFromProjectTemplate(
-          pathName,
-          routes,
-          projectTemplate,
-          generatorInfo)
+    getWebArtifactFromProjectTemplate(
+      pathName,
+      routes,
+      projectTemplate,
+      generatorInfo)
 
   # Set GeneratorInfo fields
   # generatorInfo.confPath = projectTemplate.confPath
@@ -72,10 +72,10 @@ proc generateWebArtifactTemplate*(
 
   # Get path name
   let pathName =
-        replace(
-          projectTemplate.artifact,
-          '-',
-          '_')
+    replace(
+      projectTemplate.artifact,
+      '-',
+      '_')
 
   # Get paths
   var srcPath = &"{projectTemplate.appPath}{DirSep}view{DirSep}{pathName}"

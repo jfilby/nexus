@@ -188,9 +188,9 @@ proc deleteInviteByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteInvite*(
@@ -204,9 +204,9 @@ proc deleteInvite*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteInvite*(
@@ -233,9 +233,9 @@ proc deleteInvite*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsInviteByPk*(
@@ -248,9 +248,9 @@ proc existsInviteByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -268,9 +268,9 @@ proc existsInviteByToEmail*(
     " where to_email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              toEmail)
+    dbContext.dbConn,
+    sql(selectStatement),
+    toEmail)
 
   if row[0] == "":
     return false
@@ -361,9 +361,9 @@ proc getInviteByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(Invite)
@@ -381,9 +381,9 @@ proc getInviteByToEmail*(
     " where to_email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              toEmail)
+    dbContext.dbConn,
+    sql(selectStatement),
+    toEmail)
 
   if row[0] == "":
     return none(Invite)
@@ -402,22 +402,22 @@ proc getOrCreateInviteByToEmail*(
        created: DateTime): Invite {.gcsafe.} =
 
   let invite =
-        getInviteByToEmail(
-          dbContext,
-          toEmail)
+    getInviteByToEmail(
+      dbContext,
+      toEmail)
 
   if invite.isSome:
     return invite.get
 
   return createInvite(
-           dbContext,
-           fromAccountUserId,
-           fromEmail,
-           fromName,
-           toEmail,
-           toName,
-           sent,
-           created)
+    dbContext,
+    fromAccountUserId,
+    fromEmail,
+    fromName,
+    toEmail,
+    toName,
+    sent,
+    created)
 
 
 proc rowToInvite*(row: seq[string]):
@@ -525,10 +525,10 @@ proc updateInviteByPk*(
   updateValues.add($invite.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -562,10 +562,10 @@ proc updateInviteByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateInviteByWhereEqOnly*(
@@ -600,9 +600,9 @@ proc updateInviteByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

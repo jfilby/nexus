@@ -289,9 +289,9 @@ proc deleteAccountUserByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteAccountUser*(
@@ -305,9 +305,9 @@ proc deleteAccountUser*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteAccountUser*(
@@ -334,9 +334,9 @@ proc deleteAccountUser*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsAccountUserByPk*(
@@ -349,9 +349,9 @@ proc existsAccountUserByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -369,9 +369,9 @@ proc existsAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              email)
+    dbContext.dbConn,
+    sql(selectStatement),
+    email)
 
   if row[0] == "":
     return false
@@ -389,9 +389,9 @@ proc existsAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              apiKey)
+    dbContext.dbConn,
+    sql(selectStatement),
+    apiKey)
 
   if row[0] == "":
     return false
@@ -415,9 +415,9 @@ proc existsAccountUserByLastToken*(
     return false
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              lastToken.get)
+    dbContext.dbConn,
+    sql(selectStatement),
+    lastToken.get)
 
   if row[0] == "":
     return false
@@ -514,9 +514,9 @@ proc getAccountUserByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(AccountUser)
@@ -536,9 +536,9 @@ proc getAccountUserByEmail*(
     " where email = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              email)
+    dbContext.dbConn,
+    sql(selectStatement),
+    email)
 
   if row[0] == "":
     return none(AccountUser)
@@ -558,9 +558,9 @@ proc getAccountUserByAPIKey*(
     " where api_key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              apiKey)
+    dbContext.dbConn,
+    sql(selectStatement),
+    apiKey)
 
   if row[0] == "":
     return none(AccountUser)
@@ -580,9 +580,9 @@ proc getAccountUserByLastToken*(
     " where last_token = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              lastToken)
+    dbContext.dbConn,
+    sql(selectStatement),
+    lastToken)
 
   if row[0] == "":
     return none(AccountUser)
@@ -600,9 +600,9 @@ proc getAPIKeyFromAccountUserByPK*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(string)
@@ -631,33 +631,33 @@ proc getOrCreateAccountUserByEmail*(
        created: DateTime): AccountUser {.gcsafe.} =
 
   let accountUser =
-        getAccountUserByEmail(
-          dbContext,
-          email)
+    getAccountUserByEmail(
+      dbContext,
+      email)
 
   if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
-           dbContext,
-           accountId,
-           name,
-           email,
-           passwordHash,
-           passwordSalt,
-           apiKey,
-           lastToken,
-           signUpCode,
-           signUpDate,
-           passwordResetCode,
-           passwordResetDate,
-           isActive,
-           isAdmin,
-           isVerified,
-           subscriptionStatus,
-           lastLogin,
-           lastUpdate,
-           created)
+    dbContext,
+    accountId,
+    name,
+    email,
+    passwordHash,
+    passwordSalt,
+    apiKey,
+    lastToken,
+    signUpCode,
+    signUpDate,
+    passwordResetCode,
+    passwordResetDate,
+    isActive,
+    isAdmin,
+    isVerified,
+    subscriptionStatus,
+    lastLogin,
+    lastUpdate,
+    created)
 
 
 proc getOrCreateAccountUserByAPIKey*(
@@ -682,33 +682,33 @@ proc getOrCreateAccountUserByAPIKey*(
        created: DateTime): AccountUser {.gcsafe.} =
 
   let accountUser =
-        getAccountUserByAPIKey(
-          dbContext,
-          apiKey)
+    getAccountUserByAPIKey(
+      dbContext,
+      apiKey)
 
   if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
-           dbContext,
-           accountId,
-           name,
-           email,
-           passwordHash,
-           passwordSalt,
-           apiKey,
-           lastToken,
-           signUpCode,
-           signUpDate,
-           passwordResetCode,
-           passwordResetDate,
-           isActive,
-           isAdmin,
-           isVerified,
-           subscriptionStatus,
-           lastLogin,
-           lastUpdate,
-           created)
+    dbContext,
+    accountId,
+    name,
+    email,
+    passwordHash,
+    passwordSalt,
+    apiKey,
+    lastToken,
+    signUpCode,
+    signUpDate,
+    passwordResetCode,
+    passwordResetDate,
+    isActive,
+    isAdmin,
+    isVerified,
+    subscriptionStatus,
+    lastLogin,
+    lastUpdate,
+    created)
 
 
 proc getOrCreateAccountUserByLastToken*(
@@ -733,33 +733,33 @@ proc getOrCreateAccountUserByLastToken*(
        created: DateTime): AccountUser {.gcsafe.} =
 
   let accountUser =
-        getAccountUserByLastToken(
-          dbContext,
-          lastToken)
+    getAccountUserByLastToken(
+      dbContext,
+      lastToken)
 
   if accountUser.isSome:
     return accountUser.get
 
   return createAccountUser(
-           dbContext,
-           accountId,
-           name,
-           email,
-           passwordHash,
-           passwordSalt,
-           apiKey,
-           some(lastToken),
-           signUpCode,
-           signUpDate,
-           passwordResetCode,
-           passwordResetDate,
-           isActive,
-           isAdmin,
-           isVerified,
-           subscriptionStatus,
-           lastLogin,
-           lastUpdate,
-           created)
+    dbContext,
+    accountId,
+    name,
+    email,
+    passwordHash,
+    passwordSalt,
+    apiKey,
+    some(lastToken),
+    signUpCode,
+    signUpDate,
+    passwordResetCode,
+    passwordResetDate,
+    isActive,
+    isAdmin,
+    isVerified,
+    subscriptionStatus,
+    lastLogin,
+    lastUpdate,
+    created)
 
 
 proc rowToAccountUser*(row: seq[string]):
@@ -909,7 +909,7 @@ proc updateAccountUserSetClause*(
         updateStatement &= "       is_active = " & pgToBool(accountUser.isActive) & ","
 
     elif field == "is_admin":
-        updateStatement &= "       is_admin = " & pgToBool(accountUser.isAdmin) & ","
+      updateStatement &= "       is_admin = " & pgToBool(accountUser.isAdmin) & ","
 
     elif field == "is_verified":
         updateStatement &= "       is_verified = " & pgToBool(accountUser.isVerified) & ","
@@ -961,10 +961,10 @@ proc updateAccountUserByPk*(
   updateValues.add($accountUser.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -998,10 +998,10 @@ proc updateAccountUserByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateAccountUserByWhereEqOnly*(
@@ -1036,10 +1036,10 @@ proc updateAccountUserByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateAccountUserSetLastLoginByPK*(
@@ -1053,7 +1053,7 @@ proc updateAccountUserSetLastLoginByPK*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           last_login.get,
-           id)
+    dbContext.dbConn,
+    sql(updateStatement),
+    last_login.get,
+    id)

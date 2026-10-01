@@ -95,7 +95,7 @@ proc verifyChangePasswordFields*(
 
   # Verify the reset code, which may be absent if no reset was ever requested
   let expectedResetCode =
-        accountUser.get.passwordResetCode.get("")
+    accountUser.get.passwordResetCode.get("")
 
   if expectedResetCode == "" or
      expectedResetCode != passwordResetCode:
@@ -123,9 +123,9 @@ proc verifyChangePasswordFields*(
 
   # Verify password
   let docuiReturn =
-        verifyPasswordFields(
-          password1,
-          password2)
+    verifyPasswordFields(
+      password1,
+      password2)
 
   if docuiReturn.isVerified == false:
 

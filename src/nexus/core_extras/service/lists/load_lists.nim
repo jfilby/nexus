@@ -175,14 +175,14 @@ proc loadFullListYAML(
 
     # Create list
     let listItem =
-          getOrCreateListItemByName(
-            dbContext,
-            parentId,
-            seqNo = 1,
-            listFullYAML.name,
-            listFullYAML.displayName,
-            description,
-            now())
+      getOrCreateListItemByName(
+        dbContext,
+        parentId,
+        seqNo = 1,
+        listFullYAML.name,
+        listFullYAML.displayName,
+        description,
+        now())
 
     # Create list items
     loadFullListYAML(

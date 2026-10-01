@@ -42,22 +42,22 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
   # Handle form post
   if contentType == ContentType.Form:
     if request.params.hasKey("name"):
-        name = request.params["name"]
+      name = request.params["name"]
 
     if request.params.hasKey("email"):
-        email = request.params["email"]
+      email = request.params["email"]
 
     if request.params.hasKey("password1"):
-        password1 = request.params["password1"]
+      password1 = request.params["password1"]
 
     if request.params.hasKey("password2"):
-        password2 = request.params["password2"]
+      password2 = request.params["password2"]
 
     if request.params.hasKey("siteName"):
-        siteName = request.params["siteName"]
+      siteName = request.params["siteName"]
 
     if request.params.hasKey("emailUpdates"):
-        emailUpdates = "Y"
+      emailUpdates = "Y"
 
   # Handle JSON post
   var formValues: JsonNode
@@ -90,12 +90,12 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
 
   # Verify the input
   let docuiReturn =
-        verifySignUpFields(
-          context,
-          name,
-          email,
-          password1,
-          password2)
+    verifySignUpFields(
+      context,
+      name,
+      email,
+      password1,
+      password2)
 
   debug "signUpPagePost(): docuiReturn",
     isVerified = docuiReturn.isVerified,
@@ -127,24 +127,24 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
 
     # Create AccountUser record
     let accountUser =
-          createAccountUser(
-            context.db,
-            accountId = none(string),
-            name = name,
-            email = email,
-            passwordHash = passwordHash,
-            passwordSalt = passwordSalt,
-            apiKey = apiKey,
-            signUpCode = signUpCode,
-            signUpDate = now(),
-            passwordResetCode = none(string),
-            passwordResetDate = none(DateTime),
-            isActive = false,
-            isAdmin = false,
-            isVerified = false,
-            lastLogin = none(DateTime),
-            lastUpdate = none(DateTime),
-            created = now())
+      createAccountUser(
+        context.db,
+        accountId = none(string),
+        name = name,
+        email = email,
+        passwordHash = passwordHash,
+        passwordSalt = passwordSalt,
+        apiKey = apiKey,
+        signUpCode = signUpCode,
+        signUpDate = now(),
+        passwordResetCode = none(string),
+        passwordResetDate = none(DateTime),
+        isActive = false,
+        isAdmin = false,
+        isVerified = false,
+        lastLogin = none(DateTime),
+        lastUpdate = none(DateTime),
+        created = now())
 
     # Create mailing list subscriber record
     if emailUpdates == "Y":

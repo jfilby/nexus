@@ -44,8 +44,8 @@ template setTokenCookie*(token: string) =
   # HTTPS; requiring it locally would stop the browser storing the cookie at all
   # on plain HTTP.
   let secure =
-        if getEnv("SERVER_IS_PRODUCTION") == "Y": true
-        else: false
+    if getEnv("SERVER_IS_PRODUCTION") == "Y": true
+    else: false
 
   setCookie(tokenCookieName,
             token,

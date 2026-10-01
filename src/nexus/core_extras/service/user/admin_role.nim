@@ -12,10 +12,10 @@ proc getAdminRoleId*(coreExtrasDbContext: NexusCoreExtrasDbContext): string =
 
   # Get admin user role
   let adminListItemId =
-        getListItemIdByParentNameAndDisplayName(
-          coreExtrasDbContext,
-          "User Roles: Account User",
-          "Admin")
+    getListItemIdByParentNameAndDisplayName(
+      coreExtrasDbContext,
+      "User Roles: Account User",
+      "Admin")
 
   if adminListItemId.isNone:
 
@@ -35,10 +35,10 @@ proc userHasAdminRole*(
 
   # Check for user/role
   let accountUserRole =
-        getAccountUserRoleByAccountUserIdAndRoleId(
-          coreDbContext,
-          accountUser.id,
-          adminRoleId)
+    getAccountUserRoleByAccountUserIdAndRoleId(
+      coreDbContext,
+      accountUser.id,
+      adminRoleId)
 
   var hasAdminRole = false
 

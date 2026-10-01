@@ -33,9 +33,9 @@ proc verifySignUpCodeFields*(
 
   # Verify email address
   let docuiReturnVerifyEmail =
-        verifyEmailAddress(
-          dbContext,
-          email)
+    verifyEmailAddress(
+      dbContext,
+      email)
 
   if docuiReturnVerifyEmail.isVerified == false:
     return docuiReturnVerifyEmail

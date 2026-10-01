@@ -14,11 +14,11 @@ proc verifyInviteFields*(
        toEmail: string): (bool, string) =
 
   var docuiReturn =
-        verifyEmailAddress(
-          dbContext,
-          fromEmail,
-          "From email",
-          checkExists = false)
+    verifyEmailAddress(
+      dbContext,
+      fromEmail,
+      "From email",
+      checkExists = false)
 
   if docuiReturn.isVerified == false:
     return (false,
@@ -48,9 +48,9 @@ proc verifyInviteFields*(
 
   # Verify that the to email hasn't yet had an invite
   let toEmail_exists =
-        existsInviteByToEmail(
-          dbContext,
-          toEmail)
+    existsInviteByToEmail(
+      dbContext,
+      toEmail)
 
   if toEmail_exists == true:
     return (false,

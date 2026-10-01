@@ -5,7 +5,7 @@ proc isNumberStartingChar(c: char): bool =
 
   if c >= '0' and c <= '9':
 
-     return true
+    return true
 
   return false
 
@@ -15,7 +15,7 @@ proc isNumberContinuingChar(c: char): bool =
   if (c >= '0' and c <= '9') or
      @[ ',', '.' ].contains(c):
 
-     return true
+    return true
 
   return false
 
@@ -24,7 +24,7 @@ proc isPunctChar(c: char): bool =
 
   if @[ ',', '.', '?', ':', ';', '\'', '"', '!', '@', '#', '$', '%', '^', '&', '*' ].contains(c):
 
-     return true
+    return true
 
   return false
 
@@ -33,7 +33,7 @@ proc isWhitespaceChar(c: char): bool =
 
   if @[ ' ', '\t', '\n', '\r' ].contains(c):
 
-     return true
+    return true
 
   return false
 
@@ -43,7 +43,7 @@ proc isWordChar(c: char): bool =
   if (c >= 'a' and c <= 'z') or
      (c >= 'A' and c <= 'Z'):
 
-     return true
+      return true
 
   return false
 
@@ -52,7 +52,7 @@ proc isWordPunctChar(c: char): bool =
 
   if @[ '/', '\'', '@', '#', '$', '%', '^', '&', '*', '-' ].contains(c):
 
-     return true
+    return true
 
   return false
 

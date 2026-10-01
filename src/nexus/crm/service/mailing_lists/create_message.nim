@@ -11,19 +11,19 @@ proc createMailingListMessage*(
        body: string) =
 
   let uniqueHash =
-        getUniqueHash(@[ subject,
-                         body ])
+    getUniqueHash(@[ subject,
+                     body ])
 
   let mailingListMessage =
-        getOrCreateMailingListMessageByUniqueHash(
-          context,
-          accountUserId,
-          uniqueHash,
-          subject,
-          body,
-          created = now(),
-          updated = none(DateTime),
-          deleted = none(DateTime))
+    getOrCreateMailingListMessageByUniqueHash(
+      context,
+      accountUserId,
+      uniqueHash,
+      subject,
+      body,
+      created = now(),
+      updated = none(DateTime),
+      deleted = none(DateTime))
 
   echo &"Message created with uniqueHash: {mailingListMessage.uniqueHash}"
 

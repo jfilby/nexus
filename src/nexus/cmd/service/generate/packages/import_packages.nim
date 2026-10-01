@@ -75,9 +75,9 @@ proc readImportsPackageFile(
 
     # This call will also add the module to generatorInfo.modules
     let modules =
-          getPackageModules(
-            packageYaml,
-            generatorInfo)
+      getPackageModules(
+        packageYaml,
+        generatorInfo)
 
     package.modules =
       concat(package.modules,

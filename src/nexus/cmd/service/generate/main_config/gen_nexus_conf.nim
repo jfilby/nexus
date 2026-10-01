@@ -16,9 +16,9 @@ proc generateMainConfigFile*(
   let
     nexusYamlFilename = &"{projectTemplate.confPath}{DirSep}nexus.yaml"
     nexusYamlStr =
-       "%YAML 1.2\n" &
-       "---\n" &
-       "\n" &
+      "%YAML 1.2\n" &
+      "---\n" &
+      "\n" &
       &"project: {projectTemplate.projectName}\n" &
       &"package: {generatorInfo.package}\n" &
        "\n"

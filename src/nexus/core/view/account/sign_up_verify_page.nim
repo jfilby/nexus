@@ -59,8 +59,8 @@ proc signUpVerifyPage*(
                   desktopClass = "form_div")
 
   let vnode = buildHtml(tdiv(style =
-                style(StyleAttr.width,
-                      context.web.get.formWidth))):
+    style(StyleAttr.width,
+          context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,

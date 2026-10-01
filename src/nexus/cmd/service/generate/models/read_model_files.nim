@@ -30,10 +30,10 @@ proc createBasicModelTypesFile*(
        module: Module) =
 
   var typeStr =
-        "# Minimal model_types file (no models defined)with a DbContext definition\n" &
-        "import db_connector/db_postgres\n" &
-        "\n" &
-        "type\n" &
+    "# Minimal model_types file (no models defined)with a DbContext definition\n" &
+    "import db_connector/db_postgres\n" &
+    "\n" &
+    "type\n" &
        &"  {module.nameInPascalCase}DbContext* = object\n" &
         "    dbConn*: DbConn\n" &
         "\n"
@@ -84,9 +84,9 @@ proc createBasicDbContextFiles(
   for webArtifact in generatorInfo.webArtifacts:
 
     let module =
-          getModuleByWebArtifact(
-            webArtifact,
-            generatorInfo)
+      getModuleByWebArtifact(
+        webArtifact,
+        generatorInfo)
 
     if module.imported == false:
 
@@ -98,9 +98,9 @@ proc createBasicDbContextFiles(
   for library in generatorInfo.libraries:
 
     let module =
-          getModuleByLibrary(
-            library,
-            generatorInfo)
+      getModuleByLibrary(
+        library,
+        generatorInfo)
 
     if module.imported == false:
 
@@ -153,8 +153,8 @@ proc processModel(
   generateDataAccessFile(
     model,
     dataAccessFilename =
-      &"{srcPath}{DirSep}data_access{DirSep}" &
-      &"{model.nameInSnakeCase}_data.nim")
+    &"{srcPath}{DirSep}data_access{DirSep}" &
+    &"{model.nameInSnakeCase}_data.nim")
 
   # Create cached data access file
   if model.modelOptions.contains("cacheable"):
@@ -162,8 +162,8 @@ proc processModel(
     generateCachedDataAccessFile(
       model,
       cached_dataAccessFilename =
-        &"{srcPath}{DirSep}cached_data_access{DirSep}" &
-        &"{model.nameInSnakeCase}_cached_data.nim")
+      &"{srcPath}{DirSep}cached_data_access{DirSep}" &
+      &"{model.nameInSnakeCase}_cached_data.nim")
 
   # Add to generatorInfo
   generatorInfo.models.add(model)

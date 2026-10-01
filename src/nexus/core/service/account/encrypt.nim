@@ -73,9 +73,9 @@ proc hashPassword*(password: string,
                             password,
                             salt,
                             2,         # iterations
-                            65536,     # bytes in memory
-                            4,         # threads
-                            hashLen)
+    65536,     # bytes in memory
+    4,         # threads
+    hashLen)
 
   # The hash is returned as hex, not as the raw bytes. password_hash is a
   # character varying column: storing raw bytes corrupts the value (a 0x00

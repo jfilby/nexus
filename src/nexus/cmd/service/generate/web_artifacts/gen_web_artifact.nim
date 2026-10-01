@@ -15,9 +15,9 @@ proc generateWebArtifact*(
 
   # Get module
   let module =
-        getModuleByWebArtifact(
-          webArtifact,
-          generatorInfo)
+    getModuleByWebArtifact(
+      webArtifact,
+      generatorInfo)
 
   # echo &"Web artifact: name: {webArtifact.shortName}"
   # echo &"confPath: {webArtifact.confPath}"
@@ -76,8 +76,8 @@ proc generateWebArtifacts*(
 
     # Get module to skip unwanted routes
     let module =
-          getModuleByName(webArtifact.shortName,
-                          generatorInfo)
+      getModuleByName(webArtifact.shortName,
+                      generatorInfo)
 
     if module.imported == true and
        not module.generate.contains("routes"):

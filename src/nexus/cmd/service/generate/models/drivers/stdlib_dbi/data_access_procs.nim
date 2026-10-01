@@ -18,9 +18,9 @@ proc countProc*(str: var string,
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -67,9 +67,9 @@ proc countWhereClauseProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -129,9 +129,9 @@ proc createProc*(str: var string,
   str &= ",\n       ignoreExistingPk: bool = false"
 
   let returnDetails =
-        getProcPostDetails(
-          model.pkNimType,
-          pragmas)
+    getProcPostDetails(
+      model.pkNimType,
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -157,33 +157,33 @@ proc createProc*(str: var string,
 
       of "int":
 
-        str &=  "  # Execute the insert statement and return the sequence values\n" &
-                "  return tryInsertNamedIDReturningInt32(\n" &
-               &"           dbContext.dbConn,\n" &
-                "           sql(insertStatement),\n" &
-               &"           \"{model.pkNameInSnakeCase}\",\n" &
-                "           insertValues)\n"
+        str &= "  # Execute the insert statement and return the sequence values\n" &
+               "  return tryInsertNamedIDReturningInt32(\n" &
+               &"    dbContext.dbConn,\n" &
+               "    sql(insertStatement),\n" &
+               &"    \"{model.pkNameInSnakeCase}\",\n" &
+               "    insertValues)\n"
 
         returned = true
 
       of "int64":
 
-        str &=  "  # Execute the insert statement and return the sequence values\n" &
-                "  return tryInsertNamedID(\n" &
-               &"           dbContext.dbConn,\n" &
-                "           sql(insertStatement),\n" &
-               &"           \"{model.pkNameInSnakeCase}\",\n" &
-                "           insertValues)\n"
+        str &= "  # Execute the insert statement and return the sequence values\n" &
+               "  return tryInsertNamedID(\n" &
+               &"    dbContext.dbConn,\n" &
+               "    sql(insertStatement),\n" &
+               &"    \"{model.pkNameInSnakeCase}\",\n" &
+               "    insertValues)\n"
 
         returned = true
 
   if returned == false:
-    str &=  "  # Execute the insert statement and return the sequence values\n" &
-            "  exec(\n" &
+    str &= "  # Execute the insert statement and return the sequence values\n" &
+           "  exec(\n" &
            &"    dbContext.dbConn,\n" &
-            "    sql(insertStatement),\n" &
-            "    insertValues)\n" &
-            "\n" &
+           "    sql(insertStatement),\n" &
+           "    insertValues)\n" &
+           "\n" &
            &"  return {model.pkNameInCamelCase}\n"
 
   str &= "\n"
@@ -218,9 +218,9 @@ proc createWithTypeProc*(
          ",\n       convertToRawTypes: bool = true"
 
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -337,13 +337,13 @@ proc deleteProcByPk*(
   str &= "\n"
 
   # Delete the record
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(deleteStatement),\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(deleteStatement),\n"
 
   listFieldNames(str,
                  model,
-                 indent = "           ",
+                 indent = "    ",
                  listFields = uniqueFields)
 
   str &= ")\n" &
@@ -379,11 +379,11 @@ proc deleteWhereClauseProc*(
     model)
 
   # Exec the delete and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(deleteStatement),\n" &
-          "           whereValues)\n" &
-          "\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(deleteStatement),\n" &
+         "    whereValues)\n" &
+         "\n"
 
 
 proc deleteWhereEqOnlyProc*(
@@ -421,11 +421,11 @@ proc deleteWhereEqOnlyProc*(
     "deleteStatement")
 
   # Exec the delete and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(deleteStatement),\n" &
-          "           whereValues)\n" &
-          "\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(deleteStatement),\n" &
+         "    whereValues)\n" &
+         "\n"
 
 
 proc existsProc*(str: var string,
@@ -482,9 +482,9 @@ proc existsProc*(str: var string,
                    listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(
-          "bool",
-          pragmas)
+    getProcPostDetails(
+      "bool",
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -497,14 +497,14 @@ proc existsProc*(str: var string,
   str &= "\n"
 
   # Get the record
-  str &=  "  let row = getRow(\n" &
-         &"              dbContext.dbConn,\n" &
-          "              sql(selectStatement),\n"
+  str &= "  let row = getRow(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(selectStatement),\n"
 
   listFieldNamesWithDbToStringFuncs(
     str,
     model,
-    indent = "              ",
+    indent = "    ",
     listFields = uniqueFields)
 
   str &= &")\n" &
@@ -530,10 +530,10 @@ proc rowToModelTypeDecl*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas,
-          withColon = false)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas,
+      withColon = false)
 
   str &= &"proc {procName}*(row: seq[string]):\n" &
          &"       {returnDetails}\n"
@@ -548,10 +548,10 @@ proc rowToModelType*(str: var string,
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas,
-          withColon = false)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas,
+      withColon = false)
 
   str &= &"proc {procName}*(row: seq[string]):\n" &
          &"       {returnDetails} =\n" &
@@ -580,9 +580,9 @@ proc filterProc*(str: var string,
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.namePluralInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.namePluralInPascalCase,
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -643,9 +643,9 @@ proc filterWhereEqOnlyProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.namePluralInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.namePluralInPascalCase,
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -755,8 +755,8 @@ proc getProc*(str: var string,
       listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(&"Option[{model.nameInPascalCase}]",
-                           pragmas)
+    getProcPostDetails(&"Option[{model.nameInPascalCase}]",
+                       pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -769,13 +769,13 @@ proc getProc*(str: var string,
   str &= "\n"
 
   # Get the record
-  str &=  "  let row = getRow(\n" &
-         &"              dbContext.dbConn,\n" &
-          "              sql(selectStatement),\n"
+  str &= "  let row = getRow(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(selectStatement),\n"
 
   listFieldNames(str,
                  model,
-                 indent = "              ",
+                 indent = "    ",
                  listFields = uniqueFields)
 
   str &= ")\n" &
@@ -814,9 +814,9 @@ proc getOrCreateProc*(str: var string,
 
   else:
     let uniqueFieldsPascalCaseCase =
-          getFieldsAsPascalCaseCase(
-            uniqueFields,
-            model)
+      getFieldsAsPascalCaseCase(
+        uniqueFields,
+        model)
 
     procName &= "By" & uniqueFieldsPascalCaseCase
 
@@ -832,9 +832,9 @@ proc getOrCreateProc*(str: var string,
     skipNimTypeOptionsForFields = uniqueFields)  # Prevents doubling up Option[..]
 
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -853,12 +853,12 @@ proc getOrCreateProc*(str: var string,
 
   # Select one
   str &= &"  let {model.nameInCamelCase} =\n" &
-         &"        get{model.nameInPascalCase}By{getByFields}(\n" &
-         &"          dbContext,\n"
+         &"    get{model.nameInPascalCase}By{getByFields}(\n" &
+         &"      dbContext,\n"
 
   listFieldNames(str,
                  model,
-                 indent = "          ",
+                 indent = "      ",
                  listFields = uniqueFields)
 
   str &= ")\n" &
@@ -871,18 +871,18 @@ proc getOrCreateProc*(str: var string,
 
   # Create uniqueFieldsWithOnlyOptionalTypes
   var uniqueFieldsWithOnlyOptionalTypes =
-        fieldListWithOnlyOptionalFields(
-          model,
-          uniqueFields)
+    fieldListWithOnlyOptionalFields(
+      model,
+      uniqueFields)
 
   # Call create (no record found) and return the type
   str &= &"  return create{model.nameInPascalCase}(\n" &
-         &"           dbContext,\n"
+         &"    dbContext,\n"
 
   listModelFieldNames(
     str,
     model,
-    indent = "           ",
+    indent = "    ",
     skipAutoValue = true,
     addNimTypeOptionsForFields = uniqueFieldsWithOnlyOptionalTypes)
 
@@ -932,9 +932,9 @@ proc updateByPkProc*(str: var string,
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}ByPk*(\n" &
          &"       dbContext: {model.module.nameInPascalCase}DbContext,\n" &
@@ -956,11 +956,11 @@ proc updateByPkProc*(str: var string,
                 model)
 
   # Exec the update and return rows affected
-  str &=  "  let rowsUpdated = \n" &
-          "        execAffectedRows(\n" &
-         &"          dbContext.dbConn,\n" &
-          "          sql(updateStatement),\n" &
-          "          updateValues)\n" &
+  str &= "  let rowsUpdated =\n" &
+         "    execAffectedRows(\n" &
+         &"      dbContext.dbConn,\n" &
+         "      sql(updateStatement),\n" &
+         "      updateValues)\n" &
           "\n" &
           "  # Exception on no rows updated\n" &
           "  if rowsUpdated == 0 and\n" &
@@ -988,9 +988,9 @@ proc updateSetClause*(str: var string,
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "",
-          pragmas)
+    getProcPostDetails(
+      "",
+      pragmas)
 
   str &= &"proc {procName}SetClause*(\n" &
          &"       {model.nameInCamelCase}: {model.nameInPascalCase},\n" &
@@ -1021,9 +1021,9 @@ proc updateWhereClauseProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}ByWhereClause*(\n" &
          &"       dbContext: " &
@@ -1044,12 +1044,12 @@ proc updateWhereClauseProc*(
               "updateStatement")
 
   # Exec the update and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(updateStatement),\n" &
-          "           concat(updateValues,\n" &
-          "                  whereValues))\n" &
-          "\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(updateStatement),\n" &
+         "    concat(updateValues,\n" &
+         "      whereValues))\n" &
+         "\n"
 
 
 proc updateWhereEqOnlyProc*(
@@ -1065,9 +1065,9 @@ proc updateWhereEqOnlyProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}ByWhereEqOnly*(\n" &
          &"       dbContext: " &
@@ -1091,10 +1091,10 @@ proc updateWhereEqOnlyProc*(
                     "updateStatement")
 
   # Exec the update and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(updateStatement),\n" &
-          "           concat(updateValues,\n" &
-          "                  whereValues))\n" &
-          "\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(updateStatement),\n" &
+         "    concat(updateValues,\n" &
+         "      whereValues))\n" &
+         "\n"
 

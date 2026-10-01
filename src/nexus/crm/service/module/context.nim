@@ -15,7 +15,7 @@ proc newNexusCRMContext*():
        NexusCRMContext =
 
   var nexusCRMContext =
-        NexusCRMContext(db: NexusCRMDbContext())
+    NexusCRMContext(db: NexusCRMDbContext())
 
   nexusCRMContext.nexusCoreContext =
     NexusCoreContext(db: NexusCoreDbContext())

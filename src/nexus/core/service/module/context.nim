@@ -15,7 +15,7 @@ proc newNexusCoreContext*(request: Option[Request] = none(Request)):
        NexusCoreContext =
 
   var nexusCoreContext =
-        NexusCoreContext(db: NexusCoreDbContext())
+    NexusCoreContext(db: NexusCoreDbContext())
 
   nexusCoreContext.db.dbConn = getDbConn()
 

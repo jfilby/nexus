@@ -31,7 +31,7 @@ proc generate*(artifact: string,
   # Try to read conf/nexus.yaml (might not exist yet)
   var (nexusYamlExists,
        generatorInfo) =
-        readNexusYaml(&"{basePath}{DirSep}conf")
+    readNexusYaml(&"{basePath}{DirSep}conf")
 
   # Settings
   generatorInfo.artifact = artifact

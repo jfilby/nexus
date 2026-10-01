@@ -119,7 +119,7 @@ proc emailAddressReadonlyField*(email: string): VNode =
     label(class = "label"):
       text "Email"
     tdiv(class = "control"):
-        text email
+      text email
 
 
 proc passwordField*(label: string,

@@ -24,8 +24,8 @@ proc getListItemDisplayNames*(
   for listItemId in listItemIds:
 
     let listItem =
-          getListItemByPk(dbContext,
-                          listItemId)
+      getListItemByPk(dbContext,
+                      listItemId)
 
     strs.add(listItem.get.displayName)
 
@@ -67,9 +67,9 @@ proc getListItemByNameAndParentName*(
       if listItem.parentId.isSome:
 
         let parentlistItem =
-              getListItemByPk(
-                dbContext,
-                listItem.parentId.get)
+          getListItemByPk(
+            dbContext,
+            listItem.parentId.get)
 
         if parentlistItem.isSome:
           filteredListItems.add(listItem)
@@ -95,11 +95,11 @@ proc getListItemsByListItemId*(
 
   # Filter list items
   let listItems =
-        filterListItem(
-          dbContext,
-          whereFields = @[ "list_item_id" ],
-          whereValues = @[ $listItemId ],
-          orderByFields = @[ "display_name" ])
+    filterListItem(
+      dbContext,
+      whereFields = @[ "list_item_id" ],
+      whereValues = @[ $listItemId ],
+      orderByFields = @[ "display_name" ])
 
   return listItems
 
@@ -113,9 +113,9 @@ proc getListItemsByListItemIds*(
   for listItemId in listItemIds:
 
     let listItem =
-          getListItemByPk(
-            dbContext,
-            listItemId)
+      getListItemByPk(
+        dbContext,
+        listItemId)
 
     if listItem.isNone:
 
@@ -147,9 +147,9 @@ proc getListItemsByParentListName*(
 
   # Get list id
   let parentListItem =
-        getListItemByName(
-          dbContext,
-          parentListName)
+    getListItemByName(
+      dbContext,
+      parentListName)
 
   if parentListItem.isNone:
 
@@ -178,9 +178,9 @@ proc getIdsAndDisplayNames*(
     options: seq[string]
 
   let listItems =
-        getListItemsByParentListId(
-          dbContext,
-          parentListId)
+    getListItemsByParentListId(
+      dbContext,
+      parentListId)
 
   debug "getIdsAsStringsAndDisplayNames()",
     parentListId = $parentListId,
@@ -201,12 +201,12 @@ proc getIdsAndDisplayNames*(
 
       let (childOptionIds,
            childOptions) =
-            getIdsAndDisplayNames(
-              dbContext,
-              parentListId = listItem.id,
-              cascade,
-              indents,
-              newIndent)
+        getIdsAndDisplayNames(
+          dbContext,
+          parentListId = listItem.id,
+          cascade,
+          indents,
+          newIndent)
 
       optionIds = concat(optionIds,
                          childOptionIds)
@@ -232,9 +232,9 @@ proc getIdsAsStringsAndDisplayNames*(
     options: seq[string]
 
   let listItems =
-        getListItemsByParentListId(
-          dbContext,
-          parentListId)
+    getListItemsByParentListId(
+      dbContext,
+      parentListId)
 
   debug "getIdsAsStringsAndDisplayNames()",
     parentListId = $parentListId,
@@ -250,11 +250,11 @@ proc getIdsAsStringsAndDisplayNames*(
 
       let (childOptionIds,
            childOptions) =
-            getIdsAsStringsAndDisplayNames(
-              dbContext,
-              parentListId = listItem.id,
-              cascade,
-              indent + 2)
+        getIdsAsStringsAndDisplayNames(
+          dbContext,
+          parentListId = listItem.id,
+          cascade,
+          indent + 2)
 
       optionIds = concat(optionIds,
                          childOptionIds)
@@ -280,9 +280,9 @@ proc getIdsAsStringsAndDisplayNames*(
     options: seq[string]
 
   let listItems =
-        getListItemsByParentListName(
-          dbContext,
-          parentListName)
+    getListItemsByParentListName(
+      dbContext,
+      parentListName)
 
   for listItem in listItems:
 
@@ -293,11 +293,11 @@ proc getIdsAsStringsAndDisplayNames*(
 
       let (childOptionIds,
            childOptions) =
-            getIdsAsStringsAndDisplayNames(
-              dbContext,
-              parentListId = listItem.id,
-              cascade,
-              indent + 4)
+        getIdsAsStringsAndDisplayNames(
+          dbContext,
+          parentListId = listItem.id,
+          cascade,
+          indent + 4)
 
       optionIds = concat(optionIds,
                          childOptionIds)
@@ -316,16 +316,16 @@ proc getListItemIdsCascade*(
   var listItemIds = @[ listItemId ]
 
   let listItems =
-        getListItemsByParentListId(
-          dbContext,
-          listItemId)
+    getListItemsByParentListId(
+      dbContext,
+      listItemId)
 
   for listItem in listItems:
 
     let listItemIdsToAdd =
-          getListItemIdsCascade(
-            dbContext,
-            listItem.id)
+      getListItemIdsCascade(
+        dbContext,
+        listItem.id)
 
     listItemIds.add(listItemIdsToAdd)
 
@@ -339,9 +339,9 @@ proc getListItemByParentNameAndDisplayName*(
 
   # Get ListItems by parent name
   let listItems =
-        getListItemsByParentListName(
-          dbContext,
-          parentName)
+    getListItemsByParentListName(
+      dbContext,
+      parentName)
 
   debug "getListItemByParentNameAndDisplayName()",
     lenListItems = len(listItems)
@@ -364,9 +364,9 @@ proc getListItemByParentNameAndDisplayNameCascade*(
 
   # Get ListItems by parent name
   let parentListItem =
-        getListItemByName(
-          dbContext,
-          parentName)
+    getListItemByName(
+      dbContext,
+      parentName)
 
   # Return the matching id for the display name
   let (ids,
@@ -385,9 +385,9 @@ proc getListItemByParentNameAndDisplayNameCascade*(
     if displayNames[i] == displayName:
 
       let listItem =
-            getListItemByPk(
-              dbContext,
-              ids[i])
+        getListItemByPk(
+          dbContext,
+          ids[i])
 
       return listItem
 
@@ -436,8 +436,8 @@ proc getListItemDisplayNameById*(
        listItemId: string): Option[string] =
 
   let listItem =
-        getListItemByPk(dbContext,
-                        listItemId)
+    getListItemByPk(dbContext,
+                    listItemId)
 
   if listItem.isNone:
     return none(string)
@@ -455,9 +455,9 @@ proc getListItemIdAsStringAndDisplayNameMap*(
     options: OrderedTable[string, string]
 
   let listItems =
-        getListItemsByParentListName(
-          dbContext,
-          parentListName)
+    getListItemsByParentListName(
+      dbContext,
+      parentListName)
 
   for listItem in listItems:
 
@@ -475,8 +475,8 @@ proc getListItemNames*(
   for listItemId in listItemIds:
 
     let listItem =
-          getListItemByPk(dbContext,
-                          listItemId)
+      getListItemByPk(dbContext,
+                      listItemId)
 
     strs.add(listItem.get.name)
 
@@ -517,11 +517,11 @@ proc getListItemNamesAsString*(
 
   # Get list items as a string
   let listItems =
-        filterListItem(
-          dbContext,
-          whereClause,
-          whereValues,
-          orderByFields = @[ "list_item_id" ])
+    filterListItem(
+      dbContext,
+      whereClause,
+      whereValues,
+      orderByFields = @[ "list_item_id" ])
 
   # Join the names
   var str = ""

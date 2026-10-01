@@ -25,21 +25,21 @@ proc cachedCreateSMPost*(
 
   # Call the create proc
   let smPost =
-        createSMPost(
-           dbContext,
-           parentId,
-           accountUserId,
-           uniqueHash,
-           postType,
-           status,
-           title,
-           body,
-           tagIds,
-           created,
-           published,
-           updateCount,
-           updated,
-           deleted)
+    createSMPost(
+      dbContext,
+      parentId,
+      accountUserId,
+      uniqueHash,
+      postType,
+      status,
+      title,
+      body,
+      tagIds,
+      created,
+      published,
+      updateCount,
+      updated,
+      deleted)
 
   # Add to the model row cache
   dbContext.cachedSMPosts[smPost.id] = smPost
@@ -56,9 +56,9 @@ proc cachedDeleteSMPostByPk*(
 
   # Call the model's delete proc
   let rowsDeleted = 
-        deleteSMPostByPk(
-          dbContext,
-          id)
+    deleteSMPostByPk(
+      dbContext,
+      id)
 
   # Remove from the model row cache
   dbContext.cachedSMPosts.del(id)
@@ -82,8 +82,8 @@ proc cachedExistsSMPostByPk*(
 
   # Call the model's exists proc
   return existsSMPostByPk(
-           dbContext,
-           id)
+    dbContext,
+    id)
 
 
 proc cachedExistsSMPostByUniqueHash*(
@@ -100,8 +100,8 @@ proc cachedExistsSMPostByUniqueHash*(
 
   # Call the model's exists proc
   return existsSMPostByUniqueHash(
-           dbContext,
-           uniqueHash)
+    dbContext,
+    uniqueHash)
 
 
 proc cachedFilterSMPost*(
@@ -128,12 +128,12 @@ proc cachedFilterSMPost*(
 
   # Call the model's filter proc
   let smPosts =
-        filterSMPost(
-          dbContext,
-          whereClause,
-          whereValues,
-          orderByFields,
-          limit)
+    filterSMPost(
+      dbContext,
+      whereClause,
+      whereValues,
+      orderByFields,
+      limit)
 
   # Get PKs from the filter results
   var pks: seq[string]
@@ -176,12 +176,12 @@ proc cachedFilterSMPost*(
 
   # Call the model's filter proc
   let sm_posts =
-        filterSMPost(
-          dbContext,
-          whereFields,
-          whereValues,
-          orderByFields,
-          limit)
+    filterSMPost(
+      dbContext,
+      whereFields,
+      whereValues,
+      orderByFields,
+      limit)
 
   # Get PKs from the filter results
   var pks: seq[string]
@@ -210,9 +210,9 @@ proc cachedGetSMPostByPk*(
 
   # Call the model's get proc
   let smPost =
-        getSMPostByPk(
-          dbContext,
-          id)
+    getSMPostByPk(
+      dbContext,
+      id)
 
   if smPost.isSome:
 
@@ -236,9 +236,9 @@ proc cachedGetSMPostByUniqueHash*(
 
   # Call the model's get proc
   let smPost =
-        getSMPostByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getSMPostByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if smPost.isSome:
 
@@ -273,21 +273,21 @@ proc cachedGetOrCreateSMPostByUniqueHash*(
     return dbContext.cachedSMPosts[dbContext.cachedFilterSMPost[filterKey][0]]
 
   let smPost =
-        getOrCreateSMPostByUniqueHash(
-          dbContext,
-          parentId,
-          accountUserId,
-          uniqueHash,
-          postType,
-          status,
-          title,
-          body,
-          tagIds,
-          created,
-          published,
-          updateCount,
-          updated,
-          deleted)
+    getOrCreateSMPostByUniqueHash(
+      dbContext,
+      parentId,
+      accountUserId,
+      uniqueHash,
+      postType,
+      status,
+      title,
+      body,
+      tagIds,
+      created,
+      published,
+      updateCount,
+      updated,
+      deleted)
 
   # Add to the model row cache if it's not there
   if not dbContext.cachedSMPosts.hasKey(smPost.id):
@@ -303,10 +303,10 @@ proc cachedUpdateSMPostByPk*(
 
   # Call the model's update proc
   let rowsUpdated =
-        updateSMPostByPk(
-          dbContext,
-          smPost,
-          setFields)
+    updateSMPostByPk(
+      dbContext,
+      smPost,
+      setFields)
 
   # Add to the model row cache
   dbContext.cachedSMPosts[smPost.id] = smPost

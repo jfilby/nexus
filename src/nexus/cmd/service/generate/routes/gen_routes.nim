@@ -68,9 +68,9 @@ proc generateRoute(
 
     # Get module
     let module =
-          getModuleByWebArtifact(
-            webArtifact,
-            generatorInfo)
+      getModuleByWebArtifact(
+        webArtifact,
+        generatorInfo)
 
     # Define procName
     var procName = route.nameInCamelCase

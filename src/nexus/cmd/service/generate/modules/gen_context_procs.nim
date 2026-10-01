@@ -177,7 +177,7 @@ proc generateNewContextProc(
   # Declare context objects
   str &=
     &"  var context =\n" &
-    &"        {module.nameInPascalCase}Context(db: {module.nameInPascalCase}DbContext())\n"
+    &"    {module.nameInPascalCase}Context(db: {module.nameInPascalCase}DbContext())\n"
 
   if module.nameInPascalCase != "NexusCore":
     str &=
@@ -207,10 +207,10 @@ proc generateNewContextProc(
        "      newWebContext(request.get,\n"
 
     if module.nameInPascalCase == "NexusCore":
-      str &= "                    nexusCoreContext.db))\n"
+      str &= "        nexusCoreContext.db))\n"
 
     else:
-      str &= &"                    context.nexusCoreContext.db))\n"
+      str &= &"        context.nexusCoreContext.db))\n"
 
   # For modules other than Nexus Core, create a Nexus Core context
   if module.nameInPascalCase != "NexusCore":

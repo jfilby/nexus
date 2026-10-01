@@ -57,9 +57,9 @@ proc signUpResendSignUpCodePagePost*(
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   # Generate a new sign up code
   let signUpCode = generateSignUpCode()
@@ -70,11 +70,11 @@ proc signUpResendSignUpCodePagePost*(
   # email crashed on accountUser.get, and any address could be used to spam a
   # third party with sign-up mail.
   let docuiReturn =
-        verifySignUpCodeFields(
-          context.db,
-          email,
-          signUpCode,
-          accountUser)
+    verifySignUpCodeFields(
+      context.db,
+      email,
+      signUpCode,
+      accountUser)
 
   if docuiReturn.isVerified == false:
 

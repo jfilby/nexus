@@ -144,9 +144,9 @@ proc deleteSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           smPostId)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    smPostId)
 
 
 proc deleteSMPostVote*(
@@ -160,9 +160,9 @@ proc deleteSMPostVote*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteSMPostVote*(
@@ -189,9 +189,9 @@ proc deleteSMPostVote*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsSMPostVoteByPk*(
@@ -204,9 +204,9 @@ proc existsSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    smPostId)
 
   if row[0] == "":
     return false
@@ -297,9 +297,9 @@ proc getSMPostVoteByPk*(
     " where sm_post_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    smPostId)
 
   if row[0] == "":
     return none(SMPostVote)
@@ -314,18 +314,18 @@ proc getOrCreateSMPostVoteByPk*(
        votesDownCount: int): SMPostVote {.gcsafe.} =
 
   let smPostVote =
-        getSMPostVoteByPK(
-          dbContext,
-          smPostId)
+    getSMPostVoteByPK(
+      dbContext,
+      smPostId)
 
   if smPostVote.isSome:
     return smPostVote.get
 
   return createSMPostVote(
-           dbContext,
-           smPostId,
-           votesUpCount,
-           votesDownCount)
+    dbContext,
+    smPostId,
+    votesUpCount,
+    votesDownCount)
 
 
 proc rowToSMPostVote*(row: seq[string]):
@@ -402,10 +402,10 @@ proc updateSMPostVoteByPk*(
   updateValues.add($smPostVote.smPostId)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -439,10 +439,10 @@ proc updateSMPostVoteByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateSMPostVoteByWhereEqOnly*(
@@ -477,9 +477,9 @@ proc updateSMPostVoteByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

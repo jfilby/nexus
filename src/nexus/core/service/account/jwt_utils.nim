@@ -122,9 +122,9 @@ proc connectWithJWT*(
 
     # Get accountUser
     let accountUser =
-          getAccountUserByPk(
-            nexusCoreDbContext,
-            accountUserId)
+      getAccountUserByPk(
+        nexusCoreDbContext,
+        accountUserId)
 
     if accountUser.isNone:
       return (false,
@@ -343,10 +343,10 @@ proc purgeDeletedJWTs*(nexusCoreDbContext: NexusCoreDbContext) {.gcsafe.} =
   # re-login, and the primary key is account_user_id, so each nightly run
   # destroyed the only token row of anyone whose session was over 24h old.
   let accountUserTokens =
-        filterAccountUserToken(
-          nexusCoreDbContext,
-          whereClause = "deleted is not null and" &
-                        " deleted < NOW() - INTERVAL '1 day'")
+    filterAccountUserToken(
+      nexusCoreDbContext,
+      whereClause = "deleted is not null and" &
+                    " deleted < NOW() - INTERVAL '1 day'")
 
   for accountUserToken in accountUserTokens:
 
@@ -416,9 +416,9 @@ proc setJWTDeleted*(
     token = token
 
   var accountUserToken =
-        getAccountUserTokenByToken(
-          nexusCoreDbContext,
-          token)
+    getAccountUserTokenByToken(
+      nexusCoreDbContext,
+      token)
 
   if accountUserToken.isNone:
     warn "setJWTDeleted(): token not found"
@@ -467,9 +467,9 @@ proc verifyJWTByAPIKey*(
   # Without this check a token stays valid for its full 12 hour lifetime after
   # logout, since the signature is computed from the account's api_key.
   let accountUserToken =
-        getAccountUserTokenByToken(
-          nexusCoreDbContext,
-          token)
+    getAccountUserTokenByToken(
+      nexusCoreDbContext,
+      token)
 
   if accountUserToken.isSome and
      accountUserToken.get.deleted.isSome:

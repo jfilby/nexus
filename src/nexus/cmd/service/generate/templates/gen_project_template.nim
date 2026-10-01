@@ -28,9 +28,9 @@ proc generateProjectTemplate*(
        generatorInfo: var GeneratorInfo) =
 
   var projectTemplate =
-        ProjectTemplate(
-          artifact: artifact,
-          docUi: false)
+    ProjectTemplate(
+      artifact: artifact,
+      docUi: false)
 
   if DirSep == '/':
     projectTemplate.isUnix = true

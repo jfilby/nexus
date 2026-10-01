@@ -136,11 +136,11 @@ proc generateDataAccessFile*(
 
     # Count to see if there are any non-string types
     let nonStringCount =
-          countFieldNames(
-            model,
-            countNonStringTypes = true,
-            countStringTypes = false,
-            model.pkFields)
+      countFieldNames(
+        model,
+        countNonStringTypes = true,
+        countStringTypes = false,
+        model.pkFields)
 
     if nonStringCount > 0:
 
@@ -287,7 +287,7 @@ proc generateDataAccessFile*(
     thirdPartySeqs.add(module)
 
   var preStr =
-         "# Nexus generated file\n" &
+    "# Nexus generated file\n" &
         &"import " & join(thirdPartySeqs, ", ") & "\n"
 
   # Import data_utils if specific types are used

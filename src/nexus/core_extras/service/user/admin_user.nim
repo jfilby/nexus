@@ -68,11 +68,11 @@ proc getOrCreateAdminUser*(
   accountUser.get.isVerified = true
 
   let rowsUpdated =
-        updateAccountUserByPk(
-          coreDbContext,
-          accountUser.get,
-          setFields = @[ "is_active",
-                         "is_verified" ])
+    updateAccountUserByPk(
+      coreDbContext,
+      accountUser.get,
+      setFields = @[ "is_active",
+                     "is_verified" ])
 
   # Create the Admin role for the user
   assignAdminRole(

@@ -61,9 +61,9 @@ proc logoutJSON*(context: NexusCoreContext): string =
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPk(
-          context.db,
-          webContext.accountUserId)
+    getAccountUserByPk(
+      context.db,
+      webContext.accountUserId)
 
   if accountUser.isNone:
 
@@ -94,10 +94,10 @@ proc logoutJSON*(context: NexusCoreContext): string =
 proc profileJSON*(context: NexusCoreContext): string =
 
   let docuiReturn =
-        newDocUIReturn(
-          false,
-          "",
-          "unimplemented")
+    newDocUIReturn(
+      false,
+      "",
+      "unimplemented")
 
   # Return values as JSON
   return $toJson(docuiReturn)
@@ -106,10 +106,10 @@ proc profileJSON*(context: NexusCoreContext): string =
 proc profileJSONPost*(context: NexusCoreContext): string =
 
   let docuiReturn =
-        newDocUIReturn(
-          false,
-          "",
-          "unimplemented")
+    newDocUIReturn(
+      false,
+      "",
+      "unimplemented")
 
   # Return values as JSON
   return $toJson(docuiReturn)

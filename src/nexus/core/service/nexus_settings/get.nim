@@ -10,10 +10,10 @@ proc getNexusSettingValue*(
        failOnNotExists: bool = true): Option[string] =
 
   let nexusSetting =
-        getNexusSettingByModuleAndKey(
-          dbContext,
-          module,
-          key)
+    getNexusSettingByModuleAndKey(
+      dbContext,
+      module,
+      key)
 
   if nexusSetting.isNone:
     raise newException(

@@ -31,17 +31,17 @@ proc mailingListUnsubscribePage*(
 
   # Get NexusCRMContext module
   let nexusCRMModule =
-        NexusCRMContext(
-          db: nexusCoreDbContext.db)
+    NexusCRMContext(
+      db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record
   var
     subscriberVerificationCode = ""
 
     mailingListSubscriber =
-        getMailingListSubscriberByUniqueHash(
-          nexusCRMModule,
-          uniqueHash)
+      getMailingListSubscriberByUniqueHash(
+        nexusCRMModule,
+        uniqueHash)
 
   if mailingListSubscriber.isNone:
 
@@ -54,7 +54,7 @@ proc mailingListUnsubscribePage*(
 
   # Check verificationCode
   var pageContext =
-        newPageContext(pageTitle = "Unsubscribe from Mailing List")
+    newPageContext(pageTitle = "Unsubscribe from Mailing List")
 
   if subscriberVerificationCode != verificationCode:
 
@@ -94,14 +94,14 @@ proc mailingListUnsubscribePagePost*(
 
   # Get NexusCRMContext module
   let nexusCRMModule =
-        NexusCRMContext(
-          db: nexusCoreDbContext.db)
+    NexusCRMContext(
+      db: nexusCoreDbContext.db)
 
   # Get MailingListSubscriber record
   var mailingListSubscriber =
-        getMailingListSubscriberByUniqueHash(
-          nexusCRMModule,
-          uniqueHash)
+    getMailingListSubscriberByUniqueHash(
+      nexusCRMModule,
+      uniqueHash)
 
   if mailingListSubscriber.isNone:
 

@@ -12,7 +12,7 @@ proc createPgTablePartitioning(model: Model): string =
 
   # Partitioned
   let partitioningType =
-        toUpperAscii(model.partitioning.get.partitioningType)
+    toUpperAscii(model.partitioning.get.partitioningType)
 
   return &"PARTITION BY {partitioningType} " &
          &"({model.partitioning.get.keyField.nameInSnakeCase})"
@@ -50,9 +50,9 @@ proc createPgTable*(
       first = false
 
     let pgFieldType =
-          getModelTypeAsPgType(
-            field.`type`,
-            dmlInfo = true)
+      getModelTypeAsPgType(
+        field.`type`,
+        dmlInfo = true)
 
     dmlStr &= &"  {field.nameInSnakeCase} {pgFieldType}"
 
@@ -260,8 +260,8 @@ proc createPgIndexes*(
 
     # Determine which index to use
     let indexType =
-          getPgIndexType(index,
-                         model)
+      getPgIndexType(index,
+                     model)
 
     # Generate appropriate index create DML
     case indexType:

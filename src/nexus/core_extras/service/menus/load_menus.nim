@@ -115,25 +115,25 @@ proc loadMenusYAML(
       for roleName in menuRoleYAML.roleNames:
 
         let roleListItemId =
-              getListItemIdByParentNameAndDisplayName(
-                dbContext,
-                &"User Roles: {menuRoleYAML.roleType}",
-                roleName)
+          getListItemIdByParentNameAndDisplayName(
+            dbContext,
+            &"User Roles: {menuRoleYAML.roleType}",
+            roleName)
 
         roleIds.add(roleListItemId.get)
 
     # Create menu
     let menuItem =
-          getOrCreateMenuItemByNameAndURLAndScreen(
-            dbContext,
-            parentMenuItemId,
-            menuYAML.name,
-            menuYAML.url,
-            menuYAML.screen,
-            level,
-            position,
-            stringsWithOption(roleIds),
-            now())
+      getOrCreateMenuItemByNameAndURLAndScreen(
+        dbContext,
+        parentMenuItemId,
+        menuYAML.name,
+        menuYAML.url,
+        menuYAML.screen,
+        level,
+        position,
+        stringsWithOption(roleIds),
+        now())
 
     # Create menu items
     loadMenusYAML(dbContext,

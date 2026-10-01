@@ -88,7 +88,7 @@ proc skipEmail(
     return false
 
   let emailDomain =
-        toLowerAscii(email[atPos + 1 .. len(email) - 1])
+    toLowerAscii(email[atPos + 1 .. len(email) - 1])
 
   # Check each domain against the email
   for domain in domains:

@@ -162,9 +162,9 @@ proc deleteAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           accountUserId)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    accountUserId)
 
 
 proc deleteAccountUserToken*(
@@ -178,9 +178,9 @@ proc deleteAccountUserToken*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteAccountUserToken*(
@@ -207,9 +207,9 @@ proc deleteAccountUserToken*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsAccountUserTokenByPk*(
@@ -222,9 +222,9 @@ proc existsAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId)
 
   if row[0] == "":
     return false
@@ -242,9 +242,9 @@ proc existsAccountUserTokenByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return false
@@ -262,9 +262,9 @@ proc existsAccountUserTokenByToken*(
     " where token = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              token)
+    dbContext.dbConn,
+    sql(selectStatement),
+    token)
 
   if row[0] == "":
     return false
@@ -355,9 +355,9 @@ proc getAccountUserTokenByPk*(
     " where account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId)
 
   if row[0] == "":
     return none(AccountUserToken)
@@ -375,9 +375,9 @@ proc getAccountUserTokenByUniqueHash*(
     " where unique_hash = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              uniqueHash)
+    dbContext.dbConn,
+    sql(selectStatement),
+    uniqueHash)
 
   if row[0] == "":
     return none(AccountUserToken)
@@ -395,9 +395,9 @@ proc getAccountUserTokenByToken*(
     " where token = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              token)
+    dbContext.dbConn,
+    sql(selectStatement),
+    token)
 
   if row[0] == "":
     return none(AccountUserToken)
@@ -414,20 +414,20 @@ proc getOrCreateAccountUserTokenByPk*(
        deleted: Option[DateTime]): AccountUserToken {.gcsafe.} =
 
   let accountUserToken =
-        getAccountUserTokenByPK(
-          dbContext,
-          accountUserId)
+    getAccountUserTokenByPK(
+      dbContext,
+      accountUserId)
 
   if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           token,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    token,
+    created,
+    deleted)
 
 
 proc getOrCreateAccountUserTokenByUniqueHash*(
@@ -439,20 +439,20 @@ proc getOrCreateAccountUserTokenByUniqueHash*(
        deleted: Option[DateTime]): AccountUserToken {.gcsafe.} =
 
   let accountUserToken =
-        getAccountUserTokenByUniqueHash(
-          dbContext,
-          uniqueHash)
+    getAccountUserTokenByUniqueHash(
+      dbContext,
+      uniqueHash)
 
   if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           token,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    token,
+    created,
+    deleted)
 
 
 proc getOrCreateAccountUserTokenByToken*(
@@ -464,20 +464,20 @@ proc getOrCreateAccountUserTokenByToken*(
        deleted: Option[DateTime]): AccountUserToken {.gcsafe.} =
 
   let accountUserToken =
-        getAccountUserTokenByToken(
-          dbContext,
-          token)
+    getAccountUserTokenByToken(
+      dbContext,
+      token)
 
   if accountUserToken.isSome:
     return accountUserToken.get
 
   return createAccountUserToken(
-           dbContext,
-           accountUserId,
-           uniqueHash,
-           token,
-           created,
-           deleted)
+    dbContext,
+    accountUserId,
+    uniqueHash,
+    token,
+    created,
+    deleted)
 
 
 proc rowToAccountUserToken*(row: seq[string]):
@@ -570,10 +570,10 @@ proc updateAccountUserTokenByPk*(
   updateValues.add($accountUserToken.accountUserId)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -607,10 +607,10 @@ proc updateAccountUserTokenByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateAccountUserTokenByWhereEqOnly*(
@@ -645,9 +645,9 @@ proc updateAccountUserTokenByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

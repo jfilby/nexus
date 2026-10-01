@@ -34,9 +34,9 @@ proc menuItemCard*(title: string,
     division(
       children = @[
         subtitle(title)
-      ],
-      style = some(divStyle)
-    )
+    ],
+    style = some(divStyle)
+  )
   )
 
   # Description
@@ -44,11 +44,11 @@ proc menuItemCard*(title: string,
     division(
       children = @[
         textBody(description)
-      ],
-      paddingLeft = some("10"),
-      paddingRight = some("10"),
-      style = some(divStyle)
-    )
+    ],
+    paddingLeft = some("10"),
+    paddingRight = some("10"),
+    style = some(divStyle)
+  )
   )
 
   # Card

@@ -43,8 +43,8 @@ proc crossPlatformPath*(
   # Note: this doesn't handle env vars plus with additional path info
 #[
   if path[0] == '$' or
-     path[0] == '%':
-    let envVarExpanded = parseFilenameExpandEnvVars(crossPath)
+    path[0] == '%':
+  let envVarExpanded = parseFilenameExpandEnvVars(crossPath)
 ]#
 
   debug "crossPlatformPath()",
@@ -160,8 +160,8 @@ proc parseFilenameExpandUnixEnvVars*(
 
     # Check for ${VAR} format
     let findDollarWithBraces =
-          find(filename,
-               "${")
+      find(filename,
+           "${")
 
     if findDollarWithBraces >= 0:
       format = FormatEnvVar.DollarWithBraces
@@ -205,8 +205,8 @@ proc parseFilenameExpandUnixEnvVars*(
 
       # Look for the next forward slash (or backslash)
       let
-          fwdSlash = find(filename, '/')
-          backSlash = find(filename, '\\')
+        fwdSlash = find(filename, '/')
+        backSlash = find(filename, '\\')
 
       if fwdSlash >= 0:
         ending = fwdSlash - 1

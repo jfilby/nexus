@@ -35,9 +35,9 @@ proc cachedCreateWithTypeProc*(
          ",\n       convertToRawTypes: bool = true"
 
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -102,9 +102,9 @@ proc cachedDeleteProc*(
                  listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -181,9 +181,9 @@ proc cachedExistsProc*(
                    listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(
-          "bool",
-          pragmas)
+    getProcPostDetails(
+      "bool",
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -221,9 +221,9 @@ proc cachedFilterProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.namePluralInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.namePluralInPascalCase,
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: var {model.module.nameInPascalCase}DbContext,\n" &
@@ -271,9 +271,9 @@ proc cachedFilterWhereEqOnlyProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          model.namePluralInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.namePluralInPascalCase,
+      pragmas)
 
   str &= &"proc {procName}*(\n" &
          &"       dbContext: var {model.module.nameInPascalCase}DbContext,\n" &
@@ -360,9 +360,9 @@ proc cachedGetProc*(
                    listFields = uniqueFields)
 
   let returnDetails =
-        getProcPostDetails(
-          &"Option[{model.nameInPascalCase}]",
-          pragmas)
+    getProcPostDetails(
+      &"Option[{model.nameInPascalCase}]",
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -444,9 +444,9 @@ proc cachedGetOrCreateProc*(
     withNimTypes = true)
 
   let returnDetails =
-        getProcPostDetails(
-          model.nameInPascalCase,
-          pragmas)
+    getProcPostDetails(
+      model.nameInPascalCase,
+      pragmas)
 
   str &= &"){returnDetails} =\n" &
           "\n"
@@ -502,9 +502,9 @@ proc cachedUpdateByPkProc*(
 
   # Proc definition
   let returnDetails =
-        getProcPostDetails(
-          "int64",
-          pragmas)
+    getProcPostDetails(
+      "int64",
+      pragmas)
 
   str &= &"proc {procName}ByPk*(\n" &
          &"       dbContext: var {model.module.nameInPascalCase}DbContext,\n" &

@@ -108,12 +108,12 @@ proc getCustomProc*(
 
   # Get the record
   str &= &"  let row = getRow(\n" &
-         &"              dbContext.dbConn,\n" &
-         &"              sql(selectStatement),\n"
+         &"    dbContext.dbConn,\n" &
+         "    sql(selectStatement),\n"
 
   listFieldNames(str,
                  model,
-                 indent = "              ",
+                 indent = "    ",
                  listFields = whereFieldsWithActualPkName)
 
   str &= &")\n" &
@@ -126,9 +126,9 @@ proc getCustomProc*(
 
   # Return the selected fields
   let returnFields =
-        getFieldsFromRowToReturn(
-          selectFields,
-          model)
+    getFieldsFromRowToReturn(
+      selectFields,
+      model)
 
   str &= &"  return some({returnFields})\n"
 
@@ -245,9 +245,9 @@ proc updateCustomProc*(
     whereFields)
 
   # Exec the update and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(updateStatement),\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(updateStatement),\n"
 
   # List set fields
   var first = true
@@ -262,9 +262,9 @@ proc updateCustomProc*(
     var getOption = ""
 
     let field =
-          getModelFieldByName(
-            setField,
-            model)
+      getModelFieldByName(
+        setField,
+        model)
 
     if field.isRequired == false:
       getOption = ".get"

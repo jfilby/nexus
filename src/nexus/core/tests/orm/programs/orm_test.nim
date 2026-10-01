@@ -21,26 +21,26 @@ let
 proc getOrCreateTestAccountUser(nexusCRMContext: NexusCRMContext): int64 =
 
   let accountUser =
-        getOrCreateAccountUserByEmail(
-          nexusCRMContext.nexusCoreContext.db,
-          accountId = none(string),
-          name = "Test account",
-          email = "test@mydomain.com",
-          passwordHash = "-",
-          passwordSalt = "-",
-          apiKey = "5293059030455",
-          lastToken = none(string),
-          signUpCode = "abc",
-          signUpDate = now(),
-          passwordResetCode = none(string),
-          passwordResetDate = none(DateTime),
-          isActive = false,
-          isAdmin = false,
-          isVerified = false,
-          subscriptionStatus = none(char),
-          lastLogin = none(DateTime),
-          lastUpdate = none(DateTime),
-          created = now())
+    getOrCreateAccountUserByEmail(
+      nexusCRMContext.nexusCoreContext.db,
+      accountId = none(string),
+      name = "Test account",
+      email = "test@mydomain.com",
+      passwordHash = "-",
+      passwordSalt = "-",
+      apiKey = "5293059030455",
+      lastToken = none(string),
+      signUpCode = "abc",
+      signUpDate = now(),
+      passwordResetCode = none(string),
+      passwordResetDate = none(DateTime),
+      isActive = false,
+      isAdmin = false,
+      isVerified = false,
+      subscriptionStatus = none(char),
+      lastLogin = none(DateTime),
+      lastUpdate = none(DateTime),
+      created = now())
 
   return accountUser.id
 
@@ -51,13 +51,13 @@ proc createTestMailingList(
 
   # Create MailingList record
   let mailingList =
-        getOrCreateMailingListByAccountUserIdAndName(
-          nexusCRMDbContext,
-          accountUserId,
-          mailingListuniqueHash,
-          mailingListName,
-          created = now(),
-          deleted = none(DateTime))
+    getOrCreateMailingListByAccountUserIdAndName(
+      nexusCRMDbContext,
+      accountUserId,
+      mailingListuniqueHash,
+      mailingListName,
+      created = now(),
+      deleted = none(DateTime))
 
   return mailingList.mailingListId
 
@@ -97,10 +97,10 @@ proc deleteMailingListSubscribers(
        checkCount: bool = true) =
 
   let deleteCount =
-        deleteMailingListSubscriber(
-          nexusCRMDbContext,
-          whereFields = @[ "mailing_list_id" ],
-          whereValues = @[ $mailingListId ])
+    deleteMailingListSubscriber(
+      nexusCRMDbContext,
+      whereFields = @[ "mailing_list_id" ],
+      whereValues = @[ $mailingListId ])
 
   if checkCount == true and
      deleteCount != 1000:
@@ -118,10 +118,10 @@ proc filterMailingListSubscribers(
 
   # Filter MailingList
   let mailingLists =
-        filterMailingList(
-          nexusCRMDbContext,
-          whereFields = @[ "name" ],
-          whereValues = @[ mailingListName ])
+    filterMailingList(
+      nexusCRMDbContext,
+      whereFields = @[ "name" ],
+      whereValues = @[ mailingListName ])
 
   if len(mailingLists) != 1:
 
@@ -131,10 +131,10 @@ proc filterMailingListSubscribers(
 
   # Filter MailingListSubscriber
   let mailingListSubscribers =
-        filterMailingListSubscriber(
-          nexusCRMDbContext,
-          whereFields = @[ "mailing_list_id" ],
-          whereValues = @[ $mailingListId ])
+    filterMailingListSubscriber(
+      nexusCRMDbContext,
+      whereFields = @[ "mailing_list_id" ],
+      whereValues = @[ $mailingListId ])
 
   if len(mailingListSubscribers) != 1000:
 
@@ -180,9 +180,9 @@ proc longRunningTest() =
 
   # Create
   let mailingListId =
-        createTestMailingList(
-          nexusCRMContext.db,
-          accountUserId)
+    createTestMailingList(
+      nexusCRMContext.db,
+      accountUserId)
 
   echo &"mailingListId: {mailingListId}"
 
@@ -207,9 +207,9 @@ proc longRunningTest() =
 
     # Filter
     var mailingListSubscribers =
-          filterMailingListSubscribers(
-            nexusCRMContext.db,
-            mailingListId)
+      filterMailingListSubscribers(
+        nexusCRMContext.db,
+        mailingListId)
 
     # Update
     updateMailingListSubscribers(

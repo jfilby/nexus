@@ -55,8 +55,8 @@ proc myAccountPageMain(
 
   # Get accountUser record
   let accountUser =
-        getAccountUserByPk(context.db,
-                           context.web.get.accountUserId)
+    getAccountUserByPk(context.db,
+                      context.web.get.accountUserId)
 
   # Set form fields, if not already set from a previous form post
   if name == "":
@@ -74,8 +74,8 @@ proc myAccountPageMain(
 
   # My Account form
   let vnode = buildHtml(tdiv(style =
-                style(StyleAttr.width,
-                      context.web.get.formWidth))):
+    style(StyleAttr.width,
+          context.web.get.formWidth))):
 
     if errorMessage != "":
       tdiv(style = style(StyleAttr.width,
@@ -140,12 +140,12 @@ proc myAccountPagePost*(context: NexusCoreContext): string =
     errorMessageRole: string
 
   let docUIReturn =
-        verifyMyAccountFields(
-          context.db,
-          name,
-          email,
-          password1,
-          password2)
+    verifyMyAccountFields(
+      context.db,
+      name,
+      email,
+      password1,
+      password2)
 
   verified = docUIReturn.isVerified
   errorMessage = docUIReturn.errorMessage
@@ -166,9 +166,9 @@ proc myAccountPagePost*(context: NexusCoreContext): string =
 
     # Get accountUser row
     var accountUser =
-          getAccountUserByPk(
-            context.db,
-            context.web.get.accountUserId)
+      getAccountUserByPk(
+        context.db,
+        context.web.get.accountUserId)
 
     var
       emailChanged = ""
@@ -187,11 +187,11 @@ proc myAccountPagePost*(context: NexusCoreContext): string =
                      "")
 
       let rowsUpdated =
-            updateAccountUserByPk(
-              context.db,
-              accountUser.get,
-              setFields = @[ "password_hash",
-                             "password_salt" ])
+        updateAccountUserByPk(
+          context.db,
+          accountUser.get,
+          setFields = @[ "password_hash",
+                         "password_salt" ])
 
     # Update fields if changed
     if accountUser.get.name != name:
@@ -201,10 +201,10 @@ proc myAccountPagePost*(context: NexusCoreContext): string =
       accountUser.get.name = name
 
       let updatedRows =
-            updateAccountUserByPk(
-              context.db,
-              accountUser.get,
-              setFields = @[ "name" ])
+        updateAccountUserByPk(
+          context.db,
+          accountUser.get,
+          setFields = @[ "name" ])
 
     # Send an email if username was changed
     if accountUser.get.email != email:
@@ -214,10 +214,10 @@ proc myAccountPagePost*(context: NexusCoreContext): string =
       accountUser.get.email = email
 
       let updatedRows =
-            updateAccountUserByPk(
-              context.db,
-              accountUser.get,
-              setFields = @[ "email" ])
+        updateAccountUserByPk(
+          context.db,
+          accountUser.get,
+          setFields = @[ "email" ])
 
     return redirectToURL(&"/account/my-account/success?emailChanged={emailChanged}&" &
                          &"personalDetailsChanged={personalDetailsChanged}&" &

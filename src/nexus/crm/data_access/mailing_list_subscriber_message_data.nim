@@ -171,9 +171,9 @@ proc deleteMailingListSubscriberMessageByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteMailingListSubscriberMessage*(
@@ -187,9 +187,9 @@ proc deleteMailingListSubscriberMessage*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteMailingListSubscriberMessage*(
@@ -216,9 +216,9 @@ proc deleteMailingListSubscriberMessage*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsMailingListSubscriberMessageByPk*(
@@ -231,9 +231,9 @@ proc existsMailingListSubscriberMessageByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -253,10 +253,10 @@ proc existsMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMe
     "   and mailing_list_message_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListSubscriberId,
-              mailingListMessageId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListSubscriberId,
+    mailingListMessageId)
 
   if row[0] == "":
     return false
@@ -350,9 +350,9 @@ proc getMailingListSubscriberMessageByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(MailingListSubscriberMessage)
@@ -373,10 +373,10 @@ proc getMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMessa
     "   and mailing_list_message_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              mailingListSubscriberId,
-              mailingListMessageId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    mailingListSubscriberId,
+    mailingListMessageId)
 
   if row[0] == "":
     return none(MailingListSubscriberMessage)
@@ -393,21 +393,21 @@ proc getOrCreateMailingListSubscriberMessageByMailingListSubscriberIdAndMailingL
        created: DateTime): MailingListSubscriberMessage {.gcsafe.} =
 
   let mailingListSubscriberMessage =
-        getMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMessageId(
-          dbContext,
-          mailingListSubscriberId,
-          mailingListMessageId)
+    getMailingListSubscriberMessageByMailingListSubscriberIdAndMailingListMessageId(
+      dbContext,
+      mailingListSubscriberId,
+      mailingListMessageId)
 
   if mailingListSubscriberMessage.isSome:
     return mailingListSubscriberMessage.get
 
   return createMailingListSubscriberMessage(
-           dbContext,
-           accountUserId,
-           mailingListId,
-           mailingListSubscriberId,
-           mailingListMessageId,
-           created)
+    dbContext,
+    accountUserId,
+    mailingListId,
+    mailingListSubscriberId,
+    mailingListMessageId,
+    created)
 
 
 proc rowToMailingListSubscriberMessage*(row: seq[string]):
@@ -506,10 +506,10 @@ proc updateMailingListSubscriberMessageByPk*(
   updateValues.add($mailingListSubscriberMessage.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -543,10 +543,10 @@ proc updateMailingListSubscriberMessageByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateMailingListSubscriberMessageByWhereEqOnly*(
@@ -581,9 +581,9 @@ proc updateMailingListSubscriberMessageByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

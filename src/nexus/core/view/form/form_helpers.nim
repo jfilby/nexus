@@ -8,13 +8,13 @@ proc formField*(label: string,
 
   buildHtml(tdiv(class = "field")):
 
-      label(class = "label"):
-        text label
-        if required == true:
-          verbatim(" ")
-          requiredAsterisk()
-      tdiv(class = "control"):
-        control
+    label(class = "label"):
+      text label
+      if required == true:
+        verbatim(" ")
+        requiredAsterisk()
+    tdiv(class = "control"):
+      control
 
 
 proc formCheckboxField*(label: string,

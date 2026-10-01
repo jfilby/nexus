@@ -11,18 +11,18 @@ proc generateModelFields(
   for field in model.fields:
 
     let nimType =
-          getNimType(
-            field,
-            withOption = true)
+      getNimType(
+        field,
+        withOption = true)
 
     # Raw type
     str &= &"    {field.nameInCamelCase}*: {nimType}\n"
 
     # Add a string type if the field type isn't string (option or not)
-#[
+  #[
     if field.`type` != "string":
       str &= &"    {field.nameInCamelCase}Str*: string\n"
-]#
+    ]#
 
   str &= "\n"
 

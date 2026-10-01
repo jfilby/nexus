@@ -31,15 +31,15 @@ proc leftMenu*(webContext: WebContext): VNode =
             a(href = leftMenuEntry.url): text leftMenuEntry.text
             verbatim(" &nbsp; ")
 
-        # Desktop layout left menu
-        else:
-          tdiv(style = style(StyleAttr.marginRight, "1em")):
-            tdiv(class = "menu-list",
-                 style = style(StyleAttr.textAlign, "right")):
+      # Desktop layout left menu
+      else:
+        tdiv(style = style(StyleAttr.marginRight, "1em")):
+          tdiv(class = "menu-list",
+               style = style(StyleAttr.textAlign, "right")):
 
-              ul():
+            ul():
 
-                for leftMenuEntry in webContext.leftMenuEntries:
+              for leftMenuEntry in webContext.leftMenuEntries:
 
                   li():
                     if webContext.leftMenuEntry == leftMenuEntry.text:
@@ -78,19 +78,19 @@ proc topBarMenu*(
 
   # Get launchAppUrl
   var launchAppUrl =
-        replace(
-          getEnv("LAUNCH_APP_URL"),
-          "\"",
-          "")
+    replace(
+      getEnv("LAUNCH_APP_URL"),
+      "\"",
+      "")
 
   # LoginHash for auto-login of the app
   if webContext.request.cookies.hasKey("token") and
      nexusCoreDbContext.isSome:
 
     let accountUserToken =
-          getAccountUserTokenByToken(
-            nexusCoreDbContext.get,
-            webContext.request.cookies["token"])
+      getAccountUserTokenByToken(
+        nexusCoreDbContext.get,
+        webContext.request.cookies["token"])
 
     if accountUserToken.isSome:
       launchAppUrl &= "?launchHash=" & accountUserToken.get.uniqueHash
@@ -253,7 +253,7 @@ proc baseForDesktopContent*(
             tdiv(class = sideMarginsClass):
               leftMenu(webContext)
             tdiv(style = style(# (StyleAttr.backgroundColor, "#fafafa"),
-                               (StyleAttr.margin, contentsMargin)),
+              (StyleAttr.margin, contentsMargin)),
                  class = pageContentsClass):
 
               if pageContext.displayPageHeading == true:
@@ -262,7 +262,7 @@ proc baseForDesktopContent*(
                      style = style(StyleAttr.marginBottom, "1em")):
 
                   if pageContext.pageTitle != "":
-                      h1(class = "title"): text pageContext.pageTitle
+                    h1(class = "title"): text pageContext.pageTitle
 
                   if pageContext.pageSubtitle != "":
                     h2(class = "subtitle",

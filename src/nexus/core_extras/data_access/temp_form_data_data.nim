@@ -153,9 +153,9 @@ proc deleteTempFormDataByPk*(
     " where token = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           token)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    token)
 
 
 proc deleteTempFormData*(
@@ -169,9 +169,9 @@ proc deleteTempFormData*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteTempFormData*(
@@ -198,9 +198,9 @@ proc deleteTempFormData*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsTempFormDataByPk*(
@@ -213,9 +213,9 @@ proc existsTempFormDataByPk*(
     " where token = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              token)
+    dbContext.dbConn,
+    sql(selectStatement),
+    token)
 
   if row[0] == "":
     return false
@@ -306,9 +306,9 @@ proc getTempFormDataByPk*(
     " where token = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              token)
+    dbContext.dbConn,
+    sql(selectStatement),
+    token)
 
   if row[0] == "":
     return none(TempFormData)
@@ -324,19 +324,19 @@ proc getOrCreateTempFormDataByPk*(
        created: DateTime): TempFormData {.gcsafe.} =
 
   let tempFormData =
-        getTempFormDataByPK(
-          dbContext,
-          token)
+    getTempFormDataByPK(
+      dbContext,
+      token)
 
   if tempFormData.isSome:
     return tempFormData.get
 
   return createTempFormData(
-           dbContext,
-           token,
-           format,
-           data,
-           created)
+    dbContext,
+    token,
+    format,
+    data,
+    created)
 
 
 proc rowToTempFormData*(row: seq[string]):
@@ -417,10 +417,10 @@ proc updateTempFormDataByPk*(
   updateValues.add($tempFormData.token)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -454,10 +454,10 @@ proc updateTempFormDataByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateTempFormDataByWhereEqOnly*(
@@ -492,9 +492,9 @@ proc updateTempFormDataByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

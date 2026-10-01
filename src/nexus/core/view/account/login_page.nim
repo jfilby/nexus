@@ -49,9 +49,9 @@ proc loginForm*(
        isVerified: bool = false): VNode =
 
   let formDiv =
-        getFormFactorClass(
-          webContext,
-          desktopClass = "form_div")
+    getFormFactorClass(
+      webContext,
+      desktopClass = "form_div")
 
   buildHtml(tdiv(style =
     style(StyleAttr.width,
@@ -122,11 +122,11 @@ proc loginMinimalForm*(
       br()
 ]#
 
-    tdiv(style = style(StyleAttr.width,
-                       webContext.formWidthNarrow)):
+  tdiv(style = style(StyleAttr.width,
+                     webContext.formWidthNarrow)):
 
-      form(`method` = "post",
-           action = "/account/login"):
+    form(`method` = "post",
+         action = "/account/login"):
 
         emailAddressMinimalField(email,
                                  autofocus = true)
@@ -193,11 +193,11 @@ proc loginPage*(context: NexusCoreContext,
     errorMessage = errorMessage
 
   let vnode =
-        buildHtml(tdiv()):
-          loginForm(context.web.get,
-                    errorMessage,
-                    email,
-                    isVerified)
+    buildHtml(tdiv()):
+      loginForm(context.web.get,
+                errorMessage,
+                email,
+                isVerified)
 
   baseForContent(context.web.get,
                  pageContext,
@@ -222,8 +222,8 @@ proc loginPagePost*(context: NexusCoreContext):
 
   # Attempt login and get a JWT token
   let docUIReturn =
-        loginAction(context,
-                    none(JsonNode))
+    loginAction(context,
+                none(JsonNode))
 
   debug "loginPagePost()",
     isVerified = $docUIReturn.isVerified,
@@ -252,9 +252,9 @@ proc loginPagePost*(context: NexusCoreContext):
 
       # Get AccountUser record
       let accountUser =
-            getAccountUserByEmail(
-              context.db,
-              email)
+        getAccountUserByEmail(
+          context.db,
+          email)
 
       if accountUser.isSome:
 

@@ -88,9 +88,9 @@ proc verifySignUpFields*(
 
   # Verify that the email is not already signed up
   let emailExists =
-        existsAccountUserByEmail(
-          context.db,
-          email)
+    existsAccountUserByEmail(
+      context.db,
+      email)
 
   if email_exists == true:
 
@@ -106,9 +106,9 @@ proc verifySignUpFields*(
 
   # Verify email address
   var docuiReturn =
-        verifyEmailAddress(
-          context.db,
-          email)
+    verifyEmailAddress(
+      context.db,
+      email)
 
   if docuiReturn.isVerified == false:
     return docuiReturn

@@ -15,7 +15,7 @@ proc newNexusCoreExtrasContext*():
        NexusCoreExtrasContext =
 
   var nexusCoreExtrasContext =
-        NexusCoreExtrasContext(db: NexusCoreExtrasDbContext())
+    NexusCoreExtrasContext(db: NexusCoreExtrasDbContext())
 
   nexusCoreExtrasContext.nexusCoreContext =
     NexusCoreContext(db: NexusCoreDbContext())

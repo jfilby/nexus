@@ -21,9 +21,9 @@ proc inCamelCase*(
 
   # Split by space
   var strModified =
-        replace(str,
-                '-',
-                ' ')
+    replace(str,
+            '-',
+            ' ')
 
   strModified =
     replace(strModified,
@@ -81,9 +81,9 @@ proc inNaturalCase*(str: string): string =
 
   # Split by space
   var strModified =
-        replace(str,
-                '-',
-                ' ')
+    replace(str,
+            '-',
+            ' ')
 
   strModified =
     replace(strModified,
@@ -125,9 +125,9 @@ proc inPascalCase*(str: string): string =
 
   # Split by space
   var strModified =
-        replace(str,
-                '-',
-                ' ')
+    replace(str,
+            '-',
+            ' ')
 
   strModified =
     replace(strModified,

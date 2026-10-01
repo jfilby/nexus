@@ -152,9 +152,9 @@ proc deleteAccountUserRoleByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteAccountUserRole*(
@@ -168,9 +168,9 @@ proc deleteAccountUserRole*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteAccountUserRole*(
@@ -197,9 +197,9 @@ proc deleteAccountUserRole*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsAccountUserRoleByPk*(
@@ -212,9 +212,9 @@ proc existsAccountUserRoleByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -234,10 +234,10 @@ proc existsAccountUserRoleByAccountUserIdAndRoleId*(
     "   and role_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId,
-              roleId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId,
+    roleId)
 
   if row[0] == "":
     return false
@@ -328,9 +328,9 @@ proc getAccountUserRoleByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(AccountUserRole)
@@ -350,10 +350,10 @@ proc getAccountUserRoleByAccountUserIdAndRoleId*(
     "   and role_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              accountUserId,
-              roleId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    accountUserId,
+    roleId)
 
   if row[0] == "":
     return none(AccountUserRole)
@@ -368,19 +368,19 @@ proc getOrCreateAccountUserRoleByAccountUserIdAndRoleId*(
        created: DateTime): AccountUserRole {.gcsafe.} =
 
   let accountUserRole =
-        getAccountUserRoleByAccountUserIdAndRoleId(
-          dbContext,
-          accountUserId,
-          roleId)
+    getAccountUserRoleByAccountUserIdAndRoleId(
+      dbContext,
+      accountUserId,
+      roleId)
 
   if accountUserRole.isSome:
     return accountUserRole.get
 
   return createAccountUserRole(
-           dbContext,
-           accountUserId,
-           roleId,
-           created)
+    dbContext,
+    accountUserId,
+    roleId,
+    created)
 
 
 proc rowToAccountUserRole*(row: seq[string]):
@@ -461,10 +461,10 @@ proc updateAccountUserRoleByPk*(
   updateValues.add($accountUserRole.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -498,10 +498,10 @@ proc updateAccountUserRoleByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateAccountUserRoleByWhereEqOnly*(
@@ -536,9 +536,9 @@ proc updateAccountUserRoleByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

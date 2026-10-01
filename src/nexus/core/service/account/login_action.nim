@@ -124,9 +124,9 @@ proc loginAction*(context: NexusCoreContext,
 
     # Get AccountUserToken record
     let accountUserToken =
-          getAccountUserTokenByUniqueHash(
-            context.db,
-            loginHash)
+      getAccountUserTokenByUniqueHash(
+        context.db,
+        loginHash)
 
     if accountUserToken.isNone:
       return newDocUIReturn(
@@ -160,9 +160,9 @@ proc loginAction*(context: NexusCoreContext,
   debug "loginAction(): get and verify AccountUser record"
 
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   if accountUser.isNone:
     debug "loginAction(): email not found"
@@ -220,9 +220,9 @@ proc loginActionByEmailVerified*(
 
   # Get Account User by email
   let accountUser =
-        getAccountUserByEmail(
-          context.db,
-          email)
+    getAccountUserByEmail(
+      context.db,
+      email)
 
   if accountUser.isNone:
 
@@ -253,25 +253,25 @@ proc loginActionVerified*(
 
   # Set lastLogin
   let rowsUpdated =
-        updateAccountUserSetLastLoginByPk(
-          context.db,
-          lastLogin = some(now()),
-          accountUserId)
+    updateAccountUserSetLastLoginByPk(
+      context.db,
+      lastLogin = some(now()),
+      accountUserId)
 
   # Get API key
   let apiKey =
-        getAPIKeyFromAccountUserByPk(
-          context.db,
-          accountUserId)
+    getAPIKeyFromAccountUserByPk(
+      context.db,
+      accountUserId)
 
   # New DocUIReturn
   var docUIReturn = newDocUIReturn(true)
 
   # Get AccountUserToken record
   var accountUserToken =
-        getAccountUserTokenByPk(
-          context.db,
-          accountUserId)
+    getAccountUserTokenByPk(
+      context.db,
+      accountUserId)
 
   # TODO: if loginHash is specified, then try to use the existing token
   # Check if it has expired, and only create a new token if it has
@@ -308,9 +308,9 @@ proc loginActionVerified*(
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPk(
-          context.db,
-          accountUserId)
+    getAccountUserByPk(
+      context.db,
+      accountUserId)
 
   if accountUser.isNone:
 
@@ -354,9 +354,9 @@ template logoutAction*(context: NexusCoreContext,
 
   # Get AccountUser record
   var accountUser =
-        getAccountUserByPk(
-          context.db,
-          context.web.get.accountUserId)
+    getAccountUserByPk(
+      context.db,
+      context.web.get.accountUserId)
 
   # A logout with no matching account is not an error: the token is simply
   # cleared and the cookie dropped. Raising here turned an ordinary
@@ -406,10 +406,10 @@ template postLoginAction*(context: NexusCoreContext) =
 
     # Get 'Nexus Pay subscriptions enabled' setting
     let nexusPaySubscriptionsEnabled =
-          getNexusSettingValue(
-            context.db,
-            module = "Nexus Core",
-            key = "Nexus Pay subscriptions enabled")
+      getNexusSettingValue(
+        context.db,
+        module = "Nexus Core",
+        key = "Nexus Pay subscriptions enabled")
 
     # Get AccountUser record and redirect URL
     var
@@ -420,9 +420,9 @@ template postLoginAction*(context: NexusCoreContext) =
       email = context.web.get.request.params["email"]
 
     let accountUser =
-          getAccountUserByEmail(
-            context.db,
-            email)
+      getAccountUserByEmail(
+        context.db,
+        email)
 
     if accountUser.isSome:
 

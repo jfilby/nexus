@@ -213,13 +213,13 @@ proc cachedGetOrCreateInviteByToEmail*(
     return dai.cached_invite[inviteId]
 
   let invite = getOrCreateInviteByToEmail(
-       from_accountUserId,
-       from_email,
-       from_name,
-       to_email,
-       to_name,
-       sent,
-       created)
+    from_accountUserId,
+    from_email,
+    from_name,
+    to_email,
+    to_name,
+    sent,
+    created)
 
   # Add to the model row cache if it's not there
   if not dai.cached_invite.hasKey(inviteId):

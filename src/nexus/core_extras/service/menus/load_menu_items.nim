@@ -24,11 +24,11 @@ proc loadMenuItems*(
 
   # Load from Menu Item in the order it was loaded
   let menuItems =
-        filterMenuItem(nexusCoreExtrasContext.db,
-                       orderByFields = @[
-                         "level",
-                         "position"
-                       ])
+    filterMenuItem(nexusCoreExtrasContext.db,
+                   orderByFields = @[
+                     "level",
+                     "position"
+      ])
 
   var menuItemsJsonNodes: seq[JsonNode]
 
@@ -40,9 +40,9 @@ proc loadMenuItems*(
 
     # Check MenuItemRoles
     let verified =
-          verifyMenuItemRoles(nexusCoreExtrasContext,
-                              menuItem,
-                              accountUserId)
+      verifyMenuItemRoles(nexusCoreExtrasContext,
+                          menuItem,
+                          accountUserId)
 
     # Add MenuItem
     menuItemsJsonNodes.add(
@@ -60,16 +60,16 @@ proc verifyMenuItemRole(
 
   # Get NexusCoreContext
   let nexusCoreContext =
-        NexusCoreContext(
-          db: NexusCoreDbContext(
-            dbConn: nexusCoreExtrasContext.db.dbConn))
+    NexusCoreContext(
+      db: NexusCoreDbContext(
+        dbConn: nexusCoreExtrasContext.db.dbConn))
 
   # Check for AccountUserRole record
   let accountUserRole =
-        getAccountUserRoleByAccountUserIdAndRoleId(
-          nexusCoreContext.db,
-          accountUserId,
-          roleId)
+    getAccountUserRoleByAccountUserIdAndRoleId(
+      nexusCoreContext.db,
+      accountUserId,
+      roleId)
 
   if accountUserRole.isSome:
     return true

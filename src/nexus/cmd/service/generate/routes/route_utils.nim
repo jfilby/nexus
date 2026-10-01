@@ -34,12 +34,12 @@ proc routeParametersYAMLtoRouteParameters(
   for routeParameterYAML in routeParametersYAML:
 
     var routeParameter =
-          RouteParameter(
-            name: routeParameterYAML.name,
-            `type`: routeParameterYAML.`type`,
-            constraints: routeParameterYAML.constraints,
-            description: routeParameterYAML.description,
-            nameInCamelCase: inCamelCase(routeParameterYAML.name))
+      RouteParameter(
+        name: routeParameterYAML.name,
+        `type`: routeParameterYAML.`type`,
+        constraints: routeParameterYAML.constraints,
+        description: routeParameterYAML.description,
+        nameInCamelCase: inCamelCase(routeParameterYAML.name))
 
     routeParameters.add(routeParameter)
 
@@ -110,9 +110,9 @@ proc parseRoute*(route: var Route) =
       else:
         # Format parameter string
         let routeParameter =
-              verifyRouteStringParameter(
-                route.route[paramStart + 1 .. i - 1],
-                route)
+          verifyRouteStringParameter(
+            route.route[paramStart + 1 .. i - 1],
+            route)
 
         # Add to jesterRoute
         route.jesterRoute &= routeParameter.nameInCamelCase

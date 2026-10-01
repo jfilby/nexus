@@ -107,12 +107,12 @@ proc cachedGetCustomProc*(
 
   # Get the record
   str &= &"  let row = getRow(\n" &
-         &"              dbContext.dbConn,\n" &
-         &"              sql(selectStatement),\n"
+         &"    dbContext.dbConn,\n" &
+         "    sql(selectStatement),\n"
 
   listFieldNames(str,
                  model,
-                 indent = "              ",
+                 indent = "    ",
                  listFields = whereFieldsWithActualPkName)
 
   str &= ")\n" &
@@ -242,9 +242,9 @@ proc cachedUpdateCustomProc*(
     whereFields)
 
   # Exec the update and return rows affected
-  str &=  "  return execAffectedRows(\n" &
-         &"           dbContext.dbConn,\n" &
-          "           sql(updateStatement),\n"
+  str &= "  return execAffectedRows(\n" &
+         &"    dbContext.dbConn,\n" &
+         "    sql(updateStatement),\n"
 
   # List set fields
   var first = true

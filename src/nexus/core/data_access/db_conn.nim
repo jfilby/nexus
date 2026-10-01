@@ -69,17 +69,17 @@ proc getDbConn*(printInfo: bool = true): DbConn =
       # percent-decode the plain `host` parameter, so encoding it in the branch
       # below made a socket path unconnectable.
       let encodedHost =
-            if dbHost.startsWith("/"):
-              dbHost.replace("/",
-                             "%2F")
-            else:
-              dbHost
+        if dbHost.startsWith("/"):
+          dbHost.replace("/",
+                         "%2F")
+        else:
+          dbHost
 
       let dbShowString =
-            &"postgresql://{username}:***@{encodedHost}:{dbPort}/{dbName}"
+        &"postgresql://{username}:***@{encodedHost}:{dbPort}/{dbName}"
 
       let dbString =
-            &"postgresql://{username}:{password}@{encodedHost}:{dbPort}/{dbName}"
+        &"postgresql://{username}:{password}@{encodedHost}:{dbPort}/{dbName}"
 
       if printInfo == true:
         echo "getDbConn(): connecting to main db:",

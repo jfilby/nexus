@@ -155,10 +155,10 @@ proc deleteSMPostVoteUserByPk*(
     "   and account_user_id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           smPostId,
-           accountUserId)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    smPostId,
+    accountUserId)
 
 
 proc deleteSMPostVoteUser*(
@@ -172,9 +172,9 @@ proc deleteSMPostVoteUser*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteSMPostVoteUser*(
@@ -201,9 +201,9 @@ proc deleteSMPostVoteUser*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsSMPostVoteUserByPk*(
@@ -218,10 +218,10 @@ proc existsSMPostVoteUserByPk*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId,
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    smPostId,
+    accountUserId)
 
   if row[0] == "":
     return false
@@ -314,10 +314,10 @@ proc getSMPostVoteUserByPk*(
     "   and account_user_id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              smPostId,
-              accountUserId)
+    dbContext.dbConn,
+    sql(selectStatement),
+    smPostId,
+    accountUserId)
 
   if row[0] == "":
     return none(SMPostVoteUser)
@@ -333,20 +333,20 @@ proc getOrCreateSMPostVoteUserByPk*(
        voteDown: bool): SMPostVoteUser {.gcsafe.} =
 
   let smPostVoteUser =
-        getSMPostVoteUserByPK(
-          dbContext,
-          smPostId,
-          accountUserId)
+    getSMPostVoteUserByPK(
+      dbContext,
+      smPostId,
+      accountUserId)
 
   if smPostVoteUser.isSome:
     return smPostVoteUser.get
 
   return createSMPostVoteUser(
-           dbContext,
-           smPostId,
-           accountUserId,
-           voteUp,
-           voteDown)
+    dbContext,
+    smPostId,
+    accountUserId,
+    voteUp,
+    voteDown)
 
 
 proc rowToSMPostVoteUser*(row: seq[string]):
@@ -396,7 +396,7 @@ proc updateSMPostVoteUserSetClause*(
       updateValues.add(smPostVoteUser.accountUserId)
 
     elif field == "vote_up":
-        updateStatement &= "       vote_up = " & pgToBool(smPostVoteUser.voteUp) & ","
+      updateStatement &= "       vote_up = " & pgToBool(smPostVoteUser.voteUp) & ","
 
     elif field == "vote_down":
         updateStatement &= "       vote_down = " & pgToBool(smPostVoteUser.voteDown) & ","
@@ -428,10 +428,10 @@ proc updateSMPostVoteUserByPk*(
   updateValues.add($smPostVoteUser.accountUserId)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -465,10 +465,10 @@ proc updateSMPostVoteUserByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateSMPostVoteUserByWhereEqOnly*(
@@ -503,9 +503,9 @@ proc updateSMPostVoteUserByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 

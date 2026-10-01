@@ -30,7 +30,7 @@ proc createMigrationsFile*(
 
   # Write create table file
   var dmlFilename =
-        &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_create_table_dml.sql"
+    &"{migrationsPath}{DirSep}{model.baseNameInSnakeCase}_create_table_dml.sql"
 
   echo ".. writing: " & dmlFilename
 

@@ -555,8 +555,8 @@ proc getModelFields*(fieldNames: seq[string],
         fields.add(field)
 
     if field_found == false:
-        raise newException(ValueError,
-                           &"field not found: {fieldName}")
+      raise newException(ValueError,
+                         &"field not found: {fieldName}")
 
   return fields
 
@@ -837,7 +837,7 @@ proc setPartitioning(model: var Model) =
 
   # Parse partitioning tableOption
   let partitioningTableOptionError =
-        &"Model: \"{model.name}\" partitioning tableOption error:\n"
+    &"Model: \"{model.name}\" partitioning tableOption error:\n"
 
   var partitionKeyFieldName: seq[string]
 
@@ -888,23 +888,23 @@ proc setPartitioning(model: var Model) =
   # Verify partitionKeyFieldName
   if len(partitionKeyFieldName) == 0:
 
-      tokenError(
-        partitioningTableOptionError,
-        ".. partition key field name not specified starting at token 5")
+    tokenError(
+      partitioningTableOptionError,
+      ".. partition key field name not specified starting at token 5")
 
   # Lookup partitionKeyFieldName as Field
   let keyField =
-        getFieldByName(
-          join(
-            partitionKeyFieldName,
-            " "),
-          model)
+    getFieldByName(
+      join(
+        partitionKeyFieldName,
+        " "),
+      model)
 
   # Set model.partitioning
   var partitioning =
-        Partitioning(
-          partitioningType: tokens[2],
-          keyField: keyField)
+    Partitioning(
+      partitioningType: tokens[2],
+      keyField: keyField)
 
   model.partitioning = some(partitioning)
 

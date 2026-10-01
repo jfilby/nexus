@@ -66,9 +66,9 @@ proc inviteSendPageMain*(
 
   # Get accountUser row
   let accountUser =
-        getAccountUserByPk(
-          nexusCoreDbContext,
-          webContext.accountUserId)
+    getAccountUserByPk(
+      nexusCoreDbContext,
+      webContext.accountUserId)
 
   # Set form fields, if not already set from a previous form post
   if fromName == "":
@@ -82,9 +82,9 @@ proc inviteSendPageMain*(
 
   # Get form_div
   let formDiv =
-        getFormFactorClass(
-          webContext,
-          desktopClass = "form_div")
+    getFormFactorClass(
+      webContext,
+      desktopClass = "form_div")
 
   # Form
   let vnode = buildHtml(tdiv()):

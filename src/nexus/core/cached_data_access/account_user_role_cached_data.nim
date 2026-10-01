@@ -205,9 +205,9 @@ proc cachedGetOrCreateAccountUserRoleByAccountUserIdAndRole*(
     return dai.cached_accountUser_role[accountUser_roleId]
 
   let accountUser_role = getOrCreateAccountUserRoleByAccountUserIdAndRole(
-       accountUserId,
-       role,
-       created)
+    accountUserId,
+    role,
+    created)
 
   # Add to the model row cache if it's not there
   if not dai.cached_accountUser_role.hasKey(accountUser_roleId):

@@ -170,9 +170,9 @@ proc deleteCachedKeyValueByPk*(
     " where id = ?"
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           id)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    id)
 
 
 proc deleteCachedKeyValue*(
@@ -186,9 +186,9 @@ proc deleteCachedKeyValue*(
     " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc deleteCachedKeyValue*(
@@ -215,9 +215,9 @@ proc deleteCachedKeyValue*(
     deleteStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(deleteStatement),
-           whereValues)
+    dbContext.dbConn,
+    sql(deleteStatement),
+    whereValues)
 
 
 proc existsCachedKeyValueByPk*(
@@ -230,9 +230,9 @@ proc existsCachedKeyValueByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return false
@@ -250,9 +250,9 @@ proc existsCachedKeyValueByKey*(
     " where key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              key)
+    dbContext.dbConn,
+    sql(selectStatement),
+    key)
 
   if row[0] == "":
     return false
@@ -343,9 +343,9 @@ proc getCachedKeyValueByPk*(
     " where id = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              id)
+    dbContext.dbConn,
+    sql(selectStatement),
+    id)
 
   if row[0] == "":
     return none(CachedKeyValue)
@@ -363,9 +363,9 @@ proc getCachedKeyValueByKey*(
     " where key = ?"
 
   let row = getRow(
-              dbContext.dbConn,
-              sql(selectStatement),
-              key)
+    dbContext.dbConn,
+    sql(selectStatement),
+    key)
 
   if row[0] == "":
     return none(CachedKeyValue)
@@ -382,20 +382,20 @@ proc getOrCreateCachedKeyValueByKey*(
        expires: Option[DateTime]): CachedKeyValue {.gcsafe.} =
 
   let cachedKeyValue =
-        getCachedKeyValueByKey(
-          dbContext,
-          key)
+    getCachedKeyValueByKey(
+      dbContext,
+      key)
 
   if cachedKeyValue.isSome:
     return cachedKeyValue.get
 
   return createCachedKeyValue(
-           dbContext,
-           key,
-           value,
-           created,
-           updated,
-           expires)
+    dbContext,
+    key,
+    value,
+    created,
+    updated,
+    expires)
 
 
 proc rowToCachedKeyValue*(row: seq[string]):
@@ -499,10 +499,10 @@ proc updateCachedKeyValueByPk*(
   updateValues.add($cachedKeyValue.id)
 
   let rowsUpdated = 
-        execAffectedRows(
-          dbContext.dbConn,
-          sql(updateStatement),
-          updateValues)
+    execAffectedRows(
+      dbContext.dbConn,
+      sql(updateStatement),
+      updateValues)
 
   # Exception on no rows updated
   if rowsUpdated == 0 and
@@ -536,10 +536,10 @@ proc updateCachedKeyValueByWhereClause*(
     updateStatement &= " where " & whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
 proc updateCachedKeyValueByWhereEqOnly*(
@@ -574,9 +574,9 @@ proc updateCachedKeyValueByWhereEqOnly*(
     updateStatement &= whereClause
 
   return execAffectedRows(
-           dbContext.dbConn,
-           sql(updateStatement),
-           concat(updateValues,
-                  whereValues))
+    dbContext.dbConn,
+    sql(updateStatement),
+    concat(updateValues,
+      whereValues))
 
 
