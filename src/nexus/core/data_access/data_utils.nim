@@ -8,23 +8,138 @@ proc getPgArrayStringAsSeqString*(pgArrayStr: string): seq[string] {.gcsafe.}
 
 # Code
 
+# quotePgArrayElement(): renders one element of a Postgres array literal that is
+# safe to place inside the single-quoted SQL string literal the callers build.
+#
+# Two independent levels have to be escaped, and doing only one leaves the value
+# injectable:
+#  - SQL string literal: a `'` must be doubled, otherwise it closes the literal
+#    early and the remainder of the element is executed as SQL.
+#  - Array literal: an element is wrapped in `"` so a `,` or `}` inside it
+#    cannot forge a new element, and a `"` or `\` inside is backslash-escaped.
+#    Postgres rejects a doubled `""` there with "malformed array literal", so
+#    the escape has to be a backslash.
+#
+# A backslash is not escaped for the SQL level: with standard_conforming_strings
+# on (the default) Postgres treats it as an ordinary character there, and
+# doubling it would corrupt the stored value.
+proc quotePgArrayElement*(value: string): string =
+
+  result = "\""
+
+  for c in value:
+
+    case c
+
+    of '"':
+      # Backslash-escaped: escapes the array delimiter
+      result.add "\\\""
+
+    of '\\':
+      # Doubled: escapes the escape character itself
+      result.add "\\\\"
+
+    of '\'':
+      # Doubled: keeps the SQL string literal open
+      result.add "''"
+
+    else:
+      result.add c
+
+  result.add "\""
+
+
+# splitPgArrayLiteral(): splits the body of a Postgres array literal into its
+# elements.
+#
+# A plain split(",") is wrong for quoted elements: {"a,b"} is the single element
+# `a,b`, and splitting it yields two mangled values. This walks the string and
+# only treats a comma as a separator when it is outside a quoted element, then
+# removes the quoting and unescapes the doubled delimiters.
+proc splitPgArrayLiteral*(pgArrayBody: string): seq[string] {.gcsafe.} =
+
+  var
+    elements: seq[string]
+    current = ""
+    inQuotes = false
+    i = 0
+
+  while i < pgArrayBody.len:
+
+    let c = pgArrayBody[i]
+
+    if inQuotes:
+
+      # A backslash escapes the next character: \" is a literal quote and \\ is a
+      # literal backslash. Postgres emits the escaping form, not a doubled one.
+      if c == '\\' and
+         i + 1 < pgArrayBody.len:
+
+        current.add pgArrayBody[i + 1]
+        i += 2
+        continue
+
+      if c == '"':
+        inQuotes = false
+        i += 1
+        continue
+
+      current.add c
+      i += 1
+      continue
+
+    case c
+
+    of '"':
+      inQuotes = true
+      i += 1
+
+    of ',':
+      # A NULL element is rendered empty; it is dropped rather than added
+      if current.strip().len > 0:
+        elements.add(current.strip())
+      current = ""
+      i += 1
+
+    else:
+      current.add c
+      i += 1
+
+  if current.strip().len > 0:
+    elements.add(current.strip())
+
+  return elements
+
+# stripPgArrayBraces(): removes the outer braces of a Postgres array literal.
+#
+# The array can be empty or come back as an empty string for a NULL column, and
+# slicing [1 .. len - 2] on a string shorter than 2 characters computes a
+# negative length and raises, so the check has to happen before the slice.
+proc stripPgArrayBraces*(pgArrayStr: string): string =
+
+  if pgArrayStr.len < 2:
+    return ""
+
+  return pgArrayStr[1 .. pgArrayStr.len() - 2].strip()
+
+
 # T: expected to be char or string
 proc getSeqStringAsPgArrayString*[T](seqString: seq[T]): string {.gcsafe.} =
 
   var
     first = true
-    pgArrayStr = "{ "
+    pgArrayStr = "{"
 
   for stringIter in seqString:
 
     if first == false:
-      pgArrayStr &= ", "
+      pgArrayStr &= ","
     else:
       first = false
 
-    pgArrayStr &= stringIter
+    pgArrayStr &= quotePgArrayElement($stringIter)
 
-  pgArrayStr &= " }"
+  pgArrayStr &= "}"
 
   return pgArrayStr
 
@@ -54,7 +169,7 @@ proc getPgArrayStringAsSeqChar*(pgArrayStr: string): seq[char] {.gcsafe.} =
   # debug "getPgArrayStringAsSeqChar(): start",
   #   pgArrayStr = pgArrayStr
 
-  let seqString: seq[string] = pgArrayStr[1 .. pgArrayStr.len() - 2].split(",")
+  let seqString: seq[string] = splitPgArrayLiteral(stripPgArrayBraces(pgArrayStr))
   var seqChar: seq[char]
 
   # debug "getPgArrayStringAsSeqChar()",
@@ -123,10 +238,7 @@ proc getPgArrayStringAsSeqFloat*(pgArrayStr: string): seq[float] {.gcsafe.} =
   # debug "getPgArrayStringAsSeqFloat(): start",
   #   pgArrayStr = pgArrayStr
 
-  if pgArrayStr == "{}":
-    return @[]
-
-  let seqString: seq[string] = pgArrayStr[1 .. pgArrayStr.len() - 2].split(",")
+  let seqString: seq[string] = splitPgArrayLiteral(stripPgArrayBraces(pgArrayStr))
   var seqFloat: seq[float]
 
   for str in seqString:
@@ -134,7 +246,9 @@ proc getPgArrayStringAsSeqFloat*(pgArrayStr: string): seq[float] {.gcsafe.} =
     # debug "getPgArrayStringAsSeqFloat()",
     #   str = str
 
-    seqFloat.add(parseFloat(str))
+    # An empty element is a NULL in the array, and parseFloat("") raises
+    if str.len > 0:
+      seqFloat.add(parseFloat(str))
 
   # debug "getPgArrayStringAsSeqFloat(): return",
   #   seqFloat = seqFloat,
@@ -149,34 +263,9 @@ proc getPgArrayStringAsSeqString*(pgArrayStr: string): seq[string] {.gcsafe.} =
   # debug "getPgArrayStringAsSeqString(): start",
   #   pgArrayStr = pgArrayStr
 
-  if pgArrayStr == "{}":
-    return @[]
-
-  var seqString: seq[string] = pgArrayStr[1 .. pgArrayStr.len() - 2].split(",")
-
-  # Strip spaces
-  for i in (0 .. len(seqString) - 1):
-
-    seqString[i] = strip(seqString[i])    
-
-  # Unquote if present
-  for i in (0 .. len(seqString) - 1):
-
-    # debug "getPgArrayStringAsSeqString()",
-    #   seqStringI = seqString[i]
-
-    if seqString[i][0 .. 0] == "\"":
-
-      debug "remove double quotes.."
-
-      seqString[i] = seqString[i][1 .. len(seqString[i]) - 2]
-
-  # debug "getPgArrayStringAsSeqString()",
-  #   seqString = seqString,
-  #   lenSeqString = len(seqString),
-  #   pgArrayStr = pgArrayStr
-
-  return seqString
+  # splitPgArrayLiteral() handles quoting, escaping and NULL elements, none of
+  # which a plain split(",") can do
+  return splitPgArrayLiteral(stripPgArrayBraces(pgArrayStr))
 
 
 proc formatPgTimestamp*(timestamp: DateTime): string =

@@ -194,9 +194,14 @@ proc inSnakeCase*(
               ")",
               "clP")
 
-  # Remove trailing underscores
-  while lowerStr[len(lowerStr) - 1 .. len(lowerStr) - 1] == "_":
-    lowerStr = lowerStr[0 .. len(lowerStr) - 2]
+  # Remove trailing underscores. Shrink by length rather than by slicing: with a
+  # 1 character string, `s[0 .. ^2]` is `s[0 .. -1]`, i.e. the whole string
+  # again, so the loop could never make progress and ran off the end of an
+  # empty string.
+  while lowerStr.len > 0 and
+       lowerStr[^1] == '_':
+
+    lowerStr.setLen(lowerStr.len - 1)
 
   # Nim safe
   if nimSafe == true:

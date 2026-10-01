@@ -1,46 +1,38 @@
-import argon2, chronicles, random, times
+import argon2, chronicles, std/sysrand, strutils, times
 
 
-proc createRandomKey*(): string =
+# Number of random bytes behind a generated salt / API key.
+const randomKeyBytes = 32
 
-  # Randomize
-  randomize()
+# argon2 requires a salt of at least 8 characters.
+const minSaltLength = 8
 
-  # Seed/init random
-  let seed: int = 429496729
 
-  # Get salt
-  var num: int64 = rand(seed)
+proc randomKeyHex*(byteLen: int): string =
 
-  let key = $num & $getTime()
+  # Draw from the OS CSPRNG. random.rand() is not a CSPRNG and re-seeding it on
+  # every call weakens the whole stream, which matters here because these values
+  # are password salts and JWT signing secrets.
+  let raw = urandom(byteLen)
+
+  var key = ""
+
+  for b in raw:
+    key.add toHex(b)
 
   return key
 
 
+proc createRandomKey*(): string =
+
+  return randomKeyHex(randomKeyBytes)
+
+
 proc generateAPIKey*(): string =
 
-  let key_chars = @[ 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                     'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                     'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-                     'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-                     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' ]
-
-  # Randomize
-  randomize()
-
-  # Generate the API key
-  var apiKey = ""
-
-  for i in (0 .. len(key_chars) - 1):
-
-    let random_int = rand(len(key_chars) - 1)
-
-    apiKey &= key_chars[random_int]
-
-  debug "generateAPIKey()",
-    apiKey = apiKey
-
-  return apiKey
+  # The API key is the JWT signing secret, so it comes from the CSPRNG rather
+  # than random.rand().
+  return randomKeyHex(randomKeyBytes)
 
 
 proc generateSignUpCode*(): string =
@@ -48,8 +40,9 @@ proc generateSignUpCode*(): string =
   # Get an API key
   let apiKey = generateAPIKey()
 
-  # Return the first 5 chars
-  return apiKey[0 .. 4]
+  # Return the first 12 chars: a 5 character code is only ~30 bits, which is
+  # brute-forceable against an endpoint that accepts it with no attempt limit.
+  return apiKey[0 .. 11]
 
 
 proc hashPassword*(password: string,
@@ -57,7 +50,6 @@ proc hashPassword*(password: string,
 
   let
     hashLen: uint32 = 32
-    saltLen = hashLen
 
   # Get salt if not specified
   var salt: string
@@ -66,6 +58,15 @@ proc hashPassword*(password: string,
     salt = createRandomKey()
   else:
     salt = inSalt
+
+  # argon2 rejects a salt shorter than 8 characters by raising. A short salt can
+  # only come from a corrupt or hand-edited row, and this proc runs on the login
+  # path, so let the caller treat it as "password did not match" rather than
+  # taking down the request handler.
+  if salt.len < minSaltLength:
+
+    raise newException(ValueError,
+                       "hashPassword(): the salt is too short to be valid")
 
   # Hash the password
   let passwordInfo = argon2("i",
@@ -76,7 +77,10 @@ proc hashPassword*(password: string,
                             4,         # threads
                             hashLen)
 
-  # Return passwordHash and salt
-  return ($passwordInfo.raw,
+  # The hash is returned as hex, not as the raw bytes. password_hash is a
+  # character varying column: storing raw bytes corrupts the value (a 0x00
+  # byte is rewritten by the driver) and a non-UTF8 byte sequence is rejected
+  # outright, leaving the account unable to ever log in.
+  return (cast[string](passwordInfo.raw).toHex.toLowerAscii,
           salt)
 

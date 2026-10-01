@@ -6,6 +6,7 @@ import nexus/core/data_access/db_conn
 import nexus/core/data_access/nexus_setting_data
 import nexus/core/service/account/encrypt
 import nexus/core/service/account/login_action
+import nexus/core/service/account/utils
 import nexus/core/service/account/verify_sign_up_action
 import nexus/core/service/account/verify_sign_up_fields
 import nexus/core/service/account/verify_sign_up_code_fields
@@ -176,10 +177,7 @@ template postSignUpVerifyAction*(context: NexusCoreContext) =
     debug "postSignUpVerifyAction(): verified; setting logged in cookie"
 
     # Set cookie
-    setCookie("token",
-              token,
-              daysForward(5),
-              path = "/")
+    setTokenCookie(token)
 
     myRedirect redirectToURL
 

@@ -34,10 +34,13 @@ proc verifyPasswordFields*(
 
     errorMessage = "The initial and retyped passwords don't match."
 
+    # The field name must be the field's name, not its value: passing
+    # password1/password2 here echoed the plaintext passwords back in the
+    # response body.
     let form = returnForm(@[
-                 fieldError(password1,
+                 fieldError("password1",
                             errorMessage),
-                 fieldError(password2,
+                 fieldError("password2",
                             errorMessage) ])
 
     return newDocUIReturn(false,

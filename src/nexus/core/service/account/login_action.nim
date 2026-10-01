@@ -358,26 +358,25 @@ template logoutAction*(context: NexusCoreContext,
           context.db,
           context.web.get.accountUserId)
 
-  if accountUser.isNone:
+  # A logout with no matching account is not an error: the token is simply
+  # cleared and the cookie dropped. Raising here turned an ordinary
+  # "log out again" (or a stale token) into a 500.
+  if accountUser.isSome:
 
-    raise newException(
-            ValueError,
-            "AccountUser record not found for accountUserId: " &
-            $accountUser.get.id)
+    # Update AccountUser.lastToken
+    accountUser.get.lastToken = none(string)
 
-  # Update AccountUser.lastToken
-  accountUser.get.lastToken = none(string)
+    discard updateAccountUserByPk(
+              context.db,
+              accountUser.get,
+              setFields = @[ "last_token" ])
 
-  discard updateAccountUserByPk(
-            context.db,
-            accountUser.get,
-            setFields = @[ "last_token" ])
+  else:
+
+    warn "logoutAction(): no AccountUser for the current session"
 
   # Unset cookie
-  setCookie("token",
-            "",
-            daysForward(5),
-            path = "/")
+  setTokenCookie("")
 
   if redirect == "":
     myRedirect "/"
@@ -403,10 +402,7 @@ template postLoginAction*(context: NexusCoreContext) =
     debug "postLoginAction(): verified; setting logged in cookie"
 
     # Set cookie
-    setCookie("token",
-              token,
-              daysForward(5),
-              path = "/")
+    setTokenCookie(token)
 
     # Get 'Nexus Pay subscriptions enabled' setting
     let nexusPaySubscriptionsEnabled =

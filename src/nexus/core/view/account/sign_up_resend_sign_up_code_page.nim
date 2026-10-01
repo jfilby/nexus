@@ -64,10 +64,11 @@ proc signUpResendSignUpCodePagePost*(
   # Generate a new sign up code
   let signUpCode = generateSignUpCode()
 
-  debug "signUpResendSignUpCodePagePost()",
-    signUpCode = signUpCode
+  debug "signUpResendSignUpCodePagePost(): generated a new sign up code"
 
-  # Verify fields
+  # Verify fields. This must gate the rest of the proc: without it an unknown
+  # email crashed on accountUser.get, and any address could be used to spam a
+  # third party with sign-up mail.
   let docuiReturn =
         verifySignUpCodeFields(
           context.db,
@@ -75,9 +76,16 @@ proc signUpResendSignUpCodePagePost*(
           signUpCode,
           accountUser)
 
-  # Update the user's sign up code
-  let rowsAffected =
-        updateAccountUserByPk(
+  if docuiReturn.isVerified == false:
+
+    return redirectToURL("/account/sign-up/verify?email=" & email)
+
+  # Store the code that was just emailed. The previous code updated the row
+  # without assigning signUpCode, so the emailed code could never verify and
+  # any code already in the user's inbox was destroyed on every request.
+  accountUser.get.signUpCode = signUpCode
+
+  discard updateAccountUserByPk(
           context.db,
           accountUser.get,
           setFields = @[ "sign_up_code" ])
@@ -86,7 +94,7 @@ proc signUpResendSignUpCodePagePost*(
   sendSignUpCodeEmail(
     email,
     signUpCode,
-    "Test Site")
+    context.web.get.websiteTitle)
 
   return redirectToURL("/account/sign-up/verify?email=" & email)
 

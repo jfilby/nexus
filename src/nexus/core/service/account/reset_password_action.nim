@@ -81,14 +81,16 @@ proc resetPasswordRequestAction*(context: NexusCoreContext):
             context.db,
             email)
 
-    # Get passwordResetCode
+    # Get passwordResetCode, and stamp when it was issued so it can expire
     accountUser.get.passwordResetCode = some(generateSignUpCode())
+    accountUser.get.passwordResetDate = some(now())
 
     # Update accountUser with the passwordResetCode
     discard updateAccountUserByPk(
               context.db,
               accountUser.get,
-              setFields = @[ "password_reset_code"])
+              setFields = @[ "password_reset_code",
+                             "password_reset_date" ])
 
     # Send email for password request verification
     sendResetPasswordRequestEmail(
@@ -191,11 +193,24 @@ proc resetPasswordChangeAction*(context: NexusCoreContext):
       hashPassword(password1,
                    inSalt = "")
 
+    # Clear the reset code in the same update, otherwise the emailed code stays
+    # usable for another password change now that it has been spent.
+    accountUser.get.passwordResetCode = none(string)
+    accountUser.get.passwordResetDate = none(DateTime)
+
+    # Rotate the api_key: it is the JWT signing secret, so any token issued
+    # before this password change stops verifying. This logs out anyone who kept
+    # a session across a victim's password reset.
+    accountUser.get.apiKey = generateAPIKey()
+
     discard updateAccountUserByPk(
               context.db,
               accountUser.get,
               setFields = @[ "password_hash",
-                             "password_salt" ])
+                             "password_salt",
+                             "password_reset_code",
+                             "password_reset_date",
+                             "api_key" ])
 
   # Return
   return newDocUIReturn(true)

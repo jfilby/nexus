@@ -162,7 +162,6 @@ proc newBaseWebContext*(
   debug "newBaseWebContext()",
     foundToken = foundToken,
     errorMessage = errorMessage,
-    secret = secret,
     accountUserId = accountUserId,
     mobileFromToken = mobileFromToken
 
@@ -191,22 +190,20 @@ proc newBaseWebContext*(
   debug "newBaseWebContext()",
     mobile = webContext.mobile
 
+  # Only ever mint a token for a request that authenticated successfully.
+  # Doing this on the failure path turns a forged token into a real session.
   var createToken = false
 
   if foundToken == true:
-#    if @[ "", "false" ].contains(mobileFromToken) and
+
+    # Refresh the token once the mobile setting is known, so the setting
+    # survives the next request without a re-detect.
     if mobileFromToken == "" and
        webContext.mobile.isSome:
 
       debug "newBaseWebContext(): createToken case 1"
 
       createToken = true
-
-  elif webContext.mobile.isSome:
-
-    debug "newBaseWebContext(): createToken case 2"
-
-    createToken = true
 
   debug "newBaseWebContext()",
     createToken = createToken

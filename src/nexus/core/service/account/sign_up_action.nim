@@ -117,87 +117,97 @@ proc signUpAction*(context: NexusCoreContext): DocUIReturn =
     apiKey = generateAPIKey()
     signUpCode = generateSignUpCode()
 
-  # Begin
+  # Begin, and always roll back on failure: without it an exception below (a
+  # missing NexusSetting, a missing mailing list, a unique violation) leaves the
+  # connection inside an aborted transaction, so the pooled connection is
+  # returned still open and every later query on it fails.
   beginTransaction(context.db)
 
-  # Create AccountUser record
-  let accountUser =
-        createAccountUser(
-          context.db,
-          accountId = none(string),
-          name = name,
-          email = email,
-          passwordHash = passwordHash,
-          passwordSalt = passwordSalt,
-          apiKey = apiKey,
-          signUpCode = signUpCode,
-          signUpDate = now(),
-          passwordResetCode = none(string),
-          passwordResetDate = none(DateTime),
-          isActive = false,
-          isAdmin = false,
-          isVerified = false,
-          lastLogin = none(DateTime),
-          lastUpdate = none(DateTime),
-          created = now())
+  try:
 
-  # Create mailing list subscriber record
-  if emailUpdates == "Y":
+    # Create AccountUser record
+    let accountUser =
+          createAccountUser(
+            context.db,
+            accountId = none(string),
+            name = name,
+            email = email,
+            passwordHash = passwordHash,
+            passwordSalt = passwordSalt,
+            apiKey = apiKey,
+            signUpCode = signUpCode,
+            signUpDate = now(),
+            passwordResetCode = none(string),
+            passwordResetDate = none(DateTime),
+            isActive = false,
+            isAdmin = false,
+            isVerified = false,
+            lastLogin = none(DateTime),
+            lastUpdate = none(DateTime),
+            created = now())
 
-    # Get announcements mailing list name from NexusSetting
-    let
-      mailingListName =
-        getNexusSettingValue(
-          context.db,
-          module = "Nexus CRM",
-          key = "Announcements Mailing List")
+    # Create mailing list subscriber record
+    if emailUpdates == "Y":
 
-      mailingListOwnerEmail =
-        getNexusSettingValue(
-          context.db,
-          module = "Nexus CRM",
-          key = "Announcements Mailing List Owner Email")
+      # Get announcements mailing list name from NexusSetting
+      let
+        mailingListName =
+          getNexusSettingValue(
+            context.db,
+            module = "Nexus CRM",
+            key = "Announcements Mailing List")
 
-      nexusCrmDbContext =
-        NexusCrmDbContext(dbConn: context.db.dbConn)
+        mailingListOwnerEmail =
+          getNexusSettingValue(
+            context.db,
+            module = "Nexus CRM",
+            key = "Announcements Mailing List Owner Email")
 
-      ownerAccountUser =
-        getAccountUserByEmail(
-          context.db,
-          mailingListOwnerEmail.get)
+        nexusCrmDbContext =
+          NexusCrmDbContext(dbConn: context.db.dbConn)
 
-      # Get MailingList record
-      mailingList =
-        getMailingListByAccountUserIdAndName(
-          nexusCrmDbContext,
-          ownerAccountUser.get.id,
-          mailingListName.get)
+        ownerAccountUser =
+          getAccountUserByEmail(
+            context.db,
+            mailingListOwnerEmail.get)
 
-    if mailingList.isNone:
+        # Get MailingList record
+        mailingList =
+          getMailingListByAccountUserIdAndName(
+            nexusCrmDbContext,
+            ownerAccountUser.get.id,
+            mailingListName.get)
 
-      raise newException(
-              ValueError,
-              "MailingList record not found for owner with accountUserId: " &
-              &"{ownerAccountUser.get.id} and mailing list name: " &
-              mailingListName.get)
+      if mailingList.isNone:
 
-    # Get/create MailingListSubscriber record
-    discard getOrCreateMailingListSubscriberByMailingListIdAndEmail(
-              nexusCrmDbContext,
-              accountUserId = some(accountUser.id),
-              mailingList.get.id,
-              getUniqueHash(@[ mailingListName.get,
-                               email ]),
-              isActive = false,
-              email,
-              name = some(name),
-              verificationCode = some(signUpCode),
-              isVerified = false,
-              created = now(),
-              deleted = none(DateTime))
+        raise newException(
+                ValueError,
+                "MailingList record not found for owner with accountUserId: " &
+                &"{ownerAccountUser.get.id} and mailing list name: " &
+                mailingListName.get)
 
-  # Commit
-  commitTransaction(context.db)
+      # Get/create MailingListSubscriber record
+      discard getOrCreateMailingListSubscriberByMailingListIdAndEmail(
+                nexusCrmDbContext,
+                accountUserId = some(accountUser.id),
+                mailingList.get.id,
+                getUniqueHash(@[ mailingListName.get,
+                                 email ]),
+                isActive = false,
+                email,
+                name = some(name),
+                verificationCode = some(signUpCode),
+                isVerified = false,
+                created = now(),
+                deleted = none(DateTime))
+
+    # Commit
+    commitTransaction(context.db)
+
+  except:
+
+    rollbackTransaction(context.db)
+    raise
 
   # Send sign-up code email
   sendSignUpCodeEmail(

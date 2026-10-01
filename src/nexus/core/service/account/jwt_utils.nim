@@ -15,6 +15,13 @@ const renewMinutes = 15        # Renew tokens every 15 minutes
 # Forward declarations
 proc readJWT*(token: string):
        (bool, string, string) {.gcsafe.}
+  ## Reads the claims out of a JWT.
+  ##
+  ## The returned flag reports whether the token could be *parsed*, NOT whether
+  ## it is authentic. The signature can only be checked against the account's
+  ## api_key, and finding that key requires the accountUserId returned here, so
+  ## the caller must run verifyJWTByAPIKey() before trusting any of this. Callers
+  ## must never treat a true result as an authenticated identity.
 proc setJWTDeleted*(
        nexusCoreDbContext: NexusCoreDbContext,
        token: string) {.gcsafe.}
@@ -84,14 +91,26 @@ proc connectWithJWT*(
   debug "connectWithJWT()",
     mobile = mobile
 
-  if verified == false and
-     accountUserId == "" and
-     verifyUserIsActive == true:
+  # readJWT() only parses the claims, it does not verify them, so the
+  # accountUserId read above is an unverified claim: it must not be treated as
+  # an authenticated identity, and nothing derived from it may be handed back
+  # to the caller unless the signature check below succeeds.
+  if verified == false:
 
     return (false,
             "Invalid token (1)",
             "",
-            accountUserId,
+            "",
+            "")
+
+  # A token with no "sub" claim identifies nobody, so it can never be
+  # connected: the signature check below needs an accountUserId to look up.
+  if accountUserId == "":
+
+    return (false,
+            "Invalid token (1)",
+            "",
+            "",
             "")
 
   debug "connectWithJWT()",
@@ -135,10 +154,14 @@ proc connectWithJWT*(
                        token)
 
     if verified == false:
+
+      # Never return the api_key (the JWT signing secret) or the accountUserId
+      # on this path: the caller signs a new token with them, which would turn
+      # a failed verification into a valid session for the claimed account.
       return (false,
               "Invalid token (3)",
-              accountUser.get.apiKey,
-              accountUserId,
+              "",
+              "",
               "")
 
   # Return connected OK
@@ -156,18 +179,16 @@ proc createJWT*(nexusCoreDbContext: NexusCoreDbContext,
 
   debug "createJWT()",
     accountUserId = accountUserId,
-    mobile = mobile,
-    inSecret = inSecret
+    mobile = mobile
 
-  # Default secret to "logged out"
-  var secret = inSecret
+  # The signing secret is the account's api_key. Never fall back to a fixed
+  # value: anyone reading the source would then be able to mint a valid token.
+  if inSecret == "":
 
-  if secret == "":
-    secret = "logged out"
+    raise newException(ValueError,
+                       "createJWT(): a signing secret is required")
 
-  # Verify fields
-  if accountUserId == "":
-    debug("accountUserId is blank")
+  let secret = inSecret
 
   # Define token
   let
@@ -200,12 +221,15 @@ proc createJWT*(nexusCoreDbContext: NexusCoreDbContext,
                                         token)
 
     debug "createJWT(): token verified ok",
-      accountUserId = accountUserId,
-      secret = secret,
-      token = token
+      accountUserId = accountUserId
 
     if verified == false:
-      error "token generated could not be verified!"
+
+      # A token we just signed that does not verify means the api_key changed
+      # underneath us. Returning it would hand out an unusable credential, so
+      # fail instead of returning a token that cannot be authenticated.
+      raise newException(ValueError,
+                         "createJWT(): the generated token could not be verified")
 
   return token
 
@@ -219,9 +243,7 @@ proc getJWT*(nexusCoreDbContext: NexusCoreDbContext,
   if not token.verify(secret,
                       @[ jwt_algorithm ]):
 
-    warn "getJWT: token verification failed",
-      token = token,
-      secret = secret
+    warn "getJWT(): token verification failed"
 
     return ("", "")
 
@@ -231,23 +253,24 @@ proc getJWT*(nexusCoreDbContext: NexusCoreDbContext,
     expiryTime = token.claim["exp"].getInt()
     mobile = token.claim["mbl"].getStr()
 
-  # Check the expiry time:
-  # The token is renewed if this one has expired recently (within 10 minutes after the initial expiry time).
+  # Renew the token only if it expired within the renewal window. The
+  # comparison has to be against the token's own "exp" claim: comparing the
+  # current time against a time derived from the current time can never be
+  # true, so expired tokens were never rejected.
   let
     unixTime = toUnix(getTime())
-    expiredTime = unixTime + (60 * expiryMinutes)
-    renewTime = unixTime + (60 * renewMinutes)
+    renewTime = expiryTime + (60 * renewMinutes)
 
-  if unixTime > renewTime:
+  if unixTime > expiryTime:
 
-    if unixTime < expiredTime:
+    if unixTime < renewTime:
 
       # Expired, but within the time to renew
-      let token = createJWT(nexusCoreDbContext,
-                            accountUserId,
-                            secret)
+      let newToken = createJWT(nexusCoreDbContext,
+                               accountUserId,
+                               secret)
 
-      return (accountUserId, token)
+      return (accountUserId, newToken)
 
     else:
 
@@ -288,13 +311,22 @@ proc logoutJWT*(
 
     # Handle JSON post
     elif contentType == ContentType.JSON:
-      let json = parseJson(request.body)
 
-      debug "loginAction()",
-        json = json
+      # The body is attacker-controlled: a malformed or non-object body must not
+      # raise out of logout.
+      try:
 
-      if json.hasKey(DocUI_Token):
-        token = json[DocUI_Token].getStr()
+        let json = parseJson(request.body)
+
+        if json.kind == JObject and
+           json.hasKey(DocUI_Token):
+
+          token = json[DocUI_Token].getStr("")
+
+      except CatchableError as e:
+
+        debug "logoutJWT(): request body could not be parsed",
+          errorMessage = e.msg
 
   debug "logoutJWT()",
     token = token
@@ -306,11 +338,15 @@ proc logoutJWT*(
 
 proc purgeDeletedJWTs*(nexusCoreDbContext: NexusCoreDbContext) {.gcsafe.} =
 
-  # Delete tokens after 1 day
+  # Delete tokens that were revoked (logged out) more than a day ago. Filtering
+  # on `created` instead reaped live sessions: created is never refreshed on
+  # re-login, and the primary key is account_user_id, so each nightly run
+  # destroyed the only token row of anyone whose session was over 24h old.
   let accountUserTokens =
         filterAccountUserToken(
           nexusCoreDbContext,
-          whereClause = "created < NOW() - INTERVAL '1 day'")
+          whereClause = "deleted is not null and" &
+                        " deleted < NOW() - INTERVAL '1 day'")
 
   for accountUserToken in accountUserTokens:
 
@@ -325,20 +361,43 @@ proc readJWT*(token: string):
   debug "readJWT()",
     token = token
 
-  if len(token) == 0:
+  # A malformed token is a normal condition: the token arrives in a
+  # client-controlled cookie, so anyone can send anything. token.claim raises
+  # an uncatchable Defect when the token is not three dot-separated parts, so
+  # check the shape before parsing.
+  if token.count(".") != 2:
+
+    debug "readJWT(): token is not a JWT (expected 2 '.' separators)"
+
     return (false,
             "",
             "")
 
-  let
+  var
+    claimJson: JsonNode
+    accountUserId = ""
+    mobile = ""
+
+  try:
+
     # Get the claim
     claimJson = token.claim
 
-    # Get the accountUserId
-    accountUserId = claimJson["sub"].getStr()
+  except CatchableError as e:
 
-    # Get mobile indicator
-    mobile = claimJson["mbl"].getStr()
+    debug "readJWT(): token claim could not be parsed",
+      errorMessage = e.msg
+
+    return (false,
+            "",
+            "")
+
+  # Get the accountUserId, defaulting to "" when the claim is absent or is not
+  # a string, so a hand-crafted claim cannot raise here either
+  accountUserId = claimJson{"sub"}.getStr("")
+
+  # Get mobile indicator
+  mobile = claimJson{"mbl"}.getStr("")
 
   debug "readJWT()",
     accountUserId = accountUserId,
@@ -403,6 +462,22 @@ proc verifyJWTByAPIKey*(
 
     return (false,
             "token verification failed (invalid token)")
+
+  # A valid signature is not enough: the token must not have been revoked.
+  # Without this check a token stays valid for its full 12 hour lifetime after
+  # logout, since the signature is computed from the account's api_key.
+  let accountUserToken =
+        getAccountUserTokenByToken(
+          nexusCoreDbContext,
+          token)
+
+  if accountUserToken.isSome and
+     accountUserToken.get.deleted.isSome:
+
+    debug "verifyJWTByAPIKey(): token was revoked (logged out)"
+
+    return (false,
+            "token verification failed (token revoked)")
 
   return (true,
           "")

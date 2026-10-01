@@ -97,17 +97,34 @@ proc verifyLoginFields*(
             noAccountUserId,
             errorMessage)
 
-  # Get the passwordHash for the given password
-  let
+  # Get the passwordHash for the given password. A stored salt that argon2
+  # cannot use makes the hash uncomputable; report it as a failed password
+  # rather than raising out of the login handler.
+  var
+    inPasswordHash = ""
+    salt = accountUser.get.passwordSalt
+
+  try:
+
     (inPasswordHash,
      salt) = hashPassword(password,
                           accountUser.get.passwordSalt)
 
-  # Debug
-  debug "verifyLoginFields()",
-    inPasswordHash = inPasswordHash,
-    salt = salt,
-    passwordSalt = accountUser.get.passwordSalt
+  except ValueError as e:
+
+    error "verifyLoginFields(): stored password salt is unusable",
+      errorMessage = e.msg
+
+    errorMessage = "The password is incorrect."
+
+    docUiReturn.isVerified = false
+    docUiReturn.results = some(returnForm(@[
+                                 fieldError("password",
+                                 errorMessage) ]))
+
+    return (docUiReturn,
+            noAccountUserId,
+            errorMessage)
 
   # Verify the passwordHashes match
   if inPasswordHash != accountUser.get.passwordHash:

@@ -8,6 +8,7 @@ import nexus/core/view/account/sign_up_resend_signUpCode_page
 import nexus/core/view/invite/invite_page
 import chronicles, jester, os, strutils, uri
 import new_web_context
+import nexus/core/service/account/utils
 
 
 settings:
@@ -24,10 +25,7 @@ routes:
 
     # Set cookie (useful to store detected mobile setting)
     if webContext.token != "":
-      setCookie("token",
-                webContext.token,
-                daysForward(5),
-                path = "/")
+      setTokenCookie(webContext.token)
 
     # Render page
     resp loginPage(webContext)

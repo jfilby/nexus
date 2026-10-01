@@ -10,7 +10,14 @@ initLock(dbConnLock)
 
 proc closeDbConn*(dbConn: var DbConn) =
 
-  close(dbConn)
+  # close() is pqfinish, which frees the connection but leaves the caller's
+  # pointer dangling. Clearing it makes a double close a no-op instead of a
+  # double free: the extras/CRM/social contexts share one connection with their
+  # nested core context, so both cleanup hooks can run for a single request.
+  if dbConn != nil:
+
+    close(dbConn)
+    dbConn = nil
 
 
 proc getDbConn*(printInfo: bool = true): DbConn =
@@ -30,48 +37,64 @@ proc getDbConn*(printInfo: bool = true): DbConn =
     password = getEnv(defaultDbPrefix & "PASSWORD")
     dbString = ""
 
-  # Encode forward slashes in host (for socket paths)
-  dbHost = replace(dbHost,
-                   "/",
-                   "%2F")
-
   # Acquire lock, as opening DB connections isn't thread-safe
   # https://github.com/nim-lang/Nim/issues/20231
+  #
+  # The open has to happen inside a try/finally: open() raises when the
+  # connection fails, and without the finally the lock was never released, so a
+  # single failed connect (DB restart, bad password, exhausted connections)
+  # wedged every later request in acquire() with no way to recover.
   acquire(dbConnLock)
 
-  # If no port is specified then just pass basic DB parameters
-  var dbConn: DbConn
+  try:
 
-  if dbPort == "":
-    dbString = dbHost
+    # If no port is specified then just pass basic DB parameters
+    var dbConn: DbConn
 
-    if printInfo == true:
-      echo "getDbConn(): connecting to main db:" &
-           &"dbName: {dbName}"
+    if dbPort == "":
 
-    dbConn = open(dbHost,
-                  username,
-                  password,
-                  dbName)
+      if printInfo == true:
+        echo "getDbConn(): connecting to main db:",
+             &"dbHost: {dbHost}, dbName: {dbName}"
 
-  # If a port is specified then a connection string must be specified
-  else:
-    let dbShowString = &"postgresql://{username}:***@{dbHost}:{dbPort}/{dbName}"
+      dbConn = open(dbHost,
+                    username,
+                    password,
+                    dbName)
 
-    dbString = &"postgresql://{username}:{password}@{dbHost}:{dbPort}/{dbName}"
+    # If a port is specified then a connection string must be specified
+    else:
 
-    if printInfo == true:
-      echo "getDbConn(): connecting to main db:",
-           &"dbShowString: {dbShowString}"
+      # Only encode slashes here, and only for a socket path. libpq does not
+      # percent-decode the plain `host` parameter, so encoding it in the branch
+      # below made a socket path unconnectable.
+      let encodedHost =
+            if dbHost.startsWith("/"):
+              dbHost.replace("/",
+                             "%2F")
+            else:
+              dbHost
 
-    dbConn = open("",
-                  "",
-                  "",
-                  dbString)
+      let dbShowString =
+            &"postgresql://{username}:***@{encodedHost}:{dbPort}/{dbName}"
 
-  # Release DB connection lock
-  release(dbConnLock)
+      let dbString =
+            &"postgresql://{username}:{password}@{encodedHost}:{dbPort}/{dbName}"
 
-  # Return
-  return dbConn
+      if printInfo == true:
+        echo "getDbConn(): connecting to main db:",
+             &"dbShowString: {dbShowString}"
+
+      dbConn = open("",
+                    "",
+                    "",
+                    dbString)
+
+    # Return
+    return dbConn
+
+  finally:
+
+    # Release DB connection lock
+    release(dbConnLock)
 

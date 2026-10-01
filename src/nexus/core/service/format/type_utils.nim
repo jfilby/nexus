@@ -71,7 +71,7 @@ proc fmtFloat*(value: float,
   let
     forceSign  = format.find('s') >= 0
     thousands  = format.find('t') >= 0
-    removeZero = format.find('z') >= 0
+    removeZero = format.find('z') >= 0 or removeTrailingZeros
 
   var valueStr = ""
 
@@ -106,18 +106,16 @@ proc fmtFloat*(value: float,
     integer = integerTmp
 
   # Remove the trailing zeros if specified
-  if removeTrailingZeros == true:
+  if removeZero == true:
 
-    while removeZero:
+    while decimal.len > 0 and
+          decimal[^1] == '0':
 
-      if decimal[^1] == '0':
-        decimal = decimal[0 .. ^2]
-      else:
-        break
+      decimal.setLen(decimal.len - 1)
 
-  # Remove the decimal separator?
-  if decimal == decimalSep:
-    decimal = ""
+    # Drop the separator itself once nothing follows it
+    if decimal == decimalSep:
+      decimal = ""
 
   # Return the final value as a string
   return sign & integer & decimal

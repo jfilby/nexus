@@ -408,10 +408,16 @@ proc existsAccountUserByLastToken*(
     "  from account_user" &
     " where last_token = ?"
 
+  # An absent token cannot match a row. This has to be checked before the query:
+  # passing the Option itself binds its `$` form, i.e. the literal text
+  # 'some("abc123")' or 'none(string)', which no row ever holds.
+  if lastToken.isNone:
+    return false
+
   let row = getRow(
               dbContext.dbConn,
               sql(selectStatement),
-              lastToken)
+              lastToken.get)
 
   if row[0] == "":
     return false
